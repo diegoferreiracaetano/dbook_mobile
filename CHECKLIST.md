@@ -135,13 +135,13 @@ Decisão: `dbook_domain` é Dart puro, zero dependência de Flutter/Riverpod —
 
 ## M3 — Autenticação ⬜
 
-- [ ] 3.1 Criar o pacote `packages/dbook_feature_auth`
-- [ ] 3.2 Tela de registro (formulário + validação)
-- [ ] 3.3 Tela de login (formulário + validação)
-- [ ] 3.4 Riverpod: `AuthNotifier` (estados loggedOut/loading/loggedIn/error)
-- [ ] 3.5 Implementação real do `AuthRepository` (usa `dbook_core_network`, salva tokens no `dbook_core_storage`)
-- [ ] 3.6 Interceptor Dio: anexa o access token em toda requisição autenticada
-- [ ] 3.7 Interceptor Dio: detecta 401, faz refresh automático, repete a requisição original
+- [x] 3.1 Criar o pacote `packages/dbook_feature_auth`
+- [x] 3.2 Tela de registro (formulário + validação) — `RegisterPage`
+- [x] 3.3 Tela de login (formulário + validação) — `LoginPage`
+- [x] 3.4 Riverpod: `AuthNotifier` (estados loggedOut/loading/loggedIn/error)
+- [x] 3.5 Implementação real do `AuthRepository` (usa `dbook_core_network`, salva tokens no `dbook_core_storage`) — `PersistingAuthRepository` decora o `AuthRepositoryImpl` de rede
+- [x] 3.6 Interceptor Dio: anexa o access token em toda requisição autenticada — `DbookAuthInterceptor.onRequest`
+- [x] 3.7 Interceptor Dio: detecta 401, faz refresh automático, repete a requisição original — `DbookAuthInterceptor.onError`, com deduplicação de refresh concorrente (`_refreshing`)
 - [ ] 3.8 Bootstrap de sessão: app abre e checa token válido salvo, pula direto pra tela logada
 - [ ] 3.9 Logout: limpa o secure storage, volta ao estado loggedOut
 

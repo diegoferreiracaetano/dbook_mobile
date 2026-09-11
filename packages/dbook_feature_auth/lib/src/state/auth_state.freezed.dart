@@ -1,0 +1,396 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'auth_state.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format off
+T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$AuthState {
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthState);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+    return 'AuthState()';
+}
+
+
+}
+
+/// @nodoc
+class $AuthStateCopyWith<$Res>  {
+$AuthStateCopyWith(AuthState _, $Res Function(AuthState) __);
+}
+
+
+/// Adds pattern-matching-related methods to [AuthState].
+extension AuthStatePatterns on AuthState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( AuthLoggedOut value)?  loggedOut,TResult Function( AuthLoading value)?  loading,TResult Function( AuthLoggedIn value)?  loggedIn,TResult Function( AuthError value)?  error,required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case AuthLoggedOut() when loggedOut != null:
+return loggedOut(_that);case AuthLoading() when loading != null:
+return loading(_that);case AuthLoggedIn() when loggedIn != null:
+return loggedIn(_that);case AuthError() when error != null:
+return error(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( AuthLoggedOut value)  loggedOut,required TResult Function( AuthLoading value)  loading,required TResult Function( AuthLoggedIn value)  loggedIn,required TResult Function( AuthError value)  error,}){
+final _that = this;
+switch (_that) {
+case AuthLoggedOut():
+return loggedOut(_that);case AuthLoading():
+return loading(_that);case AuthLoggedIn():
+return loggedIn(_that);case AuthError():
+return error(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( AuthLoggedOut value)?  loggedOut,TResult? Function( AuthLoading value)?  loading,TResult? Function( AuthLoggedIn value)?  loggedIn,TResult? Function( AuthError value)?  error,}){
+final _that = this;
+switch (_that) {
+case AuthLoggedOut() when loggedOut != null:
+return loggedOut(_that);case AuthLoading() when loading != null:
+return loading(_that);case AuthLoggedIn() when loggedIn != null:
+return loggedIn(_that);case AuthError() when error != null:
+return error(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loggedOut,TResult Function()?  loading,TResult Function( AuthTokens tokens)?  loggedIn,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case AuthLoggedOut() when loggedOut != null:
+return loggedOut();case AuthLoading() when loading != null:
+return loading();case AuthLoggedIn() when loggedIn != null:
+return loggedIn(_that.tokens);case AuthError() when error != null:
+return error(_that.message);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loggedOut,required TResult Function()  loading,required TResult Function( AuthTokens tokens)  loggedIn,required TResult Function( String message)  error,}) {final _that = this;
+switch (_that) {
+case AuthLoggedOut():
+return loggedOut();case AuthLoading():
+return loading();case AuthLoggedIn():
+return loggedIn(_that.tokens);case AuthError():
+return error(_that.message);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loggedOut,TResult? Function()?  loading,TResult? Function( AuthTokens tokens)?  loggedIn,TResult? Function( String message)?  error,}) {final _that = this;
+switch (_that) {
+case AuthLoggedOut() when loggedOut != null:
+return loggedOut();case AuthLoading() when loading != null:
+return loading();case AuthLoggedIn() when loggedIn != null:
+return loggedIn(_that.tokens);case AuthError() when error != null:
+return error(_that.message);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class AuthLoggedOut implements AuthState {
+  const AuthLoggedOut();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthLoggedOut);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+    return 'AuthState.loggedOut()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class AuthLoading implements AuthState {
+  const AuthLoading();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthLoading);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+    return 'AuthState.loading()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class AuthLoggedIn implements AuthState {
+  const AuthLoggedIn({required this.tokens});
+  
+
+ final  AuthTokens tokens;
+
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$AuthLoggedInCopyWith<AuthLoggedIn> get copyWith => _$AuthLoggedInCopyWithImpl<AuthLoggedIn>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthLoggedIn&&(identical(other.tokens, tokens) || other.tokens == tokens));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,tokens);
+}
+
+@override
+String toString() {
+    return 'AuthState.loggedIn(tokens: $tokens)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $AuthLoggedInCopyWith<$Res> implements $AuthStateCopyWith<$Res> {
+  factory $AuthLoggedInCopyWith(AuthLoggedIn value, $Res Function(AuthLoggedIn) _then) = _$AuthLoggedInCopyWithImpl;
+@useResult
+$Res call({
+ AuthTokens tokens
+});
+
+
+$AuthTokensCopyWith<$Res> get tokens;
+
+}
+/// @nodoc
+class _$AuthLoggedInCopyWithImpl<$Res>
+    implements $AuthLoggedInCopyWith<$Res> {
+  _$AuthLoggedInCopyWithImpl(this._self, this._then);
+
+  final AuthLoggedIn _self;
+  final $Res Function(AuthLoggedIn) _then;
+
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? tokens = null,}) {
+  return _then(AuthLoggedIn(
+tokens: null == tokens ? _self.tokens : tokens // ignore: cast_nullable_to_non_nullable
+as AuthTokens,
+  ));
+}
+
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$AuthTokensCopyWith<$Res> get tokens {
+  
+  return $AuthTokensCopyWith<$Res>(_self.tokens, (value) {
+    return _then(_self.copyWith(tokens: value));
+  });
+}
+}
+
+/// @nodoc
+
+
+class AuthError implements AuthState {
+  const AuthError(this.message);
+  
+
+ final  String message;
+
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$AuthErrorCopyWith<AuthError> get copyWith => _$AuthErrorCopyWithImpl<AuthError>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthError&&(identical(other.message, message) || other.message == message));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,message);
+}
+
+@override
+String toString() {
+    return 'AuthState.error(message: $message)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $AuthErrorCopyWith<$Res> implements $AuthStateCopyWith<$Res> {
+  factory $AuthErrorCopyWith(AuthError value, $Res Function(AuthError) _then) = _$AuthErrorCopyWithImpl;
+@useResult
+$Res call({
+ String message
+});
+
+
+
+
+}
+/// @nodoc
+class _$AuthErrorCopyWithImpl<$Res>
+    implements $AuthErrorCopyWith<$Res> {
+  _$AuthErrorCopyWithImpl(this._self, this._then);
+
+  final AuthError _self;
+  final $Res Function(AuthError) _then;
+
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+  return _then(AuthError(
+null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+// dart format on
