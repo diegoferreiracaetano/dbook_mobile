@@ -16,6 +16,7 @@ packages/
   dbook_domain/                 # entidades, portas e casos de uso — Dart puro
   dbook_core_network/           # Dio, DTOs e implementação dos repositórios — Dart puro
   dbook_core_storage/           # storage seguro do par de tokens (flutter_secure_storage)
+  dbook_feature_auth/           # telas de login/cadastro, sessão (Riverpod) e interceptor de token
 ```
 
 ## Rodando localmente
@@ -59,4 +60,5 @@ Ver [CHECKLIST.md](CHECKLIST.md) para o detalhamento marco a marco.
 
 - **M1 — Setup do monorepo + design system**: completo. `dbook_design_system` cobre tokens (cor/tipografia/espaçamento/raio/elevação/motion), tema claro/escuro, e todo o inventário de componentes extraído do UI kit de referência (ação, formulário, exibição de dados, navegação, feedback, overlays), com widget test em cada um. `apps/dbook_mobile` existe e consome o tema; a tela inicial é um onboarding de 3 slides (com fotos reais e ilustração no splash nativo) até o fluxo de auth (M2/M3) ser construído.
 - **M2 — Domínio + rede**: completo. `dbook_domain` (entidades, portas, casos de uso) tem os campos batendo com o backend de verdade (survey do código-fonte, não suposição). `dbook_core_network` implementa as portas com Dio + DTOs (`freezed`/`json_serializable`) + mapeamento + exceptions por status HTTP. `dbook_core_storage` guarda o par de tokens no Keychain/EncryptedSharedPreferences.
-- **M3 em diante**: ainda não iniciado.
+- **M3 — Autenticação**: completo. `dbook_feature_auth` tem `LoginPage`/`RegisterPage` (montadas só com componentes do `dbook_design_system`), `AuthNotifier` (Riverpod) orquestrando loggedOut/loading/loggedIn/error, `PersistingAuthRepository` salvando o par de tokens a cada login/refresh e `DbookAuthInterceptor` anexando o access token em toda requisição + refresh automático no 401 (com deduplicação de refresh concorrente, já que o refresh token do backend é de uso único). `apps/dbook_mobile` liga tudo: `_AppRoot` faz o bootstrap de sessão na abertura do app (token salvo → pula pra tela logada; senão → onboarding → login/cadastro) e o placeholder de tela logada tem o botão de logout.
+- **M4 em diante**: ainda não iniciado.

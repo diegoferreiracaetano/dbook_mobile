@@ -133,7 +133,7 @@ Decisão: `dbook_domain` é Dart puro, zero dependência de Flutter/Riverpod —
 - [x] README atualizado — [README.md](README.md) com a estrutura nova, scripts de cobertura Dart puro, e progresso do M2
 - [x] Cobertura mínima — `melos run coverage` + `melos run coverage:dart` (excluindo `.freezed.dart`/`.g.dart` gerados) + `tool/combine_coverage.sh`, gate de 80% no CI; localmente: **83.43%** (1188/1424 linhas)
 
-## M3 — Autenticação ⬜
+## M3 — Autenticação ✅
 
 - [x] 3.1 Criar o pacote `packages/dbook_feature_auth`
 - [x] 3.2 Tela de registro (formulário + validação) — `RegisterPage`
@@ -142,20 +142,20 @@ Decisão: `dbook_domain` é Dart puro, zero dependência de Flutter/Riverpod —
 - [x] 3.5 Implementação real do `AuthRepository` (usa `dbook_core_network`, salva tokens no `dbook_core_storage`) — `PersistingAuthRepository` decora o `AuthRepositoryImpl` de rede
 - [x] 3.6 Interceptor Dio: anexa o access token em toda requisição autenticada — `DbookAuthInterceptor.onRequest`
 - [x] 3.7 Interceptor Dio: detecta 401, faz refresh automático, repete a requisição original — `DbookAuthInterceptor.onError`, com deduplicação de refresh concorrente (`_refreshing`)
-- [ ] 3.8 Bootstrap de sessão: app abre e checa token válido salvo, pula direto pra tela logada
-- [ ] 3.9 Logout: limpa o secure storage, volta ao estado loggedOut
+- [x] 3.8 Bootstrap de sessão: app abre e checa token válido salvo, pula direto pra tela logada — `_AppRoot` chama `AuthNotifier.bootstrap()` no `initState` (adiado pro fim do primeiro frame, Riverpod não deixa mudar provider durante o build) e mostra loading até resolver
+- [x] 3.9 Logout: limpa o secure storage, volta ao estado loggedOut — botão "Sair" no placeholder de tela logada chama `AuthNotifier.logout()`
 
 **Checklist de fechamento do M3:**
-- [ ] Itens 3.1-3.9 revisados
-- [ ] Clean Code
-- [ ] Arquitetura
-- [ ] Componentização (tela usa só componentes do `dbook_design_system`, zero widget customizado solto)
-- [ ] Layout (espaçamento e montagem da tela seguem os padrões do `dbook_design_system`, nada de número solto ou arranjo remontado à mão)
-- [ ] Material Design (componentes são temas em cima de widgets Material 3 do Flutter, não reconstruídos do zero)
-- [ ] `analyze` + `format` + `test` limpos
-- [ ] Testes das camadas ainda sem cobertura
-- [ ] README atualizado
-- [ ] Cobertura mínima
+- [x] Itens 3.1-3.9 revisados — todos `[x]`
+- [x] Clean Code — `AuthNotifier`/`PersistingAuthRepository`/`DbookAuthInterceptor` cada um faz uma coisa só; comentário só onde o "porquê" não é óbvio (ex.: por que o Dio de auth não tem o interceptor — evitar loop de refresh; por que o refresh é deduplicado — token de uso único no backend; por que a chamada de bootstrap é adiada pro fim do primeiro frame — Riverpod não deixa mudar provider durante o build)
+- [x] Arquitetura — `dbook_feature_auth` depende só de `dbook_domain`/`dbook_core_network`/`dbook_core_storage`/`dbook_design_system` (nenhuma outra feature ainda existe pra violar); `apps/dbook_mobile` só compõe (nenhuma lógica de auth mora no app, só o `_AppRoot` decidindo qual tela mostrar a partir do estado)
+- [x] Componentização — `LoginPage`/`RegisterPage`/o placeholder de tela logada usam só `DbookAppBar`/`TextFormField`/`DbookInlineStatusBanner`/`DbookButton`/`DbookSocialLoginRow`/`CheckboxListTile`/`DbookLoadingIndicator` do `dbook_design_system` ou widgets Material nativos já temáticos; zero widget de UI construído solto
+- [x] Layout — espaçamento vem de `DbookSpacing`, nenhum número solto; título do `RegisterPage` (`Join Dbook`) foi ajustado pra não colidir com o texto do botão (`Create Account`), evitando ambiguidade tanto pro usuário quanto pros finders de teste
+- [x] Material Design — `TextFormField`/`CheckboxListTile`/`Scaffold` nativos via tema, nada reconstruído do zero
+- [x] `analyze` + `format` + `test` limpos — 8 pacotes, `melos run test` (Flutter) e `melos run test:dart` (Dart puro) verdes
+- [x] Testes das camadas ainda sem cobertura — `PersistingAuthRepository`, `DbookAuthInterceptor` (anexa token, refresh+retry, dedup de refresh concorrente), `AuthNotifier` (7 casos, todas as transições de estado), `LoginPage`/`RegisterPage` (validação, submit feliz, erro do backend) e o fluxo completo em `apps/dbook_mobile` (onboarding → login, via `_AppRoot`)
+- [x] README atualizado — [README.md](README.md) com `dbook_feature_auth` na estrutura e progresso do M3
+- [x] Cobertura mínima — combinado (`melos run coverage` + `coverage:dart` + `tool/combine_coverage.sh`): **82.66%** (1378/1667 linhas); `dbook_feature_auth` sozinho: 83.42%
 
 ## M4 — Busca e listagem de voos ⬜
 
