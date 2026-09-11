@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../tokens/dbook_colors.dart';
+import '../tokens/dbook_elevation.dart';
 import '../tokens/dbook_radius.dart';
 import '../tokens/dbook_spacing.dart';
 import '../tokens/dbook_typography.dart';
@@ -109,6 +110,25 @@ abstract final class DbookTheme {
         ),
         headerBackgroundColor: colorScheme.primary,
         headerForegroundColor: colorScheme.onPrimary,
+      ),
+      cardTheme: CardThemeData(
+        elevation: DbookElevation.sm,
+        color: colorScheme.surfaceContainerLow,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(DbookRadius.lg),
+        ),
+        margin: EdgeInsets.zero,
+      ),
+      listTileTheme: ListTileThemeData(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(DbookRadius.md),
+        ),
+        titleTextStyle: textTheme.titleSmall,
+        subtitleTextStyle: textTheme.bodySmall,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: DbookSpacing.lg,
+          vertical: DbookSpacing.xs,
+        ),
       ),
     );
   }
