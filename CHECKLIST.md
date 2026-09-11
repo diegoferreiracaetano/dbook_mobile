@@ -30,7 +30,7 @@ Decisão: monorepo com [melos](https://melos.invertase.dev/) desde o início —
 - [x] 1.6 Tokens de tipografia — escala Material 3 (display/headline/title/body/label) em Roboto, mapeada num `TextTheme`
 - [x] 1.7 Tokens de espaçamento — spacing scale (4/8/12/16/24/32/48) como constantes nomeadas, não números soltos
 - [x] 1.8 Tokens de raio de borda e elevação/sombra
-- [ ] 1.9 Tokens de motion — durações e curvas padrão de transição/animação
+- [x] 1.9 Tokens de motion — durações e curvas padrão de transição/animação
 
 **Tema (junta os tokens em algo o Flutter consome):**
 - [ ] 1.10 `ThemeData` completo (light + dark) montado só a partir dos tokens acima — nenhuma cor/fonte solta fora do tema
