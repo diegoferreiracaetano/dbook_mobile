@@ -17,6 +17,7 @@ workspace:
   - packages/dbook_core_storage
   - packages/dbook_core_session
   - packages/dbook_feature_auth
+  - packages/dbook_feature_flights
 
 melos:
   name: dbook_mobile

@@ -36,10 +36,14 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  dbook_core_session:
+    path: ../../packages/dbook_core_session
   dbook_design_system:
     path: ../../packages/dbook_design_system
   dbook_feature_auth:
     path: ../../packages/dbook_feature_auth
+  dbook_feature_flights:
+    path: ../../packages/dbook_feature_flights
   flutter_riverpod: ^3.4.3
 
 dev_dependencies:

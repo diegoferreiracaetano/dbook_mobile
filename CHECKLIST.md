@@ -157,26 +157,28 @@ Decisão: `dbook_domain` é Dart puro, zero dependência de Flutter/Riverpod —
 - [x] README atualizado — [README.md](README.md) com `dbook_feature_auth` na estrutura e progresso do M3
 - [x] Cobertura mínima — combinado (`melos run coverage` + `coverage:dart` + `tool/combine_coverage.sh`): **82.66%** (1378/1667 linhas); `dbook_feature_auth` sozinho: 83.42%
 
-## M4 — Busca e listagem de voos ⬜
+## M4 — Busca e listagem de voos ✅
 
-- [ ] 4.1 Criar o pacote `packages/dbook_feature_flights`
-- [ ] 4.2 Tela de busca (origem/destino/data)
-- [ ] 4.3 Implementação real do `FlightRepository`
-- [ ] 4.4 Riverpod: `FlightSearchNotifier` (estados idle/loading/success/error)
-- [ ] 4.5 Lista de resultados (item de voo usando o `dbook_design_system`)
-- [ ] 4.6 Tela de detalhe do voo (navegação via `go_router`)
+Decisão: `dioProvider`/`DbookAuthInterceptor` saíram de `dbook_feature_auth` pro novo pacote `packages/dbook_core_session` — a feature de voos precisa do mesmo Dio autenticado, e duas instâncias de interceptor deduplicando refresh cada uma sozinha reabriria a race condition do refresh token de uso único (M3). Decisão: como o backend não expõe `/airports`, a busca usa uma lista fixa de aeroportos (`knownAirports`, espelhando o seed de dev) num seletor em vez de um campo de texto pra código IATA.
+
+- [x] 4.1 Criar o pacote `packages/dbook_feature_flights`
+- [x] 4.2 Tela de busca (origem/destino/data) — `FlightSearchPage`, com `DbookTripSummaryCard` (cheio) e seletor de aeroporto em bottom sheet
+- [x] 4.3 Implementação real do `FlightRepository` — já existia desde o M2 (`FlightRepositoryImpl`); só faltava o provider ligando ao Dio autenticado
+- [x] 4.4 Riverpod: `FlightSearchNotifier` (estados idle/loading/success/error)
+- [x] 4.5 Lista de resultados (item de voo usando o `dbook_design_system`) — `FlightResultsPage` com `DbookFlightResultTile`, `DbookStatusPlaceholder` pros estados vazio/erro (com retry) e `DbookLoadingIndicator` pro loading
+- [x] 4.6 Tela de detalhe do voo (navegação via `go_router`) — `FlightDetailPage`; `FlightsHomePage` embute um `GoRouter` próprio (`Router.withConfig`, sem precisar de um segundo `MaterialApp`) pras 3 rotas busca→resultados→detalhe
 
 **Checklist de fechamento do M4:**
-- [ ] Itens 4.1-4.6 revisados
-- [ ] Clean Code
-- [ ] Arquitetura
-- [ ] Componentização (tela usa só componentes do `dbook_design_system`, zero widget customizado solto)
-- [ ] Layout (espaçamento e montagem da tela seguem os padrões do `dbook_design_system`, nada de número solto ou arranjo remontado à mão)
-- [ ] Material Design (componentes são temas em cima de widgets Material 3 do Flutter, não reconstruídos do zero)
-- [ ] `analyze` + `format` + `test` limpos
-- [ ] Testes das camadas ainda sem cobertura
-- [ ] README atualizado
-- [ ] Cobertura mínima
+- [x] Itens 4.1-4.6 revisados — todos `[x]`
+- [x] Clean Code — `FlightSearchNotifier` só orquestra estado, formatação (data/preço/duração) isolada em funções top-level reusadas entre telas, comentário só onde o "porquê" não é óbvio (ex.: por que `stopsLabel` mostra a classe da cabine em vez de "paradas", por que não existe seletor de passageiros de verdade)
+- [x] Arquitetura — `dbook_feature_flights` depende só de `dbook_domain`/`dbook_core_network`/`dbook_core_session`/`dbook_design_system` (nunca de `dbook_feature_auth`); a tela de voos recebe o botão de logout já pronto via parâmetro (`logoutAction`) em vez de importar a feature de auth
+- [x] Componentização — todas as 3 telas usam só `DbookAppBar`/`DbookTripSummaryCard`/`DbookButton`/`DbookFlightResultTile`/`DbookStatusPlaceholder`/`DbookLoadingIndicator`/`DbookSummaryRow`/`DbookPriceDisplay` do `dbook_design_system`, ou widgets Material nativos já temáticos (`Chip`, `ListTile`, `showDatePicker`); zero widget de UI construído solto
+- [x] Layout — espaçamento vem de `DbookSpacing`; gap real encontrado no `DbookTripSummaryCard` (um único `onTapRoute` não dava pra diferenciar toque em origem/destino) foi corrigido no próprio design system (`onTapDestination` novo), não contornado na feature
+- [x] Material Design — `Chip`/`ListTile`/`showModalBottomSheet`/`showDatePicker` nativos via tema, nada reconstruído do zero
+- [x] `analyze` + `format` + `test` limpos — 10 pacotes, `melos run test` (Flutter) e `melos run test:dart` (Dart puro) verdes
+- [x] Testes das camadas ainda sem cobertura — `FlightSearchNotifier` (idle/success/error), `FlightSearchPage` (seleção padrão, seletor de aeroporto, ações da app bar), `FlightResultsPage` (sucesso/vazio/erro+retry/seleção), `FlightDetailPage`, `DbookAuthInterceptor` (movido, reteste) e o novo callback `onTapDestination` do `DbookTripSummaryCard`
+- [x] README atualizado — [README.md](README.md) com `dbook_core_session`/`dbook_feature_flights` na estrutura e progresso do M4
+- [x] Cobertura mínima — combinado: **83.34%** (1531/1837 linhas); `dbook_feature_flights` sozinho: 85.31%
 
 ## M5 — Reserva ⬜
 

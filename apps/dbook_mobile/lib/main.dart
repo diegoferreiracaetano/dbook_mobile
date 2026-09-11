@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:dbook_core_session/dbook_core_session.dart';
 import 'package:dbook_design_system/dbook_design_system.dart';
 import 'package:dbook_feature_auth/dbook_feature_auth.dart';
+import 'package:dbook_feature_flights/dbook_feature_flights.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -72,7 +74,7 @@ class _AppRootState extends ConsumerState<_AppRoot> {
     }
 
     final state = ref.watch(authNotifierProvider);
-    if (state is AuthLoggedIn) return const _HomePlaceholderPage();
+    if (state is AuthLoggedIn) return const _AuthenticatedHome();
     return const _UnauthenticatedFlow();
   }
 }
@@ -107,38 +109,20 @@ class _UnauthenticatedFlow extends StatelessWidget {
   }
 }
 
-/// Placeholder da tela logada — nenhuma feature de verdade existe ainda
-/// (chegam a partir do M4); só prova que a sessão (3.8/3.9) funciona.
-class _HomePlaceholderPage extends ConsumerWidget {
-  const _HomePlaceholderPage();
+/// Tela logada de verdade — a feature de voos (busca → resultados →
+/// detalhe, M4) não conhece `AuthNotifier` (features não importam
+/// features), então é o app que monta o botão de sair e repassa como ação
+/// da app bar da busca.
+class _AuthenticatedHome extends ConsumerWidget {
+  const _AuthenticatedHome();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: const DbookAppBar(title: 'DBook'),
-      body: Padding(
-        padding: const EdgeInsets.all(DbookSpacing.lg),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Você está logado!',
-              style: Theme.of(context).textTheme.titleLarge,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: DbookSpacing.sm),
-            Text(
-              'As telas de busca e reserva chegam a partir do M4.',
-              style: Theme.of(context).textTheme.bodyMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: DbookSpacing.lg),
-            DbookButton(
-              label: 'Sair',
-              onPressed: () => ref.read(authNotifierProvider.notifier).logout(),
-            ),
-          ],
-        ),
+    return FlightsHomePage(
+      logoutAction: IconButton(
+        icon: const Icon(Icons.logout),
+        tooltip: 'Sair',
+        onPressed: () => ref.read(authNotifierProvider.notifier).logout(),
       ),
     );
   }
