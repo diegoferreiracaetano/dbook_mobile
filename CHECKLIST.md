@@ -44,8 +44,8 @@ Decisão: monorepo com [melos](https://melos.invertase.dev/) desde o início —
 
 *Formulário:*
 - [x] 1.14 Campo de texto outlined (estados default/foco/erro/disabled; ícone à esquerda; ícone à direita ex. mostrar senha) — `InputDecorationTheme`, `TextField`/`TextFormField` nativos
-- [ ] 1.15 Campo de busca (ícone + placeholder) e seletor de data / intervalo de datas
-- [ ] 1.16 Legenda de seleção (swatch + rótulo, ex. livre/selecionado/ocupado no mapa de assento)
+- [x] 1.15 Campo de busca (ícone + placeholder) e seletor de data / intervalo de datas — `DbookSearchField` e `datePickerTheme` (`showDateRangePicker` nativo)
+- [x] 1.16 Legenda de seleção (swatch + rótulo, ex. livre/selecionado/ocupado no mapa de assento) — `DbookLegendItem`
 
 *Exibição de dados:*
 - [ ] 1.17 Card base (elevado/tonal) e item de lista genérico (ícone/imagem + título + subtítulo + seta) — fundação dos itens abaixo

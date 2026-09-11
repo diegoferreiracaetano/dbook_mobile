@@ -2,6 +2,8 @@
 library;
 
 export 'src/components/dbook_button.dart';
+export 'src/components/dbook_legend_item.dart';
+export 'src/components/dbook_search_field.dart';
 export 'src/tokens/dbook_colors.dart';
 export 'src/tokens/dbook_elevation.dart';
 export 'src/tokens/dbook_motion.dart';

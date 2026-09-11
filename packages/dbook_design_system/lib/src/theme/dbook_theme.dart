@@ -103,6 +103,13 @@ abstract final class DbookTheme {
           borderSide: BorderSide(color: colorScheme.outlineVariant),
         ),
       ),
+      datePickerTheme: DatePickerThemeData(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(DbookRadius.lg),
+        ),
+        headerBackgroundColor: colorScheme.primary,
+        headerForegroundColor: colorScheme.onPrimary,
+      ),
     );
   }
 }
