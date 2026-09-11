@@ -14,6 +14,7 @@ workspace:
   - packages/dbook_design_system/widgetbook
   - packages/dbook_domain
   - packages/dbook_core_network
+  - packages/dbook_core_storage
 
 melos:
   name: dbook_mobile
@@ -36,5 +37,9 @@ melos:
       description: Roda os testes dos pacotes Dart puro (sem Flutter) que têm pasta test/
 
     coverage:
-      run: melos exec --dir-exists=test -- flutter test --coverage
-      description: Roda os testes com cobertura (gera coverage/lcov.info em cada pacote)
+      run: melos exec --dir-exists=test --flutter -- flutter test --coverage
+      description: Roda os testes Flutter com cobertura (gera coverage/lcov.info em cada pacote)
+
+    coverage:dart:
+      run: melos exec --dir-exists=test --no-flutter -- bash $MELOS_ROOT_PATH/tool/dart_test_coverage.sh
+      description: Roda os testes Dart puro com cobertura (gera coverage/lcov.info em cada pacote)

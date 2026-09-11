@@ -1,0 +1,22 @@
+name: dbook_core_storage
+description: Wrapper de storage seguro pro par de tokens do DBook.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.13.3
+  flutter: ">=1.17.0"
+
+resolution: workspace
+
+dependencies:
+  dbook_domain:
+    path: ../dbook_domain
+  flutter:
+    sdk: flutter
+  flutter_secure_storage: ^11.1.1
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter

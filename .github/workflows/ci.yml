@@ -32,8 +32,8 @@ jobs:
       - name: Check formatting
         run: melos run format
 
-      - name: Test (Dart-only packages)
-        run: melos run test:dart
+      - name: Test with coverage (Dart-only packages)
+        run: melos run coverage:dart
 
       - name: Test with coverage (Flutter packages)
         run: melos run coverage

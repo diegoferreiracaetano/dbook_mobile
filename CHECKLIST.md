@@ -103,7 +103,7 @@ Decisão: monorepo com [melos](https://melos.invertase.dev/) desde o início —
 - [x] README atualizado — [README.md](README.md) criado (estrutura, como rodar, progresso por marco)
 - [x] Cobertura mínima — `melos run coverage` + `tool/combine_coverage.sh` + gate `VeryGoodOpenSource/very_good_coverage` (mínimo 80%) no CI; localmente: **93.70%** (774/826 linhas)
 
-## M2 — Domínio + rede ⬜
+## M2 — Domínio + rede ✅
 
 Decisão: `dbook_domain` é Dart puro, zero dependência de Flutter/Riverpod — mesmo princípio de Clean Architecture do backend. Serialização via `freezed` + `json_serializable` (padrão de mercado pra imutabilidade + codegen de JSON em Dart).
 
@@ -119,19 +119,19 @@ Decisão: `dbook_domain` é Dart puro, zero dependência de Flutter/Riverpod —
 - [x] 2.10 dbook_core_network: DTOs com `freezed` + `json_serializable` (build_runner) — 12 DTOs cobrindo auth, busca de voo, assentos, reserva e sugestão de IA, campo a campo batendo com o survey do backend real
 - [x] 2.11 dbook_core_network: mapeamento DTO → entidade de domínio — `toDomain()` em cada DTO; enums do domínio continuam Dart puro (sem `json_serializable`), tradução via `wire_enums.dart`; também vieram as implementações reais dos 4 repositórios (`*RepositoryImpl`), fechando as portas do `dbook_domain`
 - [x] 2.12 dbook_core_network: exceptions de rede mapeadas a partir do status HTTP da API — `DbookNetworkException` (400/401/403/404/409/429/502/503 + fallback), lendo `{"error": "..."}` do corpo quando presente
-- [ ] 2.13 Criar o pacote `packages/dbook_core_storage` (`flutter_secure_storage`), wrapper pra salvar/ler o par de tokens
+- [x] 2.13 Criar o pacote `packages/dbook_core_storage` (`flutter_secure_storage`), wrapper pra salvar/ler o par de tokens — `TokenStorage` (porta) + `SecureTokenStorage` (Keychain/EncryptedSharedPreferences via `flutter_secure_storage`); testado com `FlutterSecureStorage.setMockInitialValues` (suporte de teste oficial do próprio pacote)
 
 **Checklist de fechamento do M2:**
-- [ ] Itens 2.1-2.13 revisados
-- [ ] Clean Code
-- [ ] Arquitetura
-- [ ] Componentização (tela usa só componentes do `dbook_design_system`, zero widget customizado solto)
-- [ ] Layout (espaçamento e montagem da tela seguem os padrões do `dbook_design_system`, nada de número solto ou arranjo remontado à mão)
-- [ ] Material Design (componentes são temas em cima de widgets Material 3 do Flutter, não reconstruídos do zero)
-- [ ] `analyze` + `format` + `test` limpos
-- [ ] Testes das camadas ainda sem cobertura
-- [ ] README atualizado
-- [ ] Cobertura mínima
+- [x] Itens 2.1-2.13 revisados — todos `[x]`
+- [x] Clean Code — classes pequenas e focadas (cada caso de uso faz uma coisa só), sem duplicação; comentários só onde o "porquê" não é óbvio (ex.: por que `Flight` usa código IATA em vez de `Airport` aninhado, por que `bookableId` nulo vira `StateError` em vez de default silencioso)
+- [x] Arquitetura — `dbook_domain` sem nenhuma dependência externa além de `freezed_annotation`; `dbook_core_network` e `dbook_core_storage` dependem só de `dbook_domain` (nunca o contrário); nenhuma feature ainda existe pra checar violação de camada entre features (M3+)
+- [x] Componentização — não se aplica neste marco (sem tela nova; M2 é domínio/rede/storage)
+- [x] Layout — não se aplica neste marco
+- [x] Material Design — não se aplica neste marco
+- [x] `analyze` + `format` + `test` limpos — 7 pacotes (`dbook_design_system` + 3 apps/exemplos + `dbook_domain` + `dbook_core_network` + `dbook_core_storage`), `melos run test` (Flutter) e `melos run test:dart` (Dart puro) verdes
+- [x] Testes das camadas ainda sem cobertura — entidades, portas (via fake), casos de uso, DTOs, mapeamento, exceptions e repositórios (`dbook_domain`/`dbook_core_network`) e o wrapper de storage (`dbook_core_storage`, mock oficial do `flutter_secure_storage`) todos testados
+- [x] README atualizado — [README.md](README.md) com a estrutura nova, scripts de cobertura Dart puro, e progresso do M2
+- [x] Cobertura mínima — `melos run coverage` + `melos run coverage:dart` (excluindo `.freezed.dart`/`.g.dart` gerados) + `tool/combine_coverage.sh`, gate de 80% no CI; localmente: **83.43%** (1188/1424 linhas)
 
 ## M3 — Autenticação ⬜
 
