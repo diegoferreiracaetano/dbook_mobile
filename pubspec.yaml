@@ -1,0 +1,24 @@
+name: dbook_mobile_workspace
+publish_to: none
+
+environment:
+  sdk: ^3.13.3
+
+workspace:
+  - packages/dbook_design_system
+
+melos:
+  name: dbook_mobile
+
+  scripts:
+    analyze:
+      run: melos exec -- flutter analyze
+      description: Roda flutter analyze em todos os pacotes
+
+    format:
+      run: melos exec -- dart format --set-exit-if-changed .
+      description: Verifica formatação em todos os pacotes
+
+    test:
+      run: melos exec --dir-exists=test -- flutter test
+      description: Roda os testes dos pacotes que têm pasta test/
