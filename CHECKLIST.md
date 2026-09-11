@@ -46,6 +46,10 @@ Decisão: monorepo com [melos](https://melos.invertase.dev/) desde o início —
 - [x] 1.14 Campo de texto outlined (estados default/foco/erro/disabled; ícone à esquerda; ícone à direita ex. mostrar senha) — `InputDecorationTheme`, `TextField`/`TextFormField` nativos
 - [x] 1.15 Campo de busca (ícone + placeholder) e seletor de data / intervalo de datas — `DbookSearchField` e `datePickerTheme` (`showDateRangePicker` nativo)
 - [x] 1.16 Legenda de seleção (swatch + rótulo, ex. livre/selecionado/ocupado no mapa de assento) — `DbookLegendItem`
+- [ ] 1.16b Checkbox (ex. aceite de termos no Cadastro, lista de companhias no filtro) — `CheckboxListTile`/`Checkbox` temático
+- [ ] 1.16c Campo de seleção / dropdown (ex. nacionalidade, gênero no Passageiro) — `DropdownButtonFormField` temático
+- [ ] 1.16d Slider de faixa de valores (ex. price range no filtro de busca) — `RangeSlider` temático
+- [ ] 1.16e Botão de login social (Google/Apple/Facebook, ícone circular de marca) — reaproveita o botão de ícone circular (1.12) com ícones de marca
 
 *Exibição de dados:*
 - [x] 1.17 Card base (elevado/tonal) e item de lista genérico (ícone/imagem + título + subtítulo + seta) — fundação dos itens abaixo — `cardTheme`/`listTileTheme`, `Card`/`ListTile` nativos
@@ -56,11 +60,15 @@ Decisão: monorepo com [melos](https://melos.invertase.dev/) desde o início —
 - [ ] 1.20b Cartão de resumo de busca (origem ⇄ destino, datas, passageiros) — usado cheio na Home/Busca e compacto no topo de Resultados
 - [ ] 1.21 Estilo de preço em destaque (tipografia grande, reusada em Detalhe do voo / Revisar reserva / Bilhete)
 - [ ] 1.21b Faixa horizontal de data+preço (seletor de datas com tarifa do dia, dia selecionado em destaque) — usada no topo de Resultados
+- [ ] 1.21c Badge numérico sobre ícone (ex. contador de notificação "3" no Drawer/Menu) — `Badge` (M3) temático, diferente do `DbookStatusBadge` (que é pill de texto, não contador)
+- [ ] 1.21d Item de extra/serviço com preço (ícone + título + descrição + preço à direita, ex. "Seat Selection $15" em Passageiro & Extras)
+- [ ] 1.21e Linha de resumo rótulo↔valor (ex. "Order Summary" no Pagamento, resumo da reserva) — lista de pares label/valor terminando num total em destaque
 
 *Navegação e estrutura:*
 - [ ] 1.22 App bar (variantes: cor sólida, transparente sobre imagem, com botão voltar, com subtítulo)
 - [ ] 1.23 Barra de navegação inferior (com indicador "pill" no item ativo) e Drawer de navegação
 - [ ] 1.24 Rótulo de seção (texto pequeno + ícone, ex. "SUGESTÕES PRA VOCÊ") e Divisor (sólido e tracejado)
+- [ ] 1.24b TabBar temático (ex. "Fly/Sleep/Eat" na Home, "Upcoming/Past" em Minhas Viagens) — indicador sublinhado, diferente do `SegmentedButton` (1.13, que é toggle tipo pill)
 
 *Feedback:*
 - [x] 1.25 Indicador de carregamento, estado vazio, estado de erro (padrão reusado em toda tela que busca dado) — `DbookLoadingIndicator`, `DbookStatusPlaceholder`
