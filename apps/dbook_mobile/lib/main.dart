@@ -2,8 +2,6 @@ import 'package:dbook_design_system/dbook_design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'onboarding_art.dart';
-
 void main() {
   runApp(const ProviderScope(child: DbookMobileApp()));
 }
@@ -50,21 +48,30 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   static const _slides = [
     _OnboardingSlideData(
-      background: CloudsAndWingArt(),
+      background: Image(
+        image: AssetImage('assets/images/onboarding/clouds_wing.jpg'),
+        fit: BoxFit.cover,
+      ),
       title: 'Discover New Horizons',
       subtitle:
           'Find and book the best flights to amazing destinations '
           'around the world.',
     ),
     _OnboardingSlideData(
-      background: LakesideVillageArt(),
+      background: Image(
+        image: AssetImage('assets/images/onboarding/lakeside_village.jpg'),
+        fit: BoxFit.cover,
+      ),
       title: 'Best Prices Everytime',
       subtitle:
           'Compare hundreds of airlines and get the best deals for '
           'your next adventure.',
     ),
     _OnboardingSlideData(
-      background: MountainHikerArt(),
+      background: Image(
+        image: AssetImage('assets/images/onboarding/mountain_hiker.jpg'),
+        fit: BoxFit.cover,
+      ),
       title: 'Travel Your Way',
       subtitle: 'Flexible options, secure booking and a seamless experience.',
     ),
