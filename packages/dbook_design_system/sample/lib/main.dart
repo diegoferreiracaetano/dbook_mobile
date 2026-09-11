@@ -298,6 +298,21 @@ class _StatusBadgeSection extends StatelessWidget {
 class _CardsSection extends StatelessWidget {
   const _CardsSection();
 
+  // Gradientes decorativos que substituem a foto real do destino — até o
+  // dado vier da API (M4/M5) com a foto de verdade, isso evita depender de
+  // uma imagem de terceiro embutida no repo ou de rede nos testes.
+  static const _madridSky = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFF0B3D91), Color(0xFF0085FF), Color(0xFFFF9D6C)],
+  );
+
+  static const _romeSky = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFF4A1E5C), Color(0xFFB1456B), Color(0xFFFFC26B)],
+  );
+
   @override
   Widget build(BuildContext context) {
     return _Section(
@@ -305,15 +320,32 @@ class _CardsSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            height: 140,
-            width: 220,
-            child: DbookDestinationCard(
-              title: 'Madri, Espanha',
-              subtitle: 'a partir de R\$480',
-              background: const BoxDecoration(color: Color(0xFF0085FF)),
-              onTap: () {},
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 140,
+                  child: DbookDestinationCard(
+                    title: 'Madri, Espanha',
+                    subtitle: 'a partir de R\$480',
+                    background: const BoxDecoration(gradient: _madridSky),
+                    onTap: () {},
+                  ),
+                ),
+              ),
+              const SizedBox(width: DbookSpacing.md),
+              Expanded(
+                child: SizedBox(
+                  height: 140,
+                  child: DbookDestinationCard(
+                    title: 'Roma, Itália',
+                    subtitle: 'a partir de R\$520',
+                    background: const BoxDecoration(gradient: _romeSky),
+                    onTap: () {},
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: DbookSpacing.md),
           DbookFlightResultTile(
