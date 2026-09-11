@@ -51,8 +51,11 @@ Decisão: monorepo com [melos](https://melos.invertase.dev/) desde o início —
 - [x] 1.17 Card base (elevado/tonal) e item de lista genérico (ícone/imagem + título + subtítulo + seta) — fundação dos itens abaixo — `cardTheme`/`listTileTheme`, `Card`/`ListTile` nativos
 - [x] 1.18 Avatar (foto/inicial, tamanhos), Chip neutro, Badge de status semântico (confirmada/pendente/cancelada, cor por estado) — `DbookAvatar`, `chipTheme`, `DbookStatusBadge`
 - [x] 1.19 Card de destino (foto + degradê + título/subtítulo sobrepostos) e linha de resultado de voo (horário, duração, preço, estado selecionado) — `DbookDestinationCard`, `DbookFlightResultTile`
+- [ ] 1.19b Enriquecer `DbookFlightResultTile`: logo/ícone da companhia, número do voo, badge "sem escalas"/paradas e seta — versão atual só tem horário/duração/preço
 - [x] 1.20 Célula de mapa de assento (3 estados) e bloco de código QR/barcode — `DbookSeatCell`, `DbookQrPlaceholder`
+- [ ] 1.20b Cartão de resumo de busca (origem ⇄ destino, datas, passageiros) — usado cheio na Home/Busca e compacto no topo de Resultados
 - [ ] 1.21 Estilo de preço em destaque (tipografia grande, reusada em Detalhe do voo / Revisar reserva / Bilhete)
+- [ ] 1.21b Faixa horizontal de data+preço (seletor de datas com tarifa do dia, dia selecionado em destaque) — usada no topo de Resultados
 
 *Navegação e estrutura:*
 - [ ] 1.22 App bar (variantes: cor sólida, transparente sobre imagem, com botão voltar, com subtítulo)
@@ -61,11 +64,13 @@ Decisão: monorepo com [melos](https://melos.invertase.dev/) desde o início —
 
 *Feedback:*
 - [x] 1.25 Indicador de carregamento, estado vazio, estado de erro (padrão reusado em toda tela que busca dado) — `DbookLoadingIndicator`, `DbookStatusPlaceholder`
-- [x] 1.26 Estado de sucesso (ícone grande em círculo) e faixa de status inline (ex. "Disponibilidade em tempo real") — `DbookStatusPlaceholder` (círculo maior), `DbookInlineStatusBanner`
+- [x] 1.26 Estado de sucesso inline (ícone grande em círculo) e faixa de status inline (ex. "Disponibilidade em tempo real") — `DbookStatusPlaceholder` (círculo maior), `DbookInlineStatusBanner`
+- [x] 1.26b Tela de sucesso completa (fundo cheio + ícone com sparkles decorativos + cartão de referência com copiar + dois botões + ilustração de skyline) — versão rica pro fluxo de Confirmação de reserva, `DbookSuccessScreen`
 
 *Overlays:*
 - [ ] 1.27 Bottom sheet e dialog de confirmação
 - [ ] 1.28 Indicador de página / dots (usado no onboarding)
+- [ ] 1.28b Slide de onboarding completo (foto cheia + degradê + título/subtítulo + dots + Skip/Next) — composição usando 1.28
 
 **Documentação viva dos componentes:**
 - [x] 1.29a App de exemplo (`packages/dbook_design_system/sample/`) mostrando tema (claro/escuro) e todos os componentes construídos até agora

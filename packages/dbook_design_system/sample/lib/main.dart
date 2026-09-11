@@ -78,6 +78,7 @@ class ShowcasePage extends StatelessWidget {
             _SeatMapSection(),
             _QrSection(),
             _FeedbackSection(),
+            _SuccessScreenSection(),
           ],
         ),
       ),
@@ -448,6 +449,36 @@ class _FeedbackSection extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SuccessScreenSection extends StatelessWidget {
+  const _SuccessScreenSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return _Section(
+      title: 'Tela de sucesso',
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(DbookRadius.lg),
+        child: SizedBox(
+          height: 520,
+          child: DbookSuccessScreen(
+            title: 'Booking Confirmed!',
+            message:
+                'Your flight to Madrid is all set. A confirmation email '
+                'has been sent to you@email.com',
+            referenceLabel: 'Booking Reference',
+            referenceValue: 'HF123456',
+            onCopyReference: () {},
+            primaryActionLabel: 'View My Trip',
+            onPrimaryAction: () {},
+            secondaryActionLabel: 'Back to Home',
+            onSecondaryAction: () {},
+          ),
+        ),
       ),
     );
   }
