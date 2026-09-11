@@ -74,6 +74,7 @@ class ShowcasePage extends StatelessWidget {
             _FormSection(),
             _AvatarSection(),
             _StatusBadgeSection(),
+            _TripSummaryCardSection(),
             _CardsSection(),
             _FareDateStripSection(),
             _SeatMapSection(),
@@ -292,6 +293,41 @@ class _StatusBadgeSection extends StatelessWidget {
           DbookStatusBadge(status: DbookStatus.confirmed, label: 'Confirmado'),
           DbookStatusBadge(status: DbookStatus.pending, label: 'Pendente'),
           DbookStatusBadge(status: DbookStatus.cancelled, label: 'Cancelado'),
+        ],
+      ),
+    );
+  }
+}
+
+class _TripSummaryCardSection extends StatelessWidget {
+  const _TripSummaryCardSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return _Section(
+      title: 'Resumo de busca',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          DbookTripSummaryCard(
+            origin: 'São Paulo (GRU)',
+            destination: 'Madrid (MAD)',
+            dateRangeLabel: 'Jan 13 - Jan 30, 2026',
+            passengersLabel: '1 Adult, Economy',
+            onSwap: () {},
+            onTapRoute: () {},
+            onTapDates: () {},
+            onTapPassengers: () {},
+          ),
+          const SizedBox(height: DbookSpacing.md),
+          DbookTripSummaryCard(
+            origin: 'GRU',
+            destination: 'MAD',
+            dateRangeLabel: 'Jan 13 - Jan 30',
+            passengersLabel: '1 Adult',
+            compact: true,
+            onTapRoute: () {},
+          ),
         ],
       ),
     );

@@ -15,6 +15,7 @@ export 'src/components/dbook_seat_cell.dart';
 export 'src/components/dbook_status_badge.dart';
 export 'src/components/dbook_status_placeholder.dart';
 export 'src/components/dbook_success_screen.dart';
+export 'src/components/dbook_trip_summary_card.dart';
 export 'src/tokens/dbook_colors.dart';
 export 'src/tokens/dbook_elevation.dart';
 export 'src/tokens/dbook_motion.dart';

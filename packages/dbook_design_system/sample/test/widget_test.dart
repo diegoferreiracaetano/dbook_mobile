@@ -16,6 +16,7 @@ void main() {
       expect(find.text('Formulário'), findsOneWidget);
       expect(find.text('Avatar'), findsOneWidget);
       expect(find.text('Status'), findsOneWidget);
+      expect(find.text('Resumo de busca'), findsOneWidget);
       expect(find.text('Cards'), findsOneWidget);
       expect(find.text('Faixa de data e preço'), findsOneWidget);
       expect(find.text('Mapa de assento'), findsOneWidget);
