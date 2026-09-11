@@ -17,6 +17,7 @@ void main() {
       expect(find.text('Avatar'), findsOneWidget);
       expect(find.text('Status'), findsOneWidget);
       expect(find.text('Cards'), findsOneWidget);
+      expect(find.text('Faixa de data e preço'), findsOneWidget);
       expect(find.text('Mapa de assento'), findsOneWidget);
       expect(find.text('Código QR (placeholder)'), findsOneWidget);
       expect(find.text('Feedback'), findsOneWidget);

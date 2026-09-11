@@ -75,6 +75,7 @@ class ShowcasePage extends StatelessWidget {
             _AvatarSection(),
             _StatusBadgeSection(),
             _CardsSection(),
+            _FareDateStripSection(),
             _SeatMapSection(),
             _QrSection(),
             _FeedbackSection(),
@@ -351,13 +352,49 @@ class _CardsSection extends StatelessWidget {
           ),
           const SizedBox(height: DbookSpacing.md),
           DbookFlightResultTile(
-            timeRange: '08:00 — 10:35',
-            durationLabel: '2h 35m direto',
-            price: 'R\$ 612',
+            airlineName: 'Iberia',
+            flightNumber: 'IB 6821',
+            departureTime: '10:30',
+            departureAirport: 'GRU',
+            arrivalTime: '06:45',
+            arrivalAirport: 'MAD',
+            durationLabel: '2h 15m',
+            price: '\$450',
             selected: true,
             onTap: () {},
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _FareDateStripSection extends StatefulWidget {
+  const _FareDateStripSection();
+
+  @override
+  State<_FareDateStripSection> createState() => _FareDateStripSectionState();
+}
+
+class _FareDateStripSectionState extends State<_FareDateStripSection> {
+  static const _options = [
+    DbookFareDateOption(dayLabel: 'Sun', dateLabel: '11', price: '\$529'),
+    DbookFareDateOption(dayLabel: 'Mon', dateLabel: '12', price: '\$499'),
+    DbookFareDateOption(dayLabel: 'Tue', dateLabel: '13', price: '\$450'),
+    DbookFareDateOption(dayLabel: 'Wed', dateLabel: '14', price: '\$520'),
+    DbookFareDateOption(dayLabel: 'Thu', dateLabel: '15', price: '\$510'),
+  ];
+
+  var _selectedIndex = 2;
+
+  @override
+  Widget build(BuildContext context) {
+    return _Section(
+      title: 'Faixa de data e preço',
+      child: DbookFareDateStrip(
+        options: _options,
+        selectedIndex: _selectedIndex,
+        onSelected: (index) => setState(() => _selectedIndex = index),
       ),
     );
   }

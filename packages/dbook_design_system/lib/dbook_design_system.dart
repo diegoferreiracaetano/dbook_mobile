@@ -4,6 +4,7 @@ library;
 export 'src/components/dbook_avatar.dart';
 export 'src/components/dbook_button.dart';
 export 'src/components/dbook_destination_card.dart';
+export 'src/components/dbook_fare_date_strip.dart';
 export 'src/components/dbook_flight_result_tile.dart';
 export 'src/components/dbook_inline_status_banner.dart';
 export 'src/components/dbook_legend_item.dart';

@@ -4,24 +4,31 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets(
-    'given flight data when built then renders time, duration and price',
+    'given flight data when built then airline, times and price render',
     (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: DbookTheme.light,
           home: const Scaffold(
             body: DbookFlightResultTile(
-              timeRange: '12:30 – 13:45',
-              durationLabel: 'Direto · 1h15m',
-              price: 'R\$512',
+              airlineName: 'Iberia',
+              flightNumber: 'IB 6821',
+              departureTime: '10:30',
+              departureAirport: 'GRU',
+              arrivalTime: '06:45',
+              arrivalAirport: 'MAD',
+              durationLabel: '2h 15m',
+              price: '\$450',
             ),
           ),
         ),
       );
 
-      expect(find.text('12:30 – 13:45'), findsOneWidget);
-      expect(find.text('Direto · 1h15m'), findsOneWidget);
-      expect(find.text('R\$512'), findsOneWidget);
+      expect(find.text('Iberia · IB 6821'), findsOneWidget);
+      expect(find.text('10:30'), findsOneWidget);
+      expect(find.text('06:45'), findsOneWidget);
+      expect(find.text('Nonstop'), findsOneWidget);
+      expect(find.text('\$450'), findsOneWidget);
     },
   );
 
@@ -33,9 +40,13 @@ void main() {
           theme: DbookTheme.light,
           home: const Scaffold(
             body: DbookFlightResultTile(
-              timeRange: '12:30 – 13:45',
-              durationLabel: 'Direto · 1h15m',
-              price: 'R\$512',
+              airlineName: 'Iberia',
+              departureTime: '10:30',
+              departureAirport: 'GRU',
+              arrivalTime: '06:45',
+              arrivalAirport: 'MAD',
+              durationLabel: '2h 15m',
+              price: '\$450',
               selected: true,
             ),
           ),
