@@ -119,6 +119,20 @@ abstract final class DbookTheme {
         ),
         margin: EdgeInsets.zero,
       ),
+      chipTheme: ChipThemeData(
+        backgroundColor: colorScheme.primaryContainer,
+        labelStyle: textTheme.labelSmall?.copyWith(
+          color: colorScheme.onPrimaryContainer,
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: DbookSpacing.sm,
+          vertical: DbookSpacing.xs,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(DbookRadius.sm),
+        ),
+        side: BorderSide.none,
+      ),
       listTileTheme: ListTileThemeData(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(DbookRadius.md),

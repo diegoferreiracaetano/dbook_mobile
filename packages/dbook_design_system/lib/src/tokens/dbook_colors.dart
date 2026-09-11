@@ -97,42 +97,46 @@ abstract final class DbookColorScheme {
 class DbookStatusColors extends ThemeExtension<DbookStatusColors> {
   const DbookStatusColors({
     required this.success,
-    required this.onSuccess,
+    required this.successContainer,
     required this.warning,
-    required this.onWarning,
+    required this.warningContainer,
   });
 
+  /// Cor saturada — texto/ícone sobre [successContainer], ou fundo sólido.
   final Color success;
-  final Color onSuccess;
+
+  /// Tom claro de fundo — usado com texto/ícone na cor [success] por cima.
+  final Color successContainer;
+
   final Color warning;
-  final Color onWarning;
+  final Color warningContainer;
 
   static const light = DbookStatusColors(
     success: DbookPalette.success,
-    onSuccess: DbookPalette.successBg,
+    successContainer: DbookPalette.successBg,
     warning: DbookPalette.warning,
-    onWarning: DbookPalette.warningBg,
+    warningContainer: DbookPalette.warningBg,
   );
 
   static const dark = DbookStatusColors(
     success: DbookPalette.success,
-    onSuccess: DbookPalette.successBg,
+    successContainer: DbookPalette.successBg,
     warning: DbookPalette.warning,
-    onWarning: DbookPalette.warningBg,
+    warningContainer: DbookPalette.warningBg,
   );
 
   @override
   DbookStatusColors copyWith({
     Color? success,
-    Color? onSuccess,
+    Color? successContainer,
     Color? warning,
-    Color? onWarning,
+    Color? warningContainer,
   }) {
     return DbookStatusColors(
       success: success ?? this.success,
-      onSuccess: onSuccess ?? this.onSuccess,
+      successContainer: successContainer ?? this.successContainer,
       warning: warning ?? this.warning,
-      onWarning: onWarning ?? this.onWarning,
+      warningContainer: warningContainer ?? this.warningContainer,
     );
   }
 
@@ -141,9 +145,17 @@ class DbookStatusColors extends ThemeExtension<DbookStatusColors> {
     if (other is! DbookStatusColors) return this;
     return DbookStatusColors(
       success: Color.lerp(success, other.success, t)!,
-      onSuccess: Color.lerp(onSuccess, other.onSuccess, t)!,
+      successContainer: Color.lerp(
+        successContainer,
+        other.successContainer,
+        t,
+      )!,
       warning: Color.lerp(warning, other.warning, t)!,
-      onWarning: Color.lerp(onWarning, other.onWarning, t)!,
+      warningContainer: Color.lerp(
+        warningContainer,
+        other.warningContainer,
+        t,
+      )!,
     );
   }
 }
