@@ -19,6 +19,7 @@ void main() {
       expect(find.text('Cards'), findsOneWidget);
       expect(find.text('Mapa de assento'), findsOneWidget);
       expect(find.text('Código QR (placeholder)'), findsOneWidget);
+      expect(find.text('Feedback'), findsOneWidget);
     },
   );
 

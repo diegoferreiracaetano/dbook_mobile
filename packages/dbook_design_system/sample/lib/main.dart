@@ -77,6 +77,7 @@ class ShowcasePage extends StatelessWidget {
             _CardsSection(),
             _SeatMapSection(),
             _QrSection(),
+            _FeedbackSection(),
           ],
         ),
       ),
@@ -388,6 +389,66 @@ class _QrSection extends StatelessWidget {
     return const _Section(
       title: 'Código QR (placeholder)',
       child: DbookQrPlaceholder(size: 80),
+    );
+  }
+}
+
+class _FeedbackSection extends StatelessWidget {
+  const _FeedbackSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final statusColors = Theme.of(context).extension<DbookStatusColors>()!;
+
+    return _Section(
+      title: 'Feedback',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const DbookLoadingIndicator(message: 'Buscando voos...'),
+          const SizedBox(height: DbookSpacing.xl),
+          DbookStatusPlaceholder(
+            icon: Icons.search_off,
+            title: 'Nenhum voo encontrado',
+            message: 'Tente outra data ou destino.',
+          ),
+          const SizedBox(height: DbookSpacing.xl),
+          DbookStatusPlaceholder(
+            icon: Icons.error_outline,
+            iconColor: colorScheme.error,
+            title: 'Algo deu errado',
+            message: 'Não foi possível carregar os dados.',
+            actionLabel: 'Tentar de novo',
+            onAction: () {},
+          ),
+          const SizedBox(height: DbookSpacing.xl),
+          DbookStatusPlaceholder(
+            icon: Icons.check_circle,
+            iconColor: statusColors.success,
+            circleSize: 96,
+            iconSize: 44,
+            title: 'Reserva confirmada!',
+            message: 'Seu voo para Madri está garantido.',
+          ),
+          const SizedBox(height: DbookSpacing.xl),
+          const Wrap(
+            spacing: DbookSpacing.md,
+            runSpacing: DbookSpacing.md,
+            children: [
+              DbookInlineStatusBanner(message: 'Disponibilidade em tempo real'),
+              DbookInlineStatusBanner(
+                message: 'Reserva confirmada',
+                tone: DbookBannerTone.success,
+              ),
+              DbookInlineStatusBanner(
+                message: 'Poucos assentos restantes',
+                tone: DbookBannerTone.warning,
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

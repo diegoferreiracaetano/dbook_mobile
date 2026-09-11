@@ -60,8 +60,8 @@ Decisão: monorepo com [melos](https://melos.invertase.dev/) desde o início —
 - [ ] 1.24 Rótulo de seção (texto pequeno + ícone, ex. "SUGESTÕES PRA VOCÊ") e Divisor (sólido e tracejado)
 
 *Feedback:*
-- [ ] 1.25 Indicador de carregamento, estado vazio, estado de erro (padrão reusado em toda tela que busca dado)
-- [ ] 1.26 Estado de sucesso (ícone grande em círculo) e faixa de status inline (ex. "Disponibilidade em tempo real")
+- [x] 1.25 Indicador de carregamento, estado vazio, estado de erro (padrão reusado em toda tela que busca dado) — `DbookLoadingIndicator`, `DbookStatusPlaceholder`
+- [x] 1.26 Estado de sucesso (ícone grande em círculo) e faixa de status inline (ex. "Disponibilidade em tempo real") — `DbookStatusPlaceholder` (círculo maior), `DbookInlineStatusBanner`
 
 *Overlays:*
 - [ ] 1.27 Bottom sheet e dialog de confirmação
