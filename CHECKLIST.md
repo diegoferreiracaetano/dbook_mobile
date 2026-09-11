@@ -107,14 +107,14 @@ Decisão: monorepo com [melos](https://melos.invertase.dev/) desde o início —
 
 Decisão: `dbook_domain` é Dart puro, zero dependência de Flutter/Riverpod — mesmo princípio de Clean Architecture do backend. Serialização via `freezed` + `json_serializable` (padrão de mercado pra imutabilidade + codegen de JSON em Dart).
 
-- [ ] 2.1 Criar o pacote `packages/dbook_domain` (Dart puro, sem dependência de Flutter)
-- [ ] 2.2 dbook_domain: entidade `Flight`
-- [ ] 2.3 dbook_domain: entidade `Airport`
-- [ ] 2.4 dbook_domain: entidade `Booking` (+ enum de status)
-- [ ] 2.5 dbook_domain: entidade `User`
-- [ ] 2.6 dbook_domain: entidade `AiSuggestion`
-- [ ] 2.7 dbook_domain: portas (interfaces) — `FlightRepository`, `BookingRepository`, `AuthRepository`, `AiSuggestionRepository`
-- [ ] 2.8 dbook_domain: casos de uso (`SearchFlightsUseCase`, `RegisterBookingUseCase`, `CancelBookingUseCase`, etc.)
+- [x] 2.1 Criar o pacote `packages/dbook_domain` (Dart puro, sem dependência de Flutter) — `dart create --template=package`, sem `flutter` no pubspec
+- [x] 2.2 dbook_domain: entidade `Flight` — campos batem com `FlightResponse` do backend (origem/destino são código IATA, não `Airport` aninhado — é isso que `GET /flights/search` de fato devolve)
+- [x] 2.3 dbook_domain: entidade `Airport`
+- [x] 2.4 dbook_domain: entidade `Booking` (+ enum de status) — `BookingStatus` (pending/confirmed/cancelled)
+- [x] 2.5 dbook_domain: entidade `User` — sem `passwordHash`, que nunca sai do backend
+- [x] 2.6 dbook_domain: entidade `AiSuggestion`
+- [x] 2.7 dbook_domain: portas (interfaces) — `FlightRepository`, `BookingRepository`, `AuthRepository`, `AiSuggestionRepository`
+- [x] 2.8 dbook_domain: casos de uso — `SearchFlightsUseCase`, `GetSeatsUseCase`, `RegisterBookingUseCase`, `CancelBookingUseCase`, `LoginUseCase`, `RegisterUseCase`, `RefreshSessionUseCase`, `SuggestFlightsUseCase`, todos com teste usando fake de repositório escrito à mão (interfaces pequenas, sem lib de mock)
 - [ ] 2.9 Criar o pacote `packages/dbook_core_network`, configurar Dio (base URL, timeouts, logging em debug)
 - [ ] 2.10 dbook_core_network: DTOs com `freezed` + `json_serializable` (build_runner)
 - [ ] 2.11 dbook_core_network: mapeamento DTO → entidade de domínio

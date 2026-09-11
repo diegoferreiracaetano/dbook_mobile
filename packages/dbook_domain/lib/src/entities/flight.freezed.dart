@@ -1,0 +1,295 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'flight.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// dart format off
+T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$Flight {
+
+ int get id; String get flightNumber; String get originIataCode; String get destinationIataCode; DateTime get departureTime; DateTime get arrivalTime; SeatClass get seatClass; double get price; int get availableCapacity;
+/// Create a copy of Flight
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FlightCopyWith<Flight> get copyWith => _$FlightCopyWithImpl<Flight>(this as Flight, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Flight&&(identical(other.id, id) || other.id == id)&&(identical(other.flightNumber, flightNumber) || other.flightNumber == flightNumber)&&(identical(other.originIataCode, originIataCode) || other.originIataCode == originIataCode)&&(identical(other.destinationIataCode, destinationIataCode) || other.destinationIataCode == destinationIataCode)&&(identical(other.departureTime, departureTime) || other.departureTime == departureTime)&&(identical(other.arrivalTime, arrivalTime) || other.arrivalTime == arrivalTime)&&(identical(other.seatClass, seatClass) || other.seatClass == seatClass)&&(identical(other.price, price) || other.price == price)&&(identical(other.availableCapacity, availableCapacity) || other.availableCapacity == availableCapacity));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,flightNumber,originIataCode,destinationIataCode,departureTime,arrivalTime,seatClass,price,availableCapacity);
+
+@override
+String toString() {
+  return 'Flight(id: $id, flightNumber: $flightNumber, originIataCode: $originIataCode, destinationIataCode: $destinationIataCode, departureTime: $departureTime, arrivalTime: $arrivalTime, seatClass: $seatClass, price: $price, availableCapacity: $availableCapacity)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FlightCopyWith<$Res>  {
+  factory $FlightCopyWith(Flight value, $Res Function(Flight) _then) = _$FlightCopyWithImpl;
+@useResult
+$Res call({
+ int id, String flightNumber, String originIataCode, String destinationIataCode, DateTime departureTime, DateTime arrivalTime, SeatClass seatClass, double price, int availableCapacity
+});
+
+
+
+
+}
+/// @nodoc
+class _$FlightCopyWithImpl<$Res>
+    implements $FlightCopyWith<$Res> {
+  _$FlightCopyWithImpl(this._self, this._then);
+
+  final Flight _self;
+  final $Res Function(Flight) _then;
+
+/// Create a copy of Flight
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? flightNumber = null,Object? originIataCode = null,Object? destinationIataCode = null,Object? departureTime = null,Object? arrivalTime = null,Object? seatClass = null,Object? price = null,Object? availableCapacity = null,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,flightNumber: null == flightNumber ? _self.flightNumber : flightNumber // ignore: cast_nullable_to_non_nullable
+as String,originIataCode: null == originIataCode ? _self.originIataCode : originIataCode // ignore: cast_nullable_to_non_nullable
+as String,destinationIataCode: null == destinationIataCode ? _self.destinationIataCode : destinationIataCode // ignore: cast_nullable_to_non_nullable
+as String,departureTime: null == departureTime ? _self.departureTime : departureTime // ignore: cast_nullable_to_non_nullable
+as DateTime,arrivalTime: null == arrivalTime ? _self.arrivalTime : arrivalTime // ignore: cast_nullable_to_non_nullable
+as DateTime,seatClass: null == seatClass ? _self.seatClass : seatClass // ignore: cast_nullable_to_non_nullable
+as SeatClass,price: null == price ? _self.price : price // ignore: cast_nullable_to_non_nullable
+as double,availableCapacity: null == availableCapacity ? _self.availableCapacity : availableCapacity // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [Flight].
+extension FlightPatterns on Flight {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _Flight value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _Flight() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _Flight value)  $default,){
+final _that = this;
+switch (_that) {
+case _Flight():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _Flight value)?  $default,){
+final _that = this;
+switch (_that) {
+case _Flight() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String flightNumber,  String originIataCode,  String destinationIataCode,  DateTime departureTime,  DateTime arrivalTime,  SeatClass seatClass,  double price,  int availableCapacity)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _Flight() when $default != null:
+return $default(_that.id,_that.flightNumber,_that.originIataCode,_that.destinationIataCode,_that.departureTime,_that.arrivalTime,_that.seatClass,_that.price,_that.availableCapacity);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String flightNumber,  String originIataCode,  String destinationIataCode,  DateTime departureTime,  DateTime arrivalTime,  SeatClass seatClass,  double price,  int availableCapacity)  $default,) {final _that = this;
+switch (_that) {
+case _Flight():
+return $default(_that.id,_that.flightNumber,_that.originIataCode,_that.destinationIataCode,_that.departureTime,_that.arrivalTime,_that.seatClass,_that.price,_that.availableCapacity);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String flightNumber,  String originIataCode,  String destinationIataCode,  DateTime departureTime,  DateTime arrivalTime,  SeatClass seatClass,  double price,  int availableCapacity)?  $default,) {final _that = this;
+switch (_that) {
+case _Flight() when $default != null:
+return $default(_that.id,_that.flightNumber,_that.originIataCode,_that.destinationIataCode,_that.departureTime,_that.arrivalTime,_that.seatClass,_that.price,_that.availableCapacity);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _Flight implements Flight {
+  const _Flight({required this.id, required this.flightNumber, required this.originIataCode, required this.destinationIataCode, required this.departureTime, required this.arrivalTime, required this.seatClass, required this.price, required this.availableCapacity});
+  
+
+@override final  int id;
+@override final  String flightNumber;
+@override final  String originIataCode;
+@override final  String destinationIataCode;
+@override final  DateTime departureTime;
+@override final  DateTime arrivalTime;
+@override final  SeatClass seatClass;
+@override final  double price;
+@override final  int availableCapacity;
+
+/// Create a copy of Flight
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FlightCopyWith<_Flight> get copyWith => __$FlightCopyWithImpl<_Flight>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Flight&&(identical(other.id, id) || other.id == id)&&(identical(other.flightNumber, flightNumber) || other.flightNumber == flightNumber)&&(identical(other.originIataCode, originIataCode) || other.originIataCode == originIataCode)&&(identical(other.destinationIataCode, destinationIataCode) || other.destinationIataCode == destinationIataCode)&&(identical(other.departureTime, departureTime) || other.departureTime == departureTime)&&(identical(other.arrivalTime, arrivalTime) || other.arrivalTime == arrivalTime)&&(identical(other.seatClass, seatClass) || other.seatClass == seatClass)&&(identical(other.price, price) || other.price == price)&&(identical(other.availableCapacity, availableCapacity) || other.availableCapacity == availableCapacity));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,flightNumber,originIataCode,destinationIataCode,departureTime,arrivalTime,seatClass,price,availableCapacity);
+
+@override
+String toString() {
+  return 'Flight(id: $id, flightNumber: $flightNumber, originIataCode: $originIataCode, destinationIataCode: $destinationIataCode, departureTime: $departureTime, arrivalTime: $arrivalTime, seatClass: $seatClass, price: $price, availableCapacity: $availableCapacity)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FlightCopyWith<$Res> implements $FlightCopyWith<$Res> {
+  factory _$FlightCopyWith(_Flight value, $Res Function(_Flight) _then) = __$FlightCopyWithImpl;
+@override @useResult
+$Res call({
+ int id, String flightNumber, String originIataCode, String destinationIataCode, DateTime departureTime, DateTime arrivalTime, SeatClass seatClass, double price, int availableCapacity
+});
+
+
+
+
+}
+/// @nodoc
+class __$FlightCopyWithImpl<$Res>
+    implements _$FlightCopyWith<$Res> {
+  __$FlightCopyWithImpl(this._self, this._then);
+
+  final _Flight _self;
+  final $Res Function(_Flight) _then;
+
+/// Create a copy of Flight
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? flightNumber = null,Object? originIataCode = null,Object? destinationIataCode = null,Object? departureTime = null,Object? arrivalTime = null,Object? seatClass = null,Object? price = null,Object? availableCapacity = null,}) {
+  return _then(_Flight(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,flightNumber: null == flightNumber ? _self.flightNumber : flightNumber // ignore: cast_nullable_to_non_nullable
+as String,originIataCode: null == originIataCode ? _self.originIataCode : originIataCode // ignore: cast_nullable_to_non_nullable
+as String,destinationIataCode: null == destinationIataCode ? _self.destinationIataCode : destinationIataCode // ignore: cast_nullable_to_non_nullable
+as String,departureTime: null == departureTime ? _self.departureTime : departureTime // ignore: cast_nullable_to_non_nullable
+as DateTime,arrivalTime: null == arrivalTime ? _self.arrivalTime : arrivalTime // ignore: cast_nullable_to_non_nullable
+as DateTime,seatClass: null == seatClass ? _self.seatClass : seatClass // ignore: cast_nullable_to_non_nullable
+as SeatClass,price: null == price ? _self.price : price // ignore: cast_nullable_to_non_nullable
+as double,availableCapacity: null == availableCapacity ? _self.availableCapacity : availableCapacity // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+// dart format on

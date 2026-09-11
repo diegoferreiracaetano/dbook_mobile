@@ -12,6 +12,7 @@ workspace:
   - packages/dbook_design_system
   - packages/dbook_design_system/sample
   - packages/dbook_design_system/widgetbook
+  - packages/dbook_domain
 
 melos:
   name: dbook_mobile
@@ -26,8 +27,12 @@ melos:
       description: Verifica formatação em todos os pacotes
 
     test:
-      run: melos exec --dir-exists=test -- flutter test
-      description: Roda os testes dos pacotes que têm pasta test/
+      run: melos exec --dir-exists=test --flutter -- flutter test
+      description: Roda os testes dos pacotes Flutter que têm pasta test/
+
+    test:dart:
+      run: melos exec --dir-exists=test --no-flutter -- dart test
+      description: Roda os testes dos pacotes Dart puro (sem Flutter) que têm pasta test/
 
     coverage:
       run: melos exec --dir-exists=test -- flutter test --coverage
