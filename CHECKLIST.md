@@ -65,10 +65,10 @@ Decisão: monorepo com [melos](https://melos.invertase.dev/) desde o início —
 - [x] 1.21e Linha de resumo rótulo↔valor (ex. "Order Summary" no Pagamento, resumo da reserva) — lista de pares label/valor terminando num total em destaque — `DbookSummaryRow`
 
 *Navegação e estrutura:*
-- [ ] 1.22 App bar (variantes: cor sólida, transparente sobre imagem, com botão voltar, com subtítulo)
-- [ ] 1.23 Barra de navegação inferior (com indicador "pill" no item ativo) e Drawer de navegação
-- [ ] 1.24 Rótulo de seção (texto pequeno + ícone, ex. "SUGESTÕES PRA VOCÊ") e Divisor (sólido e tracejado)
-- [ ] 1.24b TabBar temático (ex. "Fly/Sleep/Eat" na Home, "Upcoming/Past" em Minhas Viagens) — indicador sublinhado, diferente do `SegmentedButton` (1.13, que é toggle tipo pill)
+- [x] 1.22 App bar (variantes: cor sólida, transparente sobre imagem, com botão voltar, com subtítulo) — `DbookAppBar` + `appBarTheme`
+- [x] 1.23 Barra de navegação inferior (com indicador "pill" no item ativo) e Drawer de navegação — `NavigationBar`/`Drawer` nativos via `navigationBarTheme`/`drawerTheme`, sem componente extra
+- [x] 1.24 Rótulo de seção (texto pequeno + ícone, ex. "SUGESTÕES PRA VOCÊ") e Divisor (sólido e tracejado) — `DbookSectionLabel`, `Divider` via `dividerTheme`, `DbookDashedDivider`
+- [x] 1.24b TabBar temático (ex. "Fly/Sleep/Eat" na Home, "Upcoming/Past" em Minhas Viagens) — indicador sublinhado, diferente do `SegmentedButton` (1.13, que é toggle tipo pill) — `TabBar` nativo via `tabBarTheme`
 
 *Feedback:*
 - [x] 1.25 Indicador de carregamento, estado vazio, estado de erro (padrão reusado em toda tela que busca dado) — `DbookLoadingIndicator`, `DbookStatusPlaceholder`

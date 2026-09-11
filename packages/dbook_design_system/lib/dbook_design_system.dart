@@ -1,8 +1,10 @@
 /// Design system do DBook Mobile — tokens, tema e componentes compartilhados.
 library;
 
+export 'src/components/dbook_app_bar.dart';
 export 'src/components/dbook_avatar.dart';
 export 'src/components/dbook_button.dart';
+export 'src/components/dbook_dashed_divider.dart';
 export 'src/components/dbook_destination_card.dart';
 export 'src/components/dbook_fare_date_strip.dart';
 export 'src/components/dbook_flight_result_tile.dart';
@@ -15,6 +17,7 @@ export 'src/components/dbook_priced_list_item.dart';
 export 'src/components/dbook_qr_placeholder.dart';
 export 'src/components/dbook_search_field.dart';
 export 'src/components/dbook_seat_cell.dart';
+export 'src/components/dbook_section_label.dart';
 export 'src/components/dbook_social_login_row.dart';
 export 'src/components/dbook_status_badge.dart';
 export 'src/components/dbook_status_placeholder.dart';

@@ -63,6 +63,7 @@ class ShowcasePage extends StatelessWidget {
           ),
         ],
       ),
+      drawer: const _SampleDrawer(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(DbookSpacing.lg),
         child: const Column(
@@ -72,6 +73,7 @@ class ShowcasePage extends StatelessWidget {
             _TypographySection(),
             _ButtonsSection(),
             _FormSection(),
+            _NavigationSection(),
             _AvatarSection(),
             _StatusBadgeSection(),
             _DataDisplaySection(),
@@ -105,6 +107,143 @@ class _Section extends StatelessWidget {
           Text(title, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: DbookSpacing.md),
           child,
+        ],
+      ),
+    );
+  }
+}
+
+class _SampleDrawer extends StatelessWidget {
+  const _SampleDrawer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(DbookSpacing.lg),
+              child: Row(
+                children: [
+                  DbookAvatar(initials: 'D', size: DbookAvatarSize.large),
+                  SizedBox(width: DbookSpacing.md),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [Text('Diego Ferreira'), Text('diego@email.com')],
+                  ),
+                ],
+              ),
+            ),
+            const Divider(),
+            const ListTile(
+              leading: Icon(Icons.home_outlined),
+              title: Text('Home'),
+            ),
+            ListTile(
+              leading: const DbookNotificationBadge(
+                count: 3,
+                child: Icon(Icons.notifications_outlined),
+              ),
+              title: const Text('Notifications'),
+            ),
+            const ListTile(
+              leading: Icon(Icons.settings_outlined),
+              title: Text('Settings'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NavigationSection extends StatefulWidget {
+  const _NavigationSection();
+
+  @override
+  State<_NavigationSection> createState() => _NavigationSectionState();
+}
+
+class _NavigationSectionState extends State<_NavigationSection> {
+  var _navIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return _Section(
+      title: 'Navegação e estrutura',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(DbookRadius.md),
+            child: DbookAppBar(
+              title: 'Madrid, Spain',
+              subtitle: 'Tue, Jan 13, 2026',
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {},
+              ),
+            ),
+          ),
+          const SizedBox(height: DbookSpacing.sm),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(DbookRadius.md),
+            child: ColoredBox(
+              color: DbookPalette.primary,
+              child: DbookAppBar(
+                title: 'Flight Details',
+                transparent: true,
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () {},
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: DbookSpacing.lg),
+          NavigationBar(
+            selectedIndex: _navIndex,
+            onDestinationSelected: (index) => setState(() => _navIndex = index),
+            destinations: const [
+              NavigationDestination(
+                icon: Icon(Icons.home_outlined),
+                label: 'Home',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.luggage_outlined),
+                label: 'My Trips',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.explore_outlined),
+                label: 'Explore',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.person_outline),
+                label: 'Profile',
+              ),
+            ],
+          ),
+          const SizedBox(height: DbookSpacing.lg),
+          const DefaultTabController(
+            length: 2,
+            child: TabBar(
+              tabs: [
+                Tab(text: 'Upcoming'),
+                Tab(text: 'Past'),
+              ],
+            ),
+          ),
+          const SizedBox(height: DbookSpacing.lg),
+          const DbookSectionLabel(
+            text: 'Sugestões pra você',
+            icon: Icons.star_outline,
+          ),
+          const SizedBox(height: DbookSpacing.md),
+          const Divider(),
+          const SizedBox(height: DbookSpacing.md),
+          const DbookDashedDivider(),
         ],
       ),
     );
