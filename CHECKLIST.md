@@ -23,10 +23,10 @@ Decisão: monorepo com [melos](https://melos.invertase.dev/) desde o início —
 - [x] 1.1 Instalar Flutter SDK (canal estável) + validar com `flutter doctor`
 - [x] 1.2 Instalar melos + criar `melos.yaml` na raiz do monorepo
 - [x] 1.3 Criar a estrutura `packages/` e `apps/dbook_mobile/`
-- [ ] 1.4 Criar o pacote `packages/dbook_design_system` (`pubspec.yaml` próprio)
+- [x] 1.4 Criar o pacote `packages/dbook_design_system` (`pubspec.yaml` próprio)
 
 **Design tokens (camada mais baixa, sem nenhuma lógica de UI):**
-- [ ] 1.5 Tokens de cor — paleta primitiva (`primary` `#247BA0` + variações) e paleta semântica (`onPrimary`, `surface`, `error`, `success`), light e dark
+- [x] 1.5 Tokens de cor — paleta primitiva (`primary` `#0085FF` + variações) e paleta semântica (`onPrimary`, `surface`, `error`, `success`), light e dark
 - [ ] 1.6 Tokens de tipografia — escala Material 3 (display/headline/title/body/label) em Roboto, mapeada num `TextTheme`
 - [ ] 1.7 Tokens de espaçamento — spacing scale (4/8/12/16/24/32/48) como constantes nomeadas, não números soltos
 - [ ] 1.8 Tokens de raio de borda e elevação/sombra
