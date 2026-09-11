@@ -51,7 +51,7 @@ Decisão: monorepo com [melos](https://melos.invertase.dev/) desde o início —
 - [x] 1.17 Card base (elevado/tonal) e item de lista genérico (ícone/imagem + título + subtítulo + seta) — fundação dos itens abaixo — `cardTheme`/`listTileTheme`, `Card`/`ListTile` nativos
 - [x] 1.18 Avatar (foto/inicial, tamanhos), Chip neutro, Badge de status semântico (confirmada/pendente/cancelada, cor por estado) — `DbookAvatar`, `chipTheme`, `DbookStatusBadge`
 - [x] 1.19 Card de destino (foto + degradê + título/subtítulo sobrepostos) e linha de resultado de voo (horário, duração, preço, estado selecionado) — `DbookDestinationCard`, `DbookFlightResultTile`
-- [ ] 1.20 Célula de mapa de assento (3 estados) e bloco de código QR/barcode
+- [x] 1.20 Célula de mapa de assento (3 estados) e bloco de código QR/barcode — `DbookSeatCell`, `DbookQrPlaceholder`
 - [ ] 1.21 Estilo de preço em destaque (tipografia grande, reusada em Detalhe do voo / Revisar reserva / Bilhete)
 
 *Navegação e estrutura:*
