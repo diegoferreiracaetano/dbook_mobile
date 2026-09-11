@@ -3,6 +3,8 @@ library;
 
 export 'src/components/dbook_avatar.dart';
 export 'src/components/dbook_button.dart';
+export 'src/components/dbook_destination_card.dart';
+export 'src/components/dbook_flight_result_tile.dart';
 export 'src/components/dbook_legend_item.dart';
 export 'src/components/dbook_search_field.dart';
 export 'src/components/dbook_status_badge.dart';
