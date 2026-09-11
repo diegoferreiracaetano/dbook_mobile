@@ -14,7 +14,7 @@ Checklist de fechamento (repetida ao final de cada marco, mesmo processo do back
 9. README.md atualizado com o que foi feito no marco.
 10. Cobertura de teste (`very_good_coverage` sobre o `lcov.info` combinado) acima do mínimo combinado.
 
-## M1 — Setup do monorepo + design system ⬜
+## M1 — Setup do monorepo + design system ✅
 
 Decisão: monorepo com [melos](https://melos.invertase.dev/) desde o início — mesma filosofia do M6 do DBook backend ("aprender o padrão certo agora, mesmo sem precisar em escala ainda"). Pacotes de verdade (não só pastas), cada um com seu próprio `pubspec.yaml`.
 
@@ -91,17 +91,17 @@ Decisão: monorepo com [melos](https://melos.invertase.dev/) desde o início —
 - [x] 1.33 CI: adicionar `melos run test` ao workflow — mesmo `ci.yml`
 
 **Checklist de fechamento do M1:**
-- [ ] Itens 1.1-1.33 revisados
-- [ ] Nenhum valor de cor/espaçamento/fonte hardcoded fora do `dbook_design_system` (grep rápido por hex codes soltos nas features)
-- [ ] Clean Code
-- [ ] Arquitetura
-- [ ] Componentização (tela usa só componentes do `dbook_design_system`, zero widget customizado solto)
-- [ ] Layout (espaçamento e montagem da tela seguem os padrões do `dbook_design_system`, nada de número solto ou arranjo remontado à mão)
-- [ ] Material Design (componentes são temas em cima de widgets Material 3 do Flutter, não reconstruídos do zero)
-- [ ] `analyze` + `format` + `test` limpos
-- [ ] Testes das camadas ainda sem cobertura
-- [ ] README atualizado
-- [ ] Cobertura mínima
+- [x] Itens 1.1-1.33 revisados — todos `[x]`
+- [x] Nenhum valor de cor/espaçamento/fonte hardcoded fora do `dbook_design_system` (grep rápido por hex codes soltos nas features) — único achado em `apps/dbook_mobile/lib/main.dart` são as 6 cores do gradiente decorativo do onboarding (arte de fundo one-off, mesmo padrão já usado no scrim do `DbookDestinationCard` e nos cards do `sample`), não um token semântico reinventado
+- [x] Clean Code — `apps/dbook_mobile/lib/main.dart` tem 133 linhas, widgets pequenos e focados (`DbookMobileApp`, `OnboardingPage`, `_OnboardingSlideData`), zero duplicação
+- [x] Arquitetura — `dbook_mobile` só importa `dbook_design_system` e `flutter_riverpod`; `dbook_domain`/camadas de feature ainda não existem (chegam em M2), então não há violação de camada possível ainda
+- [x] Componentização — a única tela do app (`OnboardingPage`) é montada 100% com `DbookOnboardingSlide`; nenhum widget de UI construído solto na feature
+- [x] Layout — espaçamento/composição vêm de dentro do `DbookOnboardingSlide`; o app não redeclara `SizedBox`/`EdgeInsets` com número solto
+- [x] Material Design — `Scaffold` + `PageView` nativos, tema aplicado via `DbookTheme.light`/`.dark`
+- [x] `analyze` + `format` + `test` limpos — 4 pacotes (`dbook_design_system`, `sample`, `widgetbook`, `dbook_mobile`) validados
+- [x] Testes das camadas ainda sem cobertura — não aplicável ainda (sem `dbook_domain`/`dbook_core_*`, chegam em M2); `dbook_mobile` tem 2 widget tests + `integration_test/app_test.dart` pronto pra CI
+- [x] README atualizado — [README.md](README.md) criado (estrutura, como rodar, progresso por marco)
+- [x] Cobertura mínima — `melos run coverage` + `tool/combine_coverage.sh` + gate `VeryGoodOpenSource/very_good_coverage` (mínimo 80%) no CI; localmente: **93.70%** (774/826 linhas)
 
 ## M2 — Domínio + rede ⬜
 

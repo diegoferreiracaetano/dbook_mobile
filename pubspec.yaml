@@ -28,3 +28,7 @@ melos:
     test:
       run: melos exec --dir-exists=test -- flutter test
       description: Roda os testes dos pacotes que têm pasta test/
+
+    coverage:
+      run: melos exec --dir-exists=test -- flutter test --coverage
+      description: Roda os testes com cobertura (gera coverage/lcov.info em cada pacote)

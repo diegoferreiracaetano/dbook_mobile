@@ -32,5 +32,14 @@ jobs:
       - name: Check formatting
         run: melos run format
 
-      - name: Test
-        run: melos run test
+      - name: Test with coverage
+        run: melos run coverage
+
+      - name: Combine coverage
+        run: ./tool/combine_coverage.sh
+
+      - name: Check coverage minimum
+        uses: VeryGoodOpenSource/very_good_coverage@v3
+        with:
+          path: coverage/lcov.info
+          min_coverage: 80
