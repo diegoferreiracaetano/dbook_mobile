@@ -8,6 +8,7 @@ dev_dependencies:
   melos: ^8.7.0
 
 workspace:
+  - apps/dbook_mobile
   - packages/dbook_design_system
   - packages/dbook_design_system/sample
   - packages/dbook_design_system/widgetbook

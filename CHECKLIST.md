@@ -85,8 +85,8 @@ Decisão: monorepo com [melos](https://melos.invertase.dev/) desde o início —
 - [x] 1.29b Catálogo visual (ex.: [Widgetbook](https://pub.dev/packages/widgetbook)) mostrando cada componente/estado isolado, pra QA visual sem precisar rodar o app inteiro — `packages/dbook_design_system/widgetbook/` (26 componentes, 28 casos de uso), tema claro/escuro via `MaterialThemeAddon`
 
 **App raiz + CI:**
-- [ ] 1.30 Criar o app Flutter raiz em `apps/dbook_mobile/`, consumindo o tema do `dbook_design_system` via dependência `path:`
-- [ ] 1.31 Configurar `integration_test` no app raiz (smoke test instrumentado: abre o app, renderiza a primeira tela — a partir daqui todo fluxo de feature ganha teste instrumentado além do widget test)
+- [x] 1.30 Criar o app Flutter raiz em `apps/dbook_mobile/`, consumindo o tema do `dbook_design_system` via dependência `path:` — home é um onboarding de 3 slides com `DbookOnboardingSlide` (não há feature real ainda, M2+)
+- [x] 1.31 Configurar `integration_test` no app raiz (smoke test instrumentado: abre o app, renderiza a primeira tela — a partir daqui todo fluxo de feature ganha teste instrumentado além do widget test) — `integration_test/app_test.dart` (roda em device/emulador de verdade, não neste ambiente)
 - [ ] 1.32 CI (GitHub Actions): `melos bootstrap` + `melos run analyze` + `dart format --set-exit-if-changed .`
 - [ ] 1.33 CI: adicionar `melos run test` ao workflow
 
