@@ -76,9 +76,9 @@ Decisão: monorepo com [melos](https://melos.invertase.dev/) desde o início —
 - [x] 1.26b Tela de sucesso completa (fundo cheio + ícone com sparkles decorativos + cartão de referência com copiar + dois botões + ilustração de skyline) — versão rica pro fluxo de Confirmação de reserva, `DbookSuccessScreen`
 
 *Overlays:*
-- [ ] 1.27 Bottom sheet e dialog de confirmação
-- [ ] 1.28 Indicador de página / dots (usado no onboarding)
-- [ ] 1.28b Slide de onboarding completo (foto cheia + degradê + título/subtítulo + dots + Skip/Next) — composição usando 1.28
+- [x] 1.27 Bottom sheet e dialog de confirmação — `showModalBottomSheet` via `bottomSheetTheme`, `showDbookConfirmationDialog` via `dialogTheme`
+- [x] 1.28 Indicador de página / dots (usado no onboarding) — `DbookPageIndicator`
+- [x] 1.28b Slide de onboarding completo (foto cheia + degradê + título/subtítulo + dots + Skip/Next) — composição usando 1.28 — `DbookOnboardingSlide`
 
 **Documentação viva dos componentes:**
 - [x] 1.29a App de exemplo (`packages/dbook_design_system/sample/`) mostrando tema (claro/escuro) e todos os componentes construídos até agora

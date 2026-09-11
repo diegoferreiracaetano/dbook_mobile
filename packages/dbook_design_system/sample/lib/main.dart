@@ -84,6 +84,8 @@ class ShowcasePage extends StatelessWidget {
             _QrSection(),
             _FeedbackSection(),
             _SuccessScreenSection(),
+            _OverlaysSection(),
+            _OnboardingSlideSection(),
           ],
         ),
       ),
@@ -815,6 +817,85 @@ class _SuccessScreenSection extends StatelessWidget {
             onPrimaryAction: () {},
             secondaryActionLabel: 'Back to Home',
             onSecondaryAction: () {},
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _OverlaysSection extends StatelessWidget {
+  const _OverlaysSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return _Section(
+      title: 'Overlays',
+      child: Wrap(
+        spacing: DbookSpacing.md,
+        children: [
+          DbookButton(
+            label: 'Abrir dialog de confirmação',
+            variant: DbookButtonVariant.secondary,
+            onPressed: () => showDbookConfirmationDialog(
+              context,
+              title: 'Cancelar reserva?',
+              message: 'Essa ação não pode ser desfeita.',
+            ),
+          ),
+          DbookButton(
+            label: 'Abrir bottom sheet',
+            variant: DbookButtonVariant.secondary,
+            onPressed: () => showModalBottomSheet<void>(
+              context: context,
+              builder: (context) => const Padding(
+                padding: EdgeInsets.all(DbookSpacing.lg),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Filtros'),
+                    SizedBox(height: DbookSpacing.sm),
+                    Text('Conteúdo do bottom sheet vem do tema.'),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OnboardingSlideSection extends StatelessWidget {
+  const _OnboardingSlideSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return _Section(
+      title: 'Slide de onboarding',
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(DbookRadius.lg),
+        child: SizedBox(
+          height: 420,
+          child: DbookOnboardingSlide(
+            background: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFF0B3D91), Color(0xFF0085FF)],
+              ),
+            ),
+            title: 'Discover New Horizons',
+            subtitle:
+                'Find and book the best flights to amazing destinations '
+                'around the world.',
+            pageCount: 3,
+            currentIndex: 0,
+            primaryActionLabel: 'Next',
+            onPrimaryAction: () {},
+            onSkip: () {},
           ),
         ),
       ),

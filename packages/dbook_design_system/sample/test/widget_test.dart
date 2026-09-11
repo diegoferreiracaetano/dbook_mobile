@@ -16,6 +16,8 @@ void main() {
       expect(find.text('Formulário'), findsOneWidget);
       expect(find.text('ou continue com'), findsOneWidget);
       expect(find.text('Navegação e estrutura'), findsOneWidget);
+      expect(find.text('Overlays'), findsOneWidget);
+      expect(find.text('Slide de onboarding'), findsOneWidget);
       expect(find.text('Avatar'), findsOneWidget);
       expect(find.text('Status'), findsOneWidget);
       expect(find.text('Preço, badges e resumo'), findsOneWidget);
