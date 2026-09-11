@@ -9,6 +9,7 @@ dev_dependencies:
 
 workspace:
   - packages/dbook_design_system
+  - packages/dbook_design_system/sample
 
 melos:
   name: dbook_mobile
