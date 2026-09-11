@@ -4,6 +4,9 @@ publish_to: none
 environment:
   sdk: ^3.13.3
 
+dev_dependencies:
+  melos: ^8.7.0
+
 workspace:
   - packages/dbook_design_system
 
