@@ -2,15 +2,19 @@ import 'package:dbook_core_storage/dbook_core_storage.dart';
 import 'package:dbook_domain/dbook_domain.dart';
 import 'package:dio/dio.dart';
 
-/// Anexa o access token em toda requisição (3.6) e, num 401, tenta um
-/// refresh automático e repete a requisição original (3.7). [authRepository]
-/// aqui é o repositório de rede puro (não o [PersistingAuthRepository]) —
-/// este interceptor já salva o par novo sozinho, salvar duas vezes seria
-/// redundante.
+/// Anexa o access token em toda requisição e, num 401, tenta um refresh
+/// automático e repete a requisição original. [authRepository] aqui é o
+/// repositório de rede puro (não o `PersistingAuthRepository` da feature de
+/// auth) — este interceptor já salva o par novo sozinho, salvar duas vezes
+/// seria redundante.
 ///
 /// Refreshes concorrentes são deduplicados num único voo: o refresh token é
 /// de uso único no backend, então dois 401 simultâneos tentando refrescar
-/// ao mesmo tempo invalidariam um ao outro.
+/// ao mesmo tempo invalidariam um ao outro. Por isso [DbookAuthInterceptor]
+/// vive aqui, num pacote compartilhado, em vez de dentro da feature de auth
+/// — toda feature usa o mesmo `dioProvider`/interceptor (M4 em diante), e
+/// duas instâncias de interceptor deduplicariam refresh cada uma sozinha,
+/// reabrindo a race condition.
 class DbookAuthInterceptor extends Interceptor {
   DbookAuthInterceptor({
     required this.tokenStorage,
