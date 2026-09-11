@@ -74,6 +74,7 @@ class ShowcasePage extends StatelessWidget {
             _FormSection(),
             _AvatarSection(),
             _StatusBadgeSection(),
+            _DataDisplaySection(),
             _TripSummaryCardSection(),
             _CardsSection(),
             _FareDateStripSection(),
@@ -293,6 +294,75 @@ class _StatusBadgeSection extends StatelessWidget {
           DbookStatusBadge(status: DbookStatus.confirmed, label: 'Confirmado'),
           DbookStatusBadge(status: DbookStatus.pending, label: 'Pendente'),
           DbookStatusBadge(status: DbookStatus.cancelled, label: 'Cancelado'),
+        ],
+      ),
+    );
+  }
+}
+
+class _DataDisplaySection extends StatelessWidget {
+  const _DataDisplaySection();
+
+  @override
+  Widget build(BuildContext context) {
+    return _Section(
+      title: 'Preço, badges e resumo',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const DbookPriceDisplay(amount: 'R\$ 612', caption: 'por pessoa'),
+          const SizedBox(height: DbookSpacing.lg),
+          const Row(
+            children: [
+              DbookNotificationBadge(
+                count: 3,
+                child: Icon(Icons.notifications_outlined),
+              ),
+              SizedBox(width: DbookSpacing.xl),
+              DbookNotificationBadge(
+                count: 0,
+                child: Icon(Icons.notifications_outlined),
+              ),
+            ],
+          ),
+          const SizedBox(height: DbookSpacing.lg),
+          Card(
+            child: Column(
+              children: [
+                DbookPricedListItem(
+                  icon: Icons.event_seat_outlined,
+                  title: 'Seat Selection',
+                  subtitle: 'Choose your seat',
+                  price: '\$15',
+                  onTap: () {},
+                ),
+                DbookPricedListItem(
+                  icon: Icons.luggage_outlined,
+                  title: 'Extra Baggage',
+                  subtitle: 'Add a checked bag',
+                  price: '\$60',
+                  onTap: () {},
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: DbookSpacing.lg),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: DbookSpacing.sm),
+            child: Column(
+              children: [
+                DbookSummaryRow(label: 'Flight (1 adult)', value: '\$450'),
+                DbookSummaryRow(label: 'Taxes & Fees', value: '\$120'),
+                DbookSummaryRow(label: 'Seat Selection', value: '\$15'),
+                Divider(),
+                DbookSummaryRow(
+                  label: 'Total',
+                  value: '\$585',
+                  emphasize: true,
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

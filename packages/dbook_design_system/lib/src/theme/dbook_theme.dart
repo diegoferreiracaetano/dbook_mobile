@@ -45,6 +45,14 @@ abstract final class DbookTheme {
       extensions: [statusColors],
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
+          backgroundColor: colorScheme.primary,
+          foregroundColor: colorScheme.onPrimary,
+          disabledBackgroundColor: colorScheme.onSurface.withValues(
+            alpha: 0.12,
+          ),
+          disabledForegroundColor: colorScheme.onSurface.withValues(
+            alpha: 0.38,
+          ),
           shape: buttonShape,
           padding: buttonPadding,
           textStyle: textTheme.labelLarge,
@@ -143,6 +151,11 @@ abstract final class DbookTheme {
           horizontal: DbookSpacing.lg,
           vertical: DbookSpacing.xs,
         ),
+      ),
+      badgeTheme: BadgeThemeData(
+        backgroundColor: colorScheme.error,
+        textColor: colorScheme.onError,
+        textStyle: textTheme.labelSmall,
       ),
     );
   }

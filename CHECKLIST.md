@@ -58,11 +58,11 @@ Decisão: monorepo com [melos](https://melos.invertase.dev/) desde o início —
 - [x] 1.19b Enriquecer `DbookFlightResultTile`: logo/ícone da companhia, número do voo, badge "sem escalas"/paradas e seta — versão atual só tem horário/duração/preço
 - [x] 1.20 Célula de mapa de assento (3 estados) e bloco de código QR/barcode — `DbookSeatCell`, `DbookQrPlaceholder`
 - [x] 1.20b Cartão de resumo de busca (origem ⇄ destino, datas, passageiros) — usado cheio na Home/Busca e compacto no topo de Resultados — `DbookTripSummaryCard`
-- [ ] 1.21 Estilo de preço em destaque (tipografia grande, reusada em Detalhe do voo / Revisar reserva / Bilhete)
+- [x] 1.21 Estilo de preço em destaque (tipografia grande, reusada em Detalhe do voo / Revisar reserva / Bilhete) — `DbookPriceDisplay`
 - [x] 1.21b Faixa horizontal de data+preço (seletor de datas com tarifa do dia, dia selecionado em destaque) — usada no topo de Resultados — `DbookFareDateStrip`
-- [ ] 1.21c Badge numérico sobre ícone (ex. contador de notificação "3" no Drawer/Menu) — `Badge` (M3) temático, diferente do `DbookStatusBadge` (que é pill de texto, não contador)
-- [ ] 1.21d Item de extra/serviço com preço (ícone + título + descrição + preço à direita, ex. "Seat Selection $15" em Passageiro & Extras)
-- [ ] 1.21e Linha de resumo rótulo↔valor (ex. "Order Summary" no Pagamento, resumo da reserva) — lista de pares label/valor terminando num total em destaque
+- [x] 1.21c Badge numérico sobre ícone (ex. contador de notificação "3" no Drawer/Menu) — `Badge` (M3) temático, diferente do `DbookStatusBadge` (que é pill de texto, não contador) — `DbookNotificationBadge` + `badgeTheme`
+- [x] 1.21d Item de extra/serviço com preço (ícone + título + descrição + preço à direita, ex. "Seat Selection $15" em Passageiro & Extras) — `DbookPricedListItem`
+- [x] 1.21e Linha de resumo rótulo↔valor (ex. "Order Summary" no Pagamento, resumo da reserva) — lista de pares label/valor terminando num total em destaque — `DbookSummaryRow`
 
 *Navegação e estrutura:*
 - [ ] 1.22 App bar (variantes: cor sólida, transparente sobre imagem, com botão voltar, com subtítulo)
