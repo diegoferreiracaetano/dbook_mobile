@@ -15,6 +15,7 @@ class DbookTripSummaryCard extends StatelessWidget {
     required this.passengersLabel,
     this.onSwap,
     this.onTapRoute,
+    this.onTapDestination,
     this.onTapDates,
     this.onTapPassengers,
     this.compact = false,
@@ -25,7 +26,13 @@ class DbookTripSummaryCard extends StatelessWidget {
   final String dateRangeLabel;
   final String passengersLabel;
   final VoidCallback? onSwap;
+
+  /// No modo [compact], dispara ao tocar a linha inteira (reabrir a busca).
+  /// No modo cheio, dispara só no campo "From" — "To" usa
+  /// [onTapDestination], já que os dois campos precisam abrir seletores
+  /// diferentes.
   final VoidCallback? onTapRoute;
+  final VoidCallback? onTapDestination;
   final VoidCallback? onTapDates;
   final VoidCallback? onTapPassengers;
   final bool compact;
@@ -113,7 +120,7 @@ class _FullContent extends StatelessWidget {
                   icon: Icons.flight_land,
                   label: 'To',
                   value: data.destination,
-                  onTap: data.onTapRoute,
+                  onTap: data.onTapDestination,
                 ),
               ),
             ],

@@ -28,6 +28,37 @@ void main() {
   });
 
   testWidgets(
+    'given full mode when From and To are tapped then each fires its own '
+    'callback',
+    (tester) async {
+      var originTaps = 0;
+      var destinationTaps = 0;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: DbookTheme.light,
+          home: Scaffold(
+            body: DbookTripSummaryCard(
+              origin: 'São Paulo (GRU)',
+              destination: 'Madrid (MAD)',
+              dateRangeLabel: 'Jan 13 - Jan 30, 2026',
+              passengersLabel: '1 Adult, Economy',
+              onTapRoute: () => originTaps++,
+              onTapDestination: () => destinationTaps++,
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('From'));
+      await tester.tap(find.text('To'));
+
+      expect(originTaps, 1);
+      expect(destinationTaps, 1);
+    },
+  );
+
+  testWidgets(
     'given compact mode when built then route and summary render on one '
     'line and tap fires',
     (tester) async {
