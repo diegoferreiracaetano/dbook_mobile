@@ -82,7 +82,7 @@ Decisão: monorepo com [melos](https://melos.invertase.dev/) desde o início —
 
 **Documentação viva dos componentes:**
 - [x] 1.29a App de exemplo (`packages/dbook_design_system/sample/`) mostrando tema (claro/escuro) e todos os componentes construídos até agora
-- [ ] 1.29b Catálogo visual (ex.: [Widgetbook](https://pub.dev/packages/widgetbook)) mostrando cada componente/estado isolado, pra QA visual sem precisar rodar o app inteiro
+- [x] 1.29b Catálogo visual (ex.: [Widgetbook](https://pub.dev/packages/widgetbook)) mostrando cada componente/estado isolado, pra QA visual sem precisar rodar o app inteiro — `packages/dbook_design_system/widgetbook/` (26 componentes, 28 casos de uso), tema claro/escuro via `MaterialThemeAddon`
 
 **App raiz + CI:**
 - [ ] 1.30 Criar o app Flutter raiz em `apps/dbook_mobile/`, consumindo o tema do `dbook_design_system` via dependência `path:`
