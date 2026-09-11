@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'flight.dart';
@@ -9,6 +9,7 @@ part of 'flight.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -25,16 +26,21 @@ $FlightCopyWith<Flight> get copyWith => _$FlightCopyWithImpl<Flight>(this as Fli
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Flight&&(identical(other.id, id) || other.id == id)&&(identical(other.flightNumber, flightNumber) || other.flightNumber == flightNumber)&&(identical(other.originIataCode, originIataCode) || other.originIataCode == originIataCode)&&(identical(other.destinationIataCode, destinationIataCode) || other.destinationIataCode == destinationIataCode)&&(identical(other.departureTime, departureTime) || other.departureTime == departureTime)&&(identical(other.arrivalTime, arrivalTime) || other.arrivalTime == arrivalTime)&&(identical(other.seatClass, seatClass) || other.seatClass == seatClass)&&(identical(other.price, price) || other.price == price)&&(identical(other.availableCapacity, availableCapacity) || other.availableCapacity == availableCapacity));
+  final _this = this as Flight;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Flight&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.flightNumber, _this.flightNumber) || other.flightNumber == _this.flightNumber)&&(identical(other.originIataCode, _this.originIataCode) || other.originIataCode == _this.originIataCode)&&(identical(other.destinationIataCode, _this.destinationIataCode) || other.destinationIataCode == _this.destinationIataCode)&&(identical(other.departureTime, _this.departureTime) || other.departureTime == _this.departureTime)&&(identical(other.arrivalTime, _this.arrivalTime) || other.arrivalTime == _this.arrivalTime)&&(identical(other.seatClass, _this.seatClass) || other.seatClass == _this.seatClass)&&(identical(other.price, _this.price) || other.price == _this.price)&&(identical(other.availableCapacity, _this.availableCapacity) || other.availableCapacity == _this.availableCapacity));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,flightNumber,originIataCode,destinationIataCode,departureTime,arrivalTime,seatClass,price,availableCapacity);
+int get hashCode {
+  final _this = this as Flight;
+  return Object.hash(runtimeType,_this.id,_this.flightNumber,_this.originIataCode,_this.destinationIataCode,_this.departureTime,_this.arrivalTime,_this.seatClass,_this.price,_this.availableCapacity);
+}
 
 @override
 String toString() {
-  return 'Flight(id: $id, flightNumber: $flightNumber, originIataCode: $originIataCode, destinationIataCode: $destinationIataCode, departureTime: $departureTime, arrivalTime: $arrivalTime, seatClass: $seatClass, price: $price, availableCapacity: $availableCapacity)';
+  final _this = this as Flight;
+  return 'Flight(id: ${_this.id}, flightNumber: ${_this.flightNumber}, originIataCode: ${_this.originIataCode}, destinationIataCode: ${_this.destinationIataCode}, departureTime: ${_this.departureTime}, arrivalTime: ${_this.arrivalTime}, seatClass: ${_this.seatClass}, price: ${_this.price}, availableCapacity: ${_this.availableCapacity})';
 }
 
 
@@ -63,7 +69,7 @@ class _$FlightCopyWithImpl<$Res>
 /// Create a copy of Flight
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? flightNumber = null,Object? originIataCode = null,Object? destinationIataCode = null,Object? departureTime = null,Object? arrivalTime = null,Object? seatClass = null,Object? price = null,Object? availableCapacity = null,}) {
-  return _then(_self.copyWith(
+  return _then(Flight(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,flightNumber: null == flightNumber ? _self.flightNumber : flightNumber // ignore: cast_nullable_to_non_nullable
 as String,originIataCode: null == originIataCode ? _self.originIataCode : originIataCode // ignore: cast_nullable_to_non_nullable
@@ -237,16 +243,18 @@ _$FlightCopyWith<_Flight> get copyWith => __$FlightCopyWithImpl<_Flight>(this, _
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Flight&&(identical(other.id, id) || other.id == id)&&(identical(other.flightNumber, flightNumber) || other.flightNumber == flightNumber)&&(identical(other.originIataCode, originIataCode) || other.originIataCode == originIataCode)&&(identical(other.destinationIataCode, destinationIataCode) || other.destinationIataCode == destinationIataCode)&&(identical(other.departureTime, departureTime) || other.departureTime == departureTime)&&(identical(other.arrivalTime, arrivalTime) || other.arrivalTime == arrivalTime)&&(identical(other.seatClass, seatClass) || other.seatClass == seatClass)&&(identical(other.price, price) || other.price == price)&&(identical(other.availableCapacity, availableCapacity) || other.availableCapacity == availableCapacity));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Flight&&(identical(other.id, id) || other.id == id)&&(identical(other.flightNumber, flightNumber) || other.flightNumber == flightNumber)&&(identical(other.originIataCode, originIataCode) || other.originIataCode == originIataCode)&&(identical(other.destinationIataCode, destinationIataCode) || other.destinationIataCode == destinationIataCode)&&(identical(other.departureTime, departureTime) || other.departureTime == departureTime)&&(identical(other.arrivalTime, arrivalTime) || other.arrivalTime == arrivalTime)&&(identical(other.seatClass, seatClass) || other.seatClass == seatClass)&&(identical(other.price, price) || other.price == price)&&(identical(other.availableCapacity, availableCapacity) || other.availableCapacity == availableCapacity));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,flightNumber,originIataCode,destinationIataCode,departureTime,arrivalTime,seatClass,price,availableCapacity);
+int get hashCode {
+    return Object.hash(runtimeType,id,flightNumber,originIataCode,destinationIataCode,departureTime,arrivalTime,seatClass,price,availableCapacity);
+}
 
 @override
 String toString() {
-  return 'Flight(id: $id, flightNumber: $flightNumber, originIataCode: $originIataCode, destinationIataCode: $destinationIataCode, departureTime: $departureTime, arrivalTime: $arrivalTime, seatClass: $seatClass, price: $price, availableCapacity: $availableCapacity)';
+    return 'Flight(id: $id, flightNumber: $flightNumber, originIataCode: $originIataCode, destinationIataCode: $destinationIataCode, departureTime: $departureTime, arrivalTime: $arrivalTime, seatClass: $seatClass, price: $price, availableCapacity: $availableCapacity)';
 }
 
 

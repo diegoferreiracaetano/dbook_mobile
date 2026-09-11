@@ -115,10 +115,10 @@ Decisão: `dbook_domain` é Dart puro, zero dependência de Flutter/Riverpod —
 - [x] 2.6 dbook_domain: entidade `AiSuggestion`
 - [x] 2.7 dbook_domain: portas (interfaces) — `FlightRepository`, `BookingRepository`, `AuthRepository`, `AiSuggestionRepository`
 - [x] 2.8 dbook_domain: casos de uso — `SearchFlightsUseCase`, `GetSeatsUseCase`, `RegisterBookingUseCase`, `CancelBookingUseCase`, `LoginUseCase`, `RegisterUseCase`, `RefreshSessionUseCase`, `SuggestFlightsUseCase`, todos com teste usando fake de repositório escrito à mão (interfaces pequenas, sem lib de mock)
-- [ ] 2.9 Criar o pacote `packages/dbook_core_network`, configurar Dio (base URL, timeouts, logging em debug)
-- [ ] 2.10 dbook_core_network: DTOs com `freezed` + `json_serializable` (build_runner)
-- [ ] 2.11 dbook_core_network: mapeamento DTO → entidade de domínio
-- [ ] 2.12 dbook_core_network: exceptions de rede mapeadas a partir do status HTTP da API
+- [x] 2.9 Criar o pacote `packages/dbook_core_network`, configurar Dio (base URL, timeouts, logging em debug) — `DbookDioClient.create()`; interceptor de auth (anexar token, refresh no 401) fica pro M3, junto da sessão
+- [x] 2.10 dbook_core_network: DTOs com `freezed` + `json_serializable` (build_runner) — 12 DTOs cobrindo auth, busca de voo, assentos, reserva e sugestão de IA, campo a campo batendo com o survey do backend real
+- [x] 2.11 dbook_core_network: mapeamento DTO → entidade de domínio — `toDomain()` em cada DTO; enums do domínio continuam Dart puro (sem `json_serializable`), tradução via `wire_enums.dart`; também vieram as implementações reais dos 4 repositórios (`*RepositoryImpl`), fechando as portas do `dbook_domain`
+- [x] 2.12 dbook_core_network: exceptions de rede mapeadas a partir do status HTTP da API — `DbookNetworkException` (400/401/403/404/409/429/502/503 + fallback), lendo `{"error": "..."}` do corpo quando presente
 - [ ] 2.13 Criar o pacote `packages/dbook_core_storage` (`flutter_secure_storage`), wrapper pra salvar/ler o par de tokens
 
 **Checklist de fechamento do M2:**

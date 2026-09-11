@@ -13,6 +13,7 @@ workspace:
   - packages/dbook_design_system/sample
   - packages/dbook_design_system/widgetbook
   - packages/dbook_domain
+  - packages/dbook_core_network
 
 melos:
   name: dbook_mobile

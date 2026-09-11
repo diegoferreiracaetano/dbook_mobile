@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'booking.dart';
@@ -9,6 +9,7 @@ part of 'booking.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -25,16 +26,21 @@ $BookingCopyWith<Booking> get copyWith => _$BookingCopyWithImpl<Booking>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Booking&&(identical(other.id, id) || other.id == id)&&(identical(other.bookableId, bookableId) || other.bookableId == bookableId)&&(identical(other.seatId, seatId) || other.seatId == seatId)&&(identical(other.customerId, customerId) || other.customerId == customerId)&&(identical(other.status, status) || other.status == status));
+  final _this = this as Booking;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Booking&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.bookableId, _this.bookableId) || other.bookableId == _this.bookableId)&&(identical(other.seatId, _this.seatId) || other.seatId == _this.seatId)&&(identical(other.customerId, _this.customerId) || other.customerId == _this.customerId)&&(identical(other.status, _this.status) || other.status == _this.status));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,bookableId,seatId,customerId,status);
+int get hashCode {
+  final _this = this as Booking;
+  return Object.hash(runtimeType,_this.id,_this.bookableId,_this.seatId,_this.customerId,_this.status);
+}
 
 @override
 String toString() {
-  return 'Booking(id: $id, bookableId: $bookableId, seatId: $seatId, customerId: $customerId, status: $status)';
+  final _this = this as Booking;
+  return 'Booking(id: ${_this.id}, bookableId: ${_this.bookableId}, seatId: ${_this.seatId}, customerId: ${_this.customerId}, status: ${_this.status})';
 }
 
 
@@ -63,7 +69,7 @@ class _$BookingCopyWithImpl<$Res>
 /// Create a copy of Booking
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? bookableId = null,Object? seatId = null,Object? customerId = null,Object? status = null,}) {
-  return _then(_self.copyWith(
+  return _then(Booking(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,bookableId: null == bookableId ? _self.bookableId : bookableId // ignore: cast_nullable_to_non_nullable
 as int,seatId: null == seatId ? _self.seatId : seatId // ignore: cast_nullable_to_non_nullable
@@ -229,16 +235,18 @@ _$BookingCopyWith<_Booking> get copyWith => __$BookingCopyWithImpl<_Booking>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Booking&&(identical(other.id, id) || other.id == id)&&(identical(other.bookableId, bookableId) || other.bookableId == bookableId)&&(identical(other.seatId, seatId) || other.seatId == seatId)&&(identical(other.customerId, customerId) || other.customerId == customerId)&&(identical(other.status, status) || other.status == status));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Booking&&(identical(other.id, id) || other.id == id)&&(identical(other.bookableId, bookableId) || other.bookableId == bookableId)&&(identical(other.seatId, seatId) || other.seatId == seatId)&&(identical(other.customerId, customerId) || other.customerId == customerId)&&(identical(other.status, status) || other.status == status));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,bookableId,seatId,customerId,status);
+int get hashCode {
+    return Object.hash(runtimeType,id,bookableId,seatId,customerId,status);
+}
 
 @override
 String toString() {
-  return 'Booking(id: $id, bookableId: $bookableId, seatId: $seatId, customerId: $customerId, status: $status)';
+    return 'Booking(id: $id, bookableId: $bookableId, seatId: $seatId, customerId: $customerId, status: $status)';
 }
 
 
