@@ -7,3 +7,4 @@ export 'src/tokens/dbook_motion.dart';
 export 'src/tokens/dbook_radius.dart';
 export 'src/tokens/dbook_spacing.dart';
 export 'src/tokens/dbook_typography.dart';
+export 'src/theme/dbook_theme.dart';

@@ -33,7 +33,7 @@ Decisão: monorepo com [melos](https://melos.invertase.dev/) desde o início —
 - [x] 1.9 Tokens de motion — durações e curvas padrão de transição/animação
 
 **Tema (junta os tokens em algo o Flutter consome):**
-- [ ] 1.10 `ThemeData` completo (light + dark) montado só a partir dos tokens acima — nenhuma cor/fonte solta fora do tema
+- [x] 1.10 `ThemeData` completo (light + dark) montado só a partir dos tokens acima — nenhuma cor/fonte solta fora do tema
 
 **Componentes — duas regras: (1) se aparece em mais de uma tela (ou tem cara de que vai aparecer), é componente do `dbook_design_system`, nunca widget solto numa feature — consomem só o tema, nunca um token bruto direto na feature; (2) cada componente é um tema/composição em cima do widget Material 3 equivalente do Flutter, não uma reconstrução do zero. Lista extraída revisando as 17 telas do [UI kit](https://claude.ai/code/artifact/a2793fd6-4385-4100-a319-c6d70e70c3bf) — cobre tudo que já apareceu em algum desenho, agrupado por função:**
 
