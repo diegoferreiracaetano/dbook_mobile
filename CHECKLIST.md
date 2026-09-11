@@ -10,7 +10,7 @@ Checklist de fechamento (repetida ao final de cada marco, mesmo processo do back
 5. Revisão de layout — a **montagem** da tela também segue padrão, não só os widgets isolados: espaçamento vem de `Spacing` (nunca um número solto tipo `SizedBox(height: 13)`), alinhamento/agrupamento repete os mesmos padrões de `Row`/`Column`/`Padding` já usados em outras telas, e qualquer arranjo de tela que se repita (ex.: cabeçalho + card + lista) vira um layout/slot reutilizável do `dbook_design_system` em vez de ser remontado à mão em cada feature.
 6. Revisão de Material Design — os componentes do `dbook_design_system` são **temas/composições em cima de widgets Material 3** do próprio Flutter (`ElevatedButton`, `OutlinedButton`, `TextField`/`TextFormField`, `Card`, `NavigationBar`, `Chip`, `Switch`, etc.), nunca reconstruídos do zero com `Container`/`GestureDetector`. Isso vale acessibilidade, ripple, estados de foco e comportamento de plataforma de graça, e é o motivo de termos escolhido Material 3 lá no início do projeto.
 7. `melos run analyze` + `dart format --set-exit-if-changed .` + `melos run test` passando limpos.
-8. Testes adicionados pras camadas ainda não cobertas (unit nos casos de uso/repositórios, widget test nas telas principais).
+8. Testes adicionados pras camadas ainda não cobertas — unit nos casos de uso/repositórios, **widget test em todo componente do `dbook_design_system`** (não só no fechamento do marco, junto de cada componente conforme é criado) e widget test nas telas principais das features. Teste instrumentado (`integration_test`, roda em dispositivo/emulador de verdade) entra a partir do app funcionando de ponta a ponta (M3+).
 9. README.md atualizado com o que foi feito no marco.
 10. Cobertura de teste (`very_good_coverage` sobre o `lcov.info` combinado) acima do mínimo combinado.
 
@@ -39,11 +39,11 @@ Decisão: monorepo com [melos](https://melos.invertase.dev/) desde o início —
 
 *Ação:*
 - [x] 1.11 Botão (primary/secondary/text; estados default/disabled/loading)
-- [ ] 1.12 Botão de ícone circular e botão de destaque circular (ex.: sino, voltar, trocar origem/destino)
-- [ ] 1.13 Segmented control / toggle (ex.: ida × ida-e-volta)
+- [x] 1.12 Botão de ícone circular e botão de destaque circular (ex.: sino, voltar, trocar origem/destino) — `IconButton`/`IconButton.filled()` nativos já saem corretos via `ColorScheme`, sem componente extra
+- [x] 1.13 Segmented control / toggle (ex.: ida × ida-e-volta) — `SegmentedButton` temático
 
 *Formulário:*
-- [ ] 1.14 Campo de texto outlined (estados default/foco/erro/disabled; ícone à esquerda; ícone à direita ex. mostrar senha)
+- [x] 1.14 Campo de texto outlined (estados default/foco/erro/disabled; ícone à esquerda; ícone à direita ex. mostrar senha) — `InputDecorationTheme`, `TextField`/`TextFormField` nativos
 - [ ] 1.15 Campo de busca (ícone + placeholder) e seletor de data / intervalo de datas
 - [ ] 1.16 Legenda de seleção (swatch + rótulo, ex. livre/selecionado/ocupado no mapa de assento)
 
@@ -72,11 +72,12 @@ Decisão: monorepo com [melos](https://melos.invertase.dev/) desde o início —
 
 **App raiz + CI:**
 - [ ] 1.30 Criar o app Flutter raiz em `apps/dbook_mobile/`, consumindo o tema do `dbook_design_system` via dependência `path:`
-- [ ] 1.31 CI (GitHub Actions): `melos bootstrap` + `melos run analyze` + `dart format --set-exit-if-changed .`
-- [ ] 1.32 CI: adicionar `melos run test` ao workflow
+- [ ] 1.31 Configurar `integration_test` no app raiz (smoke test instrumentado: abre o app, renderiza a primeira tela — a partir daqui todo fluxo de feature ganha teste instrumentado além do widget test)
+- [ ] 1.32 CI (GitHub Actions): `melos bootstrap` + `melos run analyze` + `dart format --set-exit-if-changed .`
+- [ ] 1.33 CI: adicionar `melos run test` ao workflow
 
 **Checklist de fechamento do M1:**
-- [ ] Itens 1.1-1.32 revisados
+- [ ] Itens 1.1-1.33 revisados
 - [ ] Nenhum valor de cor/espaçamento/fonte hardcoded fora do `dbook_design_system` (grep rápido por hex codes soltos nas features)
 - [ ] Clean Code
 - [ ] Arquitetura

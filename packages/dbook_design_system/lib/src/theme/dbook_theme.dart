@@ -64,6 +64,45 @@ abstract final class DbookTheme {
           textStyle: textTheme.labelLarge,
         ),
       ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: SegmentedButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(DbookRadius.full),
+          ),
+          textStyle: textTheme.labelLarge,
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: false,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: DbookSpacing.lg,
+          vertical: DbookSpacing.md,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(DbookRadius.xs),
+          borderSide: BorderSide(color: colorScheme.outline),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(DbookRadius.xs),
+          borderSide: BorderSide(color: colorScheme.outline),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(DbookRadius.xs),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.6),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(DbookRadius.xs),
+          borderSide: BorderSide(color: colorScheme.error),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(DbookRadius.xs),
+          borderSide: BorderSide(color: colorScheme.error, width: 1.6),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(DbookRadius.xs),
+          borderSide: BorderSide(color: colorScheme.outlineVariant),
+        ),
+      ),
     );
   }
 }
