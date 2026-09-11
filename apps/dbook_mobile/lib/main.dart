@@ -2,6 +2,8 @@ import 'package:dbook_design_system/dbook_design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'onboarding_art.dart';
+
 void main() {
   runApp(const ProviderScope(child: DbookMobileApp()));
 }
@@ -27,7 +29,7 @@ class _OnboardingSlideData {
     required this.subtitle,
   });
 
-  final Decoration background;
+  final Widget background;
   final String title;
   final String subtitle;
 }
@@ -48,39 +50,21 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   static const _slides = [
     _OnboardingSlideData(
-      background: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFF0B3D91), Color(0xFF0085FF)],
-        ),
-      ),
+      background: CloudsAndWingArt(),
       title: 'Discover New Horizons',
       subtitle:
           'Find and book the best flights to amazing destinations '
           'around the world.',
     ),
     _OnboardingSlideData(
-      background: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFF00566B), Color(0xFF00899A)],
-        ),
-      ),
+      background: LakesideVillageArt(),
       title: 'Best Prices Everytime',
       subtitle:
           'Compare hundreds of airlines and get the best deals for '
           'your next adventure.',
     ),
     _OnboardingSlideData(
-      background: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFF4A1E5C), Color(0xFFB1456B)],
-        ),
-      ),
+      background: MountainHikerArt(),
       title: 'Travel Your Way',
       subtitle: 'Flexible options, secure booking and a seamless experience.',
     ),

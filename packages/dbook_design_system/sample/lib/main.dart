@@ -880,11 +880,13 @@ class _OnboardingSlideSection extends StatelessWidget {
         child: SizedBox(
           height: 420,
           child: DbookOnboardingSlide(
-            background: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFF0B3D91), Color(0xFF0085FF)],
+            background: const DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color(0xFF0B3D91), Color(0xFF0085FF)],
+                ),
               ),
             ),
             title: 'Discover New Horizons',

@@ -412,7 +412,7 @@ class DbookWidgetbook extends StatelessWidget {
                 WidgetbookUseCase(
                   name: 'Padrão',
                   builder: (context) => DbookOnboardingSlide(
-                    background: const BoxDecoration(color: Colors.blue),
+                    background: const ColoredBox(color: Colors.blue),
                     title: 'Discover New Horizons',
                     subtitle: 'Find and book the best flights.',
                     pageCount: 3,

@@ -13,7 +13,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: DbookOnboardingSlide(
-              background: const BoxDecoration(color: Colors.blue),
+              background: const ColoredBox(color: Colors.blue),
               title: 'Discover New Horizons',
               subtitle: 'Find and book the best flights.',
               pageCount: 3,
@@ -44,7 +44,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: DbookOnboardingSlide(
-            background: const BoxDecoration(color: Colors.blue),
+            background: const ColoredBox(color: Colors.blue),
             title: 'Travel Your Way',
             subtitle: 'Flexible options, secure booking.',
             pageCount: 3,

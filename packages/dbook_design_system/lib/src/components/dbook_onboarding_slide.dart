@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import '../tokens/dbook_spacing.dart';
 import 'dbook_page_indicator.dart';
 
-/// Slide de onboarding — fundo (foto/gradiente) + degradê escuro no
-/// rodapé + título/subtítulo + dots + ação primária, com "Skip" opcional
-/// (some na última página).
+/// Slide de onboarding — fundo (gradiente ou ilustração via [background]) +
+/// degradê escuro no rodapé + título/subtítulo + dots + ação primária, com
+/// "Skip" opcional (some na última página).
 class DbookOnboardingSlide extends StatelessWidget {
   const DbookOnboardingSlide({
     super.key,
@@ -19,7 +19,10 @@ class DbookOnboardingSlide extends StatelessWidget {
     this.onSkip,
   });
 
-  final Decoration background;
+  /// Widget de fundo — um `DecoratedBox` com gradiente serve pro caso
+  /// simples; pra ilustração de verdade, passe um `CustomPaint` (ou
+  /// qualquer widget) preenchendo o espaço.
+  final Widget background;
   final String title;
   final String subtitle;
   final int pageCount;
@@ -32,80 +35,78 @@ class DbookOnboardingSlide extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return DecoratedBox(
-      decoration: background,
-      child: Stack(
-        children: [
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: DecoratedBox(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0x00000000), Color(0xCC000000)],
-                ),
+    return Stack(
+      children: [
+        Positioned.fill(child: background),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: DecoratedBox(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0x00000000), Color(0xCC000000)],
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(DbookSpacing.xl),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: textTheme.headlineSmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(DbookSpacing.xl),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: textTheme.headlineSmall?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
                     ),
-                    const SizedBox(height: DbookSpacing.sm),
-                    Text(
-                      subtitle,
-                      style: textTheme.bodyMedium?.copyWith(
-                        color: Colors.white70,
-                      ),
+                  ),
+                  const SizedBox(height: DbookSpacing.sm),
+                  Text(
+                    subtitle,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: Colors.white70,
                     ),
-                    const SizedBox(height: DbookSpacing.xl),
-                    DbookPageIndicator(
-                      pageCount: pageCount,
-                      currentIndex: currentIndex,
-                    ),
-                    const SizedBox(height: DbookSpacing.lg),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        if (onSkip != null)
-                          TextButton(
-                            onPressed: onSkip,
-                            style: TextButton.styleFrom(
-                              foregroundColor: Colors.white,
-                            ),
-                            child: const Text('Skip'),
-                          )
-                        else
-                          const SizedBox.shrink(),
-                        ElevatedButton(
-                          onPressed: onPrimaryAction,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: Theme.of(context)
-                                .colorScheme
-                                .primary,
+                  ),
+                  const SizedBox(height: DbookSpacing.xl),
+                  DbookPageIndicator(
+                    pageCount: pageCount,
+                    currentIndex: currentIndex,
+                  ),
+                  const SizedBox(height: DbookSpacing.lg),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      if (onSkip != null)
+                        TextButton(
+                          onPressed: onSkip,
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.white,
                           ),
-                          child: Text(primaryActionLabel),
+                          child: const Text('Skip'),
+                        )
+                      else
+                        const SizedBox.shrink(),
+                      ElevatedButton(
+                        onPressed: onPrimaryAction,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Theme.of(context)
+                              .colorScheme
+                              .primary,
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                        child: Text(primaryActionLabel),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
