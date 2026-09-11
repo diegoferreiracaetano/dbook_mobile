@@ -87,8 +87,8 @@ Decisão: monorepo com [melos](https://melos.invertase.dev/) desde o início —
 **App raiz + CI:**
 - [x] 1.30 Criar o app Flutter raiz em `apps/dbook_mobile/`, consumindo o tema do `dbook_design_system` via dependência `path:` — home é um onboarding de 3 slides com `DbookOnboardingSlide` (não há feature real ainda, M2+)
 - [x] 1.31 Configurar `integration_test` no app raiz (smoke test instrumentado: abre o app, renderiza a primeira tela — a partir daqui todo fluxo de feature ganha teste instrumentado além do widget test) — `integration_test/app_test.dart` (roda em device/emulador de verdade, não neste ambiente)
-- [ ] 1.32 CI (GitHub Actions): `melos bootstrap` + `melos run analyze` + `dart format --set-exit-if-changed .`
-- [ ] 1.33 CI: adicionar `melos run test` ao workflow
+- [x] 1.32 CI (GitHub Actions): `melos bootstrap` + `melos run analyze` + `dart format --set-exit-if-changed .` — `.github/workflows/ci.yml`
+- [x] 1.33 CI: adicionar `melos run test` ao workflow — mesmo `ci.yml`
 
 **Checklist de fechamento do M1:**
 - [ ] Itens 1.1-1.33 revisados
