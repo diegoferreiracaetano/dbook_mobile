@@ -17,4 +17,21 @@ void main() {
 
     expect(shape.borderRadius, BorderRadius.circular(DbookRadius.md));
   });
+
+  test('given DbookTheme.light when built then a selected checkbox fills with primary', () {
+    final checkboxTheme = DbookTheme.light.checkboxTheme;
+    final fillColor = checkboxTheme.fillColor!.resolve({WidgetState.selected});
+
+    expect(fillColor, DbookColorScheme.light.primary);
+  });
+
+  test(
+    'given DbookTheme.light when built then sliderTheme uses the primary color',
+    () {
+      final sliderTheme = DbookTheme.light.sliderTheme;
+
+      expect(sliderTheme.activeTrackColor, DbookColorScheme.light.primary);
+      expect(sliderTheme.thumbColor, DbookColorScheme.light.primary);
+    },
+  );
 }

@@ -46,10 +46,10 @@ Decisão: monorepo com [melos](https://melos.invertase.dev/) desde o início —
 - [x] 1.14 Campo de texto outlined (estados default/foco/erro/disabled; ícone à esquerda; ícone à direita ex. mostrar senha) — `InputDecorationTheme`, `TextField`/`TextFormField` nativos
 - [x] 1.15 Campo de busca (ícone + placeholder) e seletor de data / intervalo de datas — `DbookSearchField` e `datePickerTheme` (`showDateRangePicker` nativo)
 - [x] 1.16 Legenda de seleção (swatch + rótulo, ex. livre/selecionado/ocupado no mapa de assento) — `DbookLegendItem`
-- [ ] 1.16b Checkbox (ex. aceite de termos no Cadastro, lista de companhias no filtro) — `CheckboxListTile`/`Checkbox` temático
-- [ ] 1.16c Campo de seleção / dropdown (ex. nacionalidade, gênero no Passageiro) — `DropdownButtonFormField` temático
-- [ ] 1.16d Slider de faixa de valores (ex. price range no filtro de busca) — `RangeSlider` temático
-- [ ] 1.16e Botão de login social (Google/Apple/Facebook, ícone circular de marca) — reaproveita o botão de ícone circular (1.12) com ícones de marca
+- [x] 1.16b Checkbox (ex. aceite de termos no Cadastro, lista de companhias no filtro) — `CheckboxListTile`/`Checkbox` nativos já saem corretos via `checkboxTheme`, sem componente extra (mesmo padrão do 1.12)
+- [x] 1.16c Campo de seleção / dropdown (ex. nacionalidade, gênero no Passageiro) — `DropdownButtonFormField` nativo já sai correto via `inputDecorationTheme`, sem componente extra
+- [x] 1.16d Slider de faixa de valores (ex. price range no filtro de busca) — `RangeSlider` nativo já sai correto via `sliderTheme`, sem componente extra
+- [x] 1.16e Botão de login social (Google/Apple/Facebook, ícone circular de marca) — `DbookSocialLoginButton` + `DbookSocialLoginRow` (ícone é placeholder até ligar login social de verdade em M2)
 
 *Exibição de dados:*
 - [x] 1.17 Card base (elevado/tonal) e item de lista genérico (ícone/imagem + título + subtítulo + seta) — fundação dos itens abaixo — `cardTheme`/`listTileTheme`, `Card`/`ListTile` nativos

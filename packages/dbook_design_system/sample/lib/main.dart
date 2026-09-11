@@ -224,6 +224,9 @@ class _FormSection extends StatefulWidget {
 
 class _FormSectionState extends State<_FormSection> {
   final _controller = TextEditingController();
+  bool _agreedToTerms = false;
+  String _cabinClass = 'Economy';
+  RangeValues _priceRange = const RangeValues(200, 1200);
 
   @override
   void dispose() {
@@ -252,6 +255,59 @@ class _FormSectionState extends State<_FormSection> {
                 label: 'Disponível',
                 color: Colors.blue,
                 outlined: true,
+              ),
+            ],
+          ),
+          const SizedBox(height: DbookSpacing.md),
+          CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            value: _agreedToTerms,
+            onChanged: (value) =>
+                setState(() => _agreedToTerms = value ?? false),
+            title: const Text('Aceito os Termos de Serviço'),
+          ),
+          const SizedBox(height: DbookSpacing.sm),
+          DropdownButtonFormField<String>(
+            initialValue: _cabinClass,
+            decoration: const InputDecoration(labelText: 'Classe'),
+            items: const [
+              DropdownMenuItem(value: 'Economy', child: Text('Econômica')),
+              DropdownMenuItem(value: 'Business', child: Text('Executiva')),
+            ],
+            onChanged: (value) =>
+                setState(() => _cabinClass = value ?? _cabinClass),
+          ),
+          const SizedBox(height: DbookSpacing.lg),
+          Text('Faixa de preço', style: Theme.of(context).textTheme.labelLarge),
+          RangeSlider(
+            values: _priceRange,
+            min: 0,
+            max: 2000,
+            divisions: 20,
+            labels: RangeLabels(
+              'R\$${_priceRange.start.round()}',
+              'R\$${_priceRange.end.round()}',
+            ),
+            onChanged: (values) => setState(() => _priceRange = values),
+          ),
+          const SizedBox(height: DbookSpacing.md),
+          DbookSocialLoginRow(
+            buttons: [
+              DbookSocialLoginButton(
+                icon: Icons.g_mobiledata,
+                label: 'Google',
+                onPressed: () {},
+              ),
+              DbookSocialLoginButton(
+                icon: Icons.apple,
+                label: 'Apple',
+                onPressed: () {},
+              ),
+              DbookSocialLoginButton(
+                icon: Icons.facebook,
+                label: 'Facebook',
+                onPressed: () {},
               ),
             ],
           ),

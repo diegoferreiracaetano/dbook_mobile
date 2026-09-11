@@ -15,6 +15,7 @@ export 'src/components/dbook_priced_list_item.dart';
 export 'src/components/dbook_qr_placeholder.dart';
 export 'src/components/dbook_search_field.dart';
 export 'src/components/dbook_seat_cell.dart';
+export 'src/components/dbook_social_login_row.dart';
 export 'src/components/dbook_status_badge.dart';
 export 'src/components/dbook_status_placeholder.dart';
 export 'src/components/dbook_success_screen.dart';

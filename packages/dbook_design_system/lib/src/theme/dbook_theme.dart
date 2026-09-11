@@ -157,6 +157,28 @@ abstract final class DbookTheme {
         textColor: colorScheme.onError,
         textStyle: textTheme.labelSmall,
       ),
+      checkboxTheme: CheckboxThemeData(
+        fillColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? colorScheme.primary
+              : Colors.transparent,
+        ),
+        checkColor: WidgetStatePropertyAll(colorScheme.onPrimary),
+        side: BorderSide(color: colorScheme.outline, width: 1.4),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(DbookRadius.xs),
+        ),
+      ),
+      sliderTheme: SliderThemeData(
+        activeTrackColor: colorScheme.primary,
+        inactiveTrackColor: colorScheme.outlineVariant,
+        thumbColor: colorScheme.primary,
+        overlayColor: colorScheme.primary.withValues(alpha: 0.12),
+        valueIndicatorColor: colorScheme.primary,
+        valueIndicatorTextStyle: textTheme.labelSmall?.copyWith(
+          color: colorScheme.onPrimary,
+        ),
+      ),
     );
   }
 }
