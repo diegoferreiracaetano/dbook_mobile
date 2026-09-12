@@ -84,7 +84,7 @@ class _FlightSearchPageState extends State<FlightSearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: DbookAppBar(title: 'DBook', actions: widget.actions),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(DbookSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -104,13 +104,17 @@ class _FlightSearchPageState extends State<FlightSearchPage> {
               onSwap: _swap,
               onTapDates: _pickDate,
             ),
-            const SizedBox(height: DbookSpacing.lg),
-            DbookButton(
-              label: 'Search Flights',
-              icon: Icons.search,
-              onPressed: _canSearch ? _search : null,
-            ),
           ],
+        ),
+      ),
+      // M9-9.2: ação primária sempre alcançável, fixa no rodapé — nunca
+      // solta no fim de um conteúdo que rola.
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.all(DbookSpacing.lg),
+        child: DbookButton(
+          label: 'Search Flights',
+          icon: Icons.search,
+          onPressed: _canSearch ? _search : null,
         ),
       ),
     );

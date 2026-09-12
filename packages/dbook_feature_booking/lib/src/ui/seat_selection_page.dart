@@ -78,38 +78,22 @@ class _SeatSelectionPageState extends ConsumerState<SeatSelectionPage> {
               .read(seatSelectionNotifierProvider.notifier)
               .loadSeats(widget.flight),
         ),
-        SeatSelectionReady() => _SeatMap(flight: widget.flight, state: state),
+        SeatSelectionReady() => _SeatMapBody(state: state),
         SeatSelectionBooked() => const SizedBox.shrink(),
       },
+      // M9-9.2: ação primária sempre alcançável, fixa no rodapé — nunca
+      // solta no fim de um conteúdo que rola.
+      bottomNavigationBar: state is SeatSelectionReady
+          ? _SeatSelectionFooter(flight: widget.flight, state: state)
+          : null,
     );
   }
 }
 
-class _SeatMap extends ConsumerWidget {
-  const _SeatMap({required this.flight, required this.state});
+class _SeatMapBody extends ConsumerWidget {
+  const _SeatMapBody({required this.state});
 
-  final Flight flight;
   final SeatSelectionReady state;
-
-  Future<void> _confirm(BuildContext context, WidgetRef ref) async {
-    final seat = state.selected;
-    if (seat == null) return;
-
-    final confirmed = await showDbookConfirmationDialog(
-      context,
-      title: 'Confirm Booking',
-      message:
-          'Book seat ${seat.label} for '
-          '${_priceFormat.format(flight.price)}?',
-      confirmLabel: 'Book',
-    );
-    if (!confirmed) return;
-    if (!context.mounted) return;
-
-    await ref
-        .read(seatSelectionNotifierProvider.notifier)
-        .confirmBooking(flight);
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -157,31 +141,64 @@ class _SeatMap extends ConsumerWidget {
             },
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(DbookSpacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (state.bookingError != null) ...[
-                DbookInlineStatusBanner(
-                  message: state.bookingError!,
-                  tone: DbookBannerTone.warning,
-                ),
-                const SizedBox(height: DbookSpacing.sm),
-              ],
-              DbookButton(
-                label: state.selected == null
-                    ? 'Select a seat'
-                    : 'Book Seat ${state.selected!.label}',
-                isLoading: state.isBooking,
-                onPressed: state.selected == null
-                    ? null
-                    : () => _confirm(context, ref),
-              ),
-            ],
-          ),
-        ),
+        const SizedBox(height: DbookSpacing.lg),
       ],
+    );
+  }
+}
+
+class _SeatSelectionFooter extends ConsumerWidget {
+  const _SeatSelectionFooter({required this.flight, required this.state});
+
+  final Flight flight;
+  final SeatSelectionReady state;
+
+  Future<void> _confirm(BuildContext context, WidgetRef ref) async {
+    final seat = state.selected;
+    if (seat == null) return;
+
+    final confirmed = await showDbookConfirmationDialog(
+      context,
+      title: 'Confirm Booking',
+      message:
+          'Book seat ${seat.label} for '
+          '${_priceFormat.format(flight.price)}?',
+      confirmLabel: 'Book',
+    );
+    if (!confirmed) return;
+    if (!context.mounted) return;
+
+    await ref
+        .read(seatSelectionNotifierProvider.notifier)
+        .confirmBooking(flight);
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SafeArea(
+      minimum: const EdgeInsets.all(DbookSpacing.lg),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (state.bookingError != null) ...[
+            DbookInlineStatusBanner(
+              message: state.bookingError!,
+              tone: DbookBannerTone.warning,
+            ),
+            const SizedBox(height: DbookSpacing.sm),
+          ],
+          DbookButton(
+            label: state.selected == null
+                ? 'Select a seat'
+                : 'Book Seat ${state.selected!.label}',
+            isLoading: state.isBooking,
+            onPressed: state.selected == null
+                ? null
+                : () => _confirm(context, ref),
+          ),
+        ],
+      ),
     );
   }
 }

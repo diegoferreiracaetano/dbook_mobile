@@ -35,7 +35,7 @@ class FlightDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const DbookAppBar(title: 'Flight Details'),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(DbookSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -94,13 +94,23 @@ class FlightDetailPage extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: DbookSpacing.lg),
-            DbookPriceDisplay(
-              amount: _priceFormat.format(flight.price),
-              caption: 'per passenger',
+          ],
+        ),
+      ),
+      // M9-9.2: preço + ação primária sempre visíveis, fixos no rodapé —
+      // mesmo arranjo da tela de referência (kit, 06).
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.all(DbookSpacing.lg),
+        child: Row(
+          children: [
+            Expanded(
+              child: DbookPriceDisplay(
+                amount: _priceFormat.format(flight.price),
+                caption: 'per passenger',
+              ),
             ),
             if (onBook != null) ...[
-              const SizedBox(height: DbookSpacing.lg),
+              const SizedBox(width: DbookSpacing.md),
               DbookButton(
                 label: 'Book This Flight',
                 onPressed: () => onBook!(flight),
