@@ -40,6 +40,8 @@ dependencies:
     path: ../../packages/dbook_core_session
   dbook_design_system:
     path: ../../packages/dbook_design_system
+  dbook_feature_ai:
+    path: ../../packages/dbook_feature_ai
   dbook_feature_auth:
     path: ../../packages/dbook_feature_auth
   dbook_feature_booking:

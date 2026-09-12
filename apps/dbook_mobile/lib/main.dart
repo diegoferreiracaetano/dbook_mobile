@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dbook_core_session/dbook_core_session.dart';
 import 'package:dbook_design_system/dbook_design_system.dart';
 import 'package:dbook_feature_auth/dbook_feature_auth.dart';
+import 'package:dbook_feature_ai/dbook_feature_ai.dart';
 import 'package:dbook_feature_booking/dbook_feature_booking.dart';
 import 'package:dbook_feature_flights/dbook_feature_flights.dart';
 import 'package:dbook_feature_realtime/dbook_feature_realtime.dart';
@@ -122,6 +123,14 @@ class _AuthenticatedHome extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return FlightsHomePage(
+      aiSuggestionsAction: IconButton(
+        icon: const Icon(Icons.auto_awesome_outlined),
+        tooltip: 'Ask DBook AI',
+        onPressed: () => Navigator.of(
+          context,
+          rootNavigator: true,
+        ).push(MaterialPageRoute(builder: (_) => const AiSuggestionPage())),
+      ),
       myBookingsAction: IconButton(
         icon: const Icon(Icons.confirmation_number_outlined),
         tooltip: 'My Bookings',

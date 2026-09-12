@@ -227,26 +227,28 @@ Decisão: mesmo padrão do M5 do backend — WebSocket/STOMP, não polling. Clie
 - [x] README atualizado — [README.md](README.md) com `dbook_feature_realtime` na estrutura e progresso do M6
 - [x] Cobertura mínima — combinado: **84.77%** (1842/2173 linhas); `dbook_feature_realtime` sozinho: 91.11%
 
-## M7 — Sugestão por IA ⬜
+## M7 — Sugestão por IA ✅
 
-- [ ] 7.1 Criar o pacote `packages/dbook_feature_ai`
-- [ ] 7.2 Campo de busca em linguagem natural
-- [ ] 7.3 Implementação real do `AiSuggestionRepository`
-- [ ] 7.4 Riverpod: `AiSuggestionNotifier`
-- [ ] 7.5 Lista de sugestões (voo + motivo, usando o `dbook_design_system`)
-- [ ] 7.6 Tratamento de erro específico: 429 (rate limit), 502/503 (modelo indisponível)
+Decisão: `AiSuggestion` (`POST /ai/suggestions`) só devolve `{flightId, reason}` — sem os dados do voo embutidos, e sem `GET /flights/{id}` pra completar depois (mesmo buraco de contrato do M4/M5). A lista mostra exatamente o que a API devolve ("Flight #42" + motivo), sem fingir ter uma busca de voo por trás.
+
+- [x] 7.1 Criar o pacote `packages/dbook_feature_ai`
+- [x] 7.2 Campo de busca em linguagem natural — `DbookSearchField` (M1, já documentado como construído pra este uso exato)
+- [x] 7.3 Implementação real do `AiSuggestionRepository` — já existia desde o M2 (`AiSuggestionRepositoryImpl`); só faltava o provider ligando ao Dio autenticado
+- [x] 7.4 Riverpod: `AiSuggestionNotifier` (estados idle/loading/success/error)
+- [x] 7.5 Lista de sugestões (voo + motivo, usando o `dbook_design_system`) — `AiSuggestionPage`, com `DbookStatusPlaceholder` pros estados vazio/erro (com retry) e `DbookLoadingIndicator` pro loading
+- [x] 7.6 Tratamento de erro específico: 429 (rate limit), 502/503 (modelo indisponível) — `DbookNetworkException.message` já carrega a mensagem do backend pra cada um (mapeados desde o M2); mesmo padrão uniforme dos outros notifiers, sem tratamento especial por código
 
 **Checklist de fechamento do M7:**
-- [ ] Itens 7.1-7.6 revisados
-- [ ] Clean Code
-- [ ] Arquitetura
-- [ ] Componentização (tela usa só componentes do `dbook_design_system`, zero widget customizado solto)
-- [ ] Layout (espaçamento e montagem da tela seguem os padrões do `dbook_design_system`, nada de número solto ou arranjo remontado à mão)
-- [ ] Material Design (componentes são temas em cima de widgets Material 3 do Flutter, não reconstruídos do zero)
-- [ ] `analyze` + `format` + `test` limpos
-- [ ] Testes das camadas ainda sem cobertura
-- [ ] README atualizado
-- [ ] Cobertura mínima
+- [x] Itens 7.1-7.6 revisados — todos `[x]`
+- [x] Clean Code — `AiSuggestionNotifier` só orquestra estado; comentário só onde o "porquê" não é óbvio (ex.: por que a lista mostra `flightId` cru em vez de dados do voo)
+- [x] Arquitetura — `dbook_feature_ai` depende só de `dbook_domain`/`dbook_core_network`/`dbook_core_session`/`dbook_design_system`; a ação "Ask DBook AI" na busca de voos é injetada pelo app, mesmo padrão de `myBookingsAction`/`logoutAction`
+- [x] Componentização — a tela usa só `DbookAppBar`/`DbookSearchField`/`DbookStatusPlaceholder`/`DbookLoadingIndicator` do `dbook_design_system`, e `Card`/`ListTile` nativos já temáticos pro item da lista (não há um componente de design system pra "item de sugestão da IA" ainda — decidido não criar um novo componente pra um único uso com só ícone+título+subtítulo, que é exatamente o que `ListTile` já faz)
+- [x] Layout — espaçamento vem de `DbookSpacing`
+- [x] Material Design — `TextField` (via `DbookSearchField`)/`Card`/`ListTile` nativos via tema
+- [x] `analyze` + `format` + `test` limpos — 13 pacotes, `melos run test` (Flutter) e `melos run test:dart` (Dart puro) verdes
+- [x] Testes das camadas ainda sem cobertura — `AiSuggestionNotifier` (sucesso, 429, 503) e `AiSuggestionPage` (idle, sucesso, vazio, erro com retry)
+- [x] README atualizado — [README.md](README.md) com `dbook_feature_ai` na estrutura e progresso do M7
+- [x] Cobertura mínima — combinado: **85.04%** (1898/2232 linhas); `dbook_feature_ai` sozinho: 94.64%
 
 ## M8 — CI/CD ⬜
 

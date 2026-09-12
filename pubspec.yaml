@@ -20,6 +20,7 @@ workspace:
   - packages/dbook_feature_flights
   - packages/dbook_feature_booking
   - packages/dbook_feature_realtime
+  - packages/dbook_feature_ai
 
 melos:
   name: dbook_mobile

@@ -123,6 +123,21 @@ void main() {
       expect(find.text('Search Flights'), findsOneWidget);
       expect(find.byIcon(Icons.logout), findsOneWidget);
       expect(find.byIcon(Icons.confirmation_number_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.auto_awesome_outlined), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'given the AI suggestions action when tapped then opens the ask AI '
+    'screen',
+    (tester) async {
+      await tester.pumpWidget(_app(loggedIn: true));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.auto_awesome_outlined));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Ask DBook AI'), findsOneWidget);
     },
   );
 
