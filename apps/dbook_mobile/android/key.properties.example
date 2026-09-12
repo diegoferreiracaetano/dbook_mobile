@@ -1,0 +1,10 @@
+# Copie pra key.properties (já no .gitignore, nunca commitado) pra assinar
+# builds de release localmente com o keystore de verdade. Sem esse arquivo,
+# o release cai de volta pra assinatura de debug — o build nunca quebra por
+# causa disso, só não fica pronto pra publicar.
+#
+# storeFile é relativo a android/app/ (onde o keytool salvou o .jks).
+storeFile=dbook_mobile_release.jks
+storePassword=
+keyAlias=dbook_mobile
+keyPassword=

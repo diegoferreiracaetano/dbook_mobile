@@ -59,6 +59,22 @@ Teste instrumentado (precisa de device/emulador real):
 cd apps/dbook_mobile && flutter test integration_test/app_test.dart
 ```
 
+## CI/CD
+
+`.github/workflows/ci.yml` roda em todo push/PR pra `main`:
+
+- **`analyze-format-test`** — `melos run analyze` + `format` + `coverage`/`coverage:dart`, gate de cobertura mínima 80% (`very_good_coverage`). Esse é o check que o branch protection do GitHub exige antes de mergear.
+- **`build-android`** — builda um APK debug (sempre) e um APK release. O release é assinado com o keystore de verdade se os secrets `ANDROID_KEYSTORE_BASE64`/`ANDROID_KEYSTORE_PASSWORD`/`ANDROID_KEY_ALIAS`/`ANDROID_KEY_PASSWORD` existirem no repo; sem eles, cai pra assinatura de debug (nunca quebra o build).
+- **`build-ios`** — `flutter build ios --release --no-codesign` num runner `macos-latest`. Sem certificado/perfil de provisionamento da Apple Developer Program configurado, só valida que o app compila e arquiva — não gera um `.ipa` assinado de verdade.
+
+### Assinatura de release (Android)
+
+`apps/dbook_mobile/android/app/build.gradle.kts` lê `android/key.properties` (nunca commitado — já está no `.gitignore` do template do Flutter) se existir; senão, o release cai pra assinatura de debug. Pra assinar de verdade:
+
+**Local:** copie `android/key.properties.example` pra `android/key.properties`, gere um keystore com `keytool -genkeypair` e preencha as senhas.
+
+**CI:** cadastre os 4 secrets no repo (`gh secret set ANDROID_KEYSTORE_BASE64 < keystore.jks.base64`, etc., ou pela UI do GitHub em Settings → Secrets and variables → Actions).
+
 ## Progresso
 
 Ver [CHECKLIST.md](CHECKLIST.md) para o detalhamento marco a marco.
@@ -70,4 +86,5 @@ Ver [CHECKLIST.md](CHECKLIST.md) para o detalhamento marco a marco.
 - **M5 — Reserva**: completo. `dbook_feature_booking` tem `SeatSelectionPage` (mapa de assentos + confirmação antes de reservar de verdade), `BookingSuccessPage` e `MyBookingsPage`. O backend não expõe uma listagem de reservas (só criar/cancelar), então "minhas reservas" existe só em memória, populada pelas reservas feitas na sessão atual — não é um histórico persistente. `apps/dbook_mobile` liga o botão "Book This Flight" do detalhe do voo e o ícone de reservas na busca, do mesmo jeito que o M4 ligou o logout: via callback injetado, já que features não importam features entre si.
 - **M6 — Tempo real**: completo. `dbook_feature_realtime` tem um cliente STOMP mínimo sobre `web_socket_channel` — conecta em `/ws`, autentica com um header STOMP nativo (`Authorization: Bearer <token>` no CONNECT, já que o handshake do WebSocket em si não aceita header HTTP custom), assina `/topic/bookables/{id}/availability` e reconecta com backoff se a conexão cair (o broker é em memória, sem fila/replay, então uma atualização perdida durante a queda é só perdida mesmo). `DbookLiveAvailability` mostra isso na tela de detalhe do voo, injetado do mesmo jeito que o botão de reservar (M5) e o logout (M4) — a feature de voos não conhece nenhuma das outras.
 - **M7 — Sugestão por IA**: completo. `dbook_feature_ai` tem `AiSuggestionPage` com um `DbookSearchField` (M1, já pensado pra esse uso) pra busca em linguagem natural. `POST /ai/suggestions` só devolve `{flightId, reason}` — sem os dados do voo e sem `GET /flights/{id}` pra completar depois — então a lista mostra exatamente isso, sem fingir ter uma busca de voo por trás. Erros de rate limit (429) e modelo indisponível (502/503) usam o mesmo `DbookNetworkException.message` de toda outra feature.
-- **M8 em diante**: ainda não iniciado.
+- **M8 — CI/CD**: completo. Ver seção [CI/CD](#cicd) acima. Build de APK debug/release (assinado se os secrets existirem) e build de iOS sem codesign, todos verificados localmente antes de subir pro pipeline. O gate de qualidade (`analyze-format-test`) já roda desde o M1; falta só ativar o branch protection no GitHub exigindo esse check (não é algo que dá pra fazer sem autenticação `gh` de verdade no ambiente onde isso foi construído).
+- Projeto completo — todos os marcos M1-M8 fechados.

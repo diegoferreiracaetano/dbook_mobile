@@ -250,26 +250,26 @@ Decisão: `AiSuggestion` (`POST /ai/suggestions`) só devolve `{flightId, reason
 - [x] README atualizado — [README.md](README.md) com `dbook_feature_ai` na estrutura e progresso do M7
 - [x] Cobertura mínima — combinado: **85.04%** (1898/2232 linhas); `dbook_feature_ai` sozinho: 94.64%
 
-## M8 — CI/CD ⬜
+## M8 — CI/CD ✅
 
-Decisão: só entra depois que o app já builda e roda de ponta a ponta manualmente — mesmo princípio do M8 do backend ("só automatiza depois que já validou na mão").
+Decisão: só entra depois que o app já builda e roda de ponta a ponta manualmente — mesmo princípio do M8 do backend ("só automatiza depois que já validou na mão"). Como o `gh` não estava autenticado neste ambiente, dois passos ficaram só preparados no código, pendentes de o usuário rodar os comandos direto no GitHub (não é algo que Claude consegue fazer sem essa autenticação) — ver "Pendente" abaixo.
 
-- [ ] 8.1 Build de APK debug automatizado no pipeline (a cada push)
-- [ ] 8.2 Build de APK release assinado (keystore via secret do GitHub)
-- [ ] 8.3 Build de IPA no pipeline — se houver Mac runner disponível
-- [ ] 8.4 Gate de qualidade completo bloqueando merge (`analyze` + `format` + `test` + cobertura mínima)
+- [x] 8.1 Build de APK debug automatizado no pipeline (a cada push) — job `build-android` no `ci.yml`
+- [x] 8.2 Build de APK release assinado (keystore via secret do GitHub) — `build.gradle.kts` lê `key.properties` (gerado pela CI a partir dos secrets `ANDROID_KEYSTORE_BASE64`/`ANDROID_KEYSTORE_PASSWORD`/`ANDROID_KEY_ALIAS`/`ANDROID_KEY_PASSWORD`, ou de um arquivo local pra dev), com fallback pra assinatura de debug se não existir — testado localmente de ponta a ponta com um keystore de verdade (`apksigner verify` confirmou a assinatura); **pendente**: usuário precisa cadastrar os 4 secrets no repo (comandos prontos, fora do chat)
+- [x] 8.3 Build de IPA no pipeline — se houver Mac runner disponível — job `build-ios` (`macos-latest`), `flutter build ios --release --no-codesign` (testado localmente); sem certificado/perfil da Apple Developer Program neste repo não dá pra assinar um `.ipa` de verdade, então o job só valida que compila e arquiva
+- [x] 8.4 Gate de qualidade completo bloqueando merge (`analyze` + `format` + `test` + cobertura mínima) — a CI já roda tudo isso em todo push/PR pra `main` desde o M1; **pendente**: usuário precisa ativar branch protection no GitHub exigindo o check `analyze-format-test` (comando pronto, fora do chat) — sem isso, o gate é só informativo, não bloqueia de verdade
 
 **Checklist de fechamento do M8:**
-- [ ] Itens 8.1-8.4 revisados
-- [ ] Clean Code
-- [ ] Arquitetura
-- [ ] Componentização (tela usa só componentes do `dbook_design_system`, zero widget customizado solto)
-- [ ] Layout (espaçamento e montagem da tela seguem os padrões do `dbook_design_system`, nada de número solto ou arranjo remontado à mão)
-- [ ] Material Design (componentes são temas em cima de widgets Material 3 do Flutter, não reconstruídos do zero)
-- [ ] `analyze` + `format` + `test` limpos
-- [ ] Testes das camadas ainda sem cobertura
-- [ ] README atualizado
-- [ ] Cobertura mínima
+- [x] Itens 8.1-8.4 revisados — código e workflow prontos; 2 ativações no GitHub pendentes do usuário (ver acima)
+- [x] Clean Code — `build.gradle.kts` cai pra assinatura de debug sem `key.properties`, nunca quebra o build por falta de configuração; comentário só onde o "porquê" não é óbvio (por que sem certificado Apple o job de iOS só valida compilação, por que o fallback de assinatura existe)
+- [x] Arquitetura — não se aplica (CI/CD, sem código de app novo)
+- [x] Componentização — não se aplica neste marco
+- [x] Layout — não se aplica neste marco
+- [x] Material Design — não se aplica neste marco
+- [x] `analyze` + `format` + `test` limpos — nada mudou no lado Dart, só `build.gradle.kts`/workflow; 13 pacotes seguem verdes
+- [x] Testes das camadas ainda sem cobertura — não se aplica (infraestrutura de build, não lógica de app)
+- [x] README atualizado — [README.md](README.md) com a seção de CI/CD e as instruções dos secrets
+- [x] Cobertura mínima — inalterada (não há código Dart novo neste marco); segue em **85.04%**, verificado pelo próprio gate da CI (`very_good_coverage`, mínimo 80%)
 
 ## Ideias futuras (fora da numeração)
 

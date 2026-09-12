@@ -46,3 +46,77 @@ jobs:
         with:
           path: coverage/lcov.info
           min_coverage: 80
+
+  build-android:
+    needs: analyze-format-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Bootstrap workspace
+        run: flutter pub get
+
+      - name: Build debug APK
+        working-directory: apps/dbook_mobile
+        run: flutter build apk --debug
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbook_mobile-debug-apk
+          path: apps/dbook_mobile/build/app/outputs/flutter-apk/app-debug.apk
+
+      # Sem os secrets abaixo (repo ainda não tem um keystore de release
+      # configurado), o build.gradle.kts cai pra assinatura de debug
+      # sozinho — o release builda igual, só não sai pronto pra publicar.
+      - name: Set up release signing
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        working-directory: apps/dbook_mobile/android
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > app/release.jks
+          echo "storeFile=release.jks" > key.properties
+          echo "storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> key.properties
+          echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> key.properties
+          echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >> key.properties
+
+      - name: Build release APK
+        working-directory: apps/dbook_mobile
+        run: flutter build apk --release
+
+      - name: Upload release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbook_mobile-release-apk
+          path: apps/dbook_mobile/build/app/outputs/flutter-apk/app-release.apk
+
+  build-ios:
+    needs: analyze-format-test
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Bootstrap workspace
+        run: flutter pub get
+
+      # Sem certificado/perfil de provisionamento da Apple Developer
+      # Program configurado neste repo, não dá pra gerar um .ipa assinado
+      # de verdade — isso só valida que o app compila e arquiva pra iOS.
+      - name: Build (no codesign)
+        working-directory: apps/dbook_mobile
+        run: flutter build ios --release --no-codesign
+
+      - name: Upload build output
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbook_mobile-ios-build
+          path: apps/dbook_mobile/build/ios/iphoneos/Runner.app
