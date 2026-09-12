@@ -5,6 +5,7 @@ import 'package:dbook_design_system/dbook_design_system.dart';
 import 'package:dbook_feature_auth/dbook_feature_auth.dart';
 import 'package:dbook_feature_booking/dbook_feature_booking.dart';
 import 'package:dbook_feature_flights/dbook_feature_flights.dart';
+import 'package:dbook_feature_realtime/dbook_feature_realtime.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -136,6 +137,10 @@ class _AuthenticatedHome extends ConsumerWidget {
       ),
       onBookFlight: (flight) => Navigator.of(context, rootNavigator: true).push(
         MaterialPageRoute(builder: (_) => SeatSelectionPage(flight: flight)),
+      ),
+      liveAvailabilityBuilder: (flight) => DbookLiveAvailability(
+        bookableId: flight.id,
+        fallbackCapacity: flight.availableCapacity,
       ),
     );
   }

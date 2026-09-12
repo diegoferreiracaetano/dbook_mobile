@@ -1,0 +1,33 @@
+name: dbook_feature_realtime
+description: Disponibilidade em tempo real do DBook — cliente STOMP mínimo sobre WebSocket.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.13.3
+  flutter: ">=1.17.0"
+
+resolution: workspace
+
+dependencies:
+  dbook_core_session:
+    path: ../dbook_core_session
+  dbook_design_system:
+    path: ../dbook_design_system
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.4.3
+  freezed_annotation: ^3.1.0
+  web_socket_channel: ^3.0.1
+
+dev_dependencies:
+  build_runner: ^2.16.1
+  dbook_core_storage:
+    path: ../dbook_core_storage
+  dbook_domain:
+    path: ../dbook_domain
+  fake_async: ^1.3.3
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+  freezed: ^4.0.1

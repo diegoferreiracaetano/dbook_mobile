@@ -46,6 +46,8 @@ dependencies:
     path: ../../packages/dbook_feature_booking
   dbook_feature_flights:
     path: ../../packages/dbook_feature_flights
+  dbook_feature_realtime:
+    path: ../../packages/dbook_feature_realtime
   flutter_riverpod: ^3.4.3
 
 dev_dependencies:

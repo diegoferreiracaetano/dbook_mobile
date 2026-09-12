@@ -204,28 +204,28 @@ Decisão: o backend não expõe um "GET /bookings" (só criar e cancelar) — n�
 - [x] README atualizado — [README.md](README.md) com `dbook_feature_booking` na estrutura e progresso do M5
 - [x] Cobertura mínima — combinado: **84.27%** (1709/2028 linhas); `dbook_feature_booking` sozinho: 93.99%
 
-## M6 — Tempo real ⬜
+## M6 — Tempo real ✅
 
-Decisão: mesmo padrão do M5 do backend — WebSocket/STOMP, não polling. Client em Dart via `web_socket_channel` (STOMP é só um protocolo de frame em cima de WebSocket puro, não precisa de biblioteca STOMP-específica pra um caso de uso tão focado).
+Decisão: mesmo padrão do M5 do backend — WebSocket/STOMP, não polling. Client em Dart via `web_socket_channel` (STOMP é só um protocolo de frame em cima de WebSocket puro, não precisa de biblioteca STOMP-específica pra um caso de uso tão focado). Contrato verificado lendo o backend de verdade (não suposto): endpoint `/ws` sem SockJS, autenticação via header STOMP nativo `Authorization: Bearer <token>` no CONNECT (não dá pra mandar header HTTP custom no handshake do WebSocket), tópico `/topic/bookables/{id}/availability`, payload `{"bookableId", "availableCapacity"}`, sem prefixo `/app` — o cliente só assina, nunca manda SEND. Broker em memória sem fila/replay: se a conexão cair no meio de uma atualização, ela é só perdida (o backend documenta isso), então o cliente guarda o último valor conhecido em vez de tentar garantir entrega.
 
-- [ ] 6.1 Criar o pacote `packages/dbook_feature_realtime`
-- [ ] 6.2 Cliente STOMP mínimo sobre `web_socket_channel` (frame CONNECT com header Authorization)
-- [ ] 6.3 Assinatura por tópico (`/topic/bookables/{id}/availability`)
-- [ ] 6.4 Parse do frame MESSAGE recebido
-- [ ] 6.5 Integração na tela de detalhe do voo: assina ao entrar, cancela a assinatura ao sair, atualiza disponibilidade ao vivo
-- [ ] 6.6 Tratamento de desconexão/reconexão do WebSocket
+- [x] 6.1 Criar o pacote `packages/dbook_feature_realtime`
+- [x] 6.2 Cliente STOMP mínimo sobre `web_socket_channel` (frame CONNECT com header Authorization) — `StompFrame` (parse/serialize) + `StompAvailabilityClient`
+- [x] 6.3 Assinatura por tópico (`/topic/bookables/{id}/availability`)
+- [x] 6.4 Parse do frame MESSAGE recebido
+- [x] 6.5 Integração na tela de detalhe do voo: assina ao entrar, cancela a assinatura ao sair, atualiza disponibilidade ao vivo — `DbookLiveAvailability` (widget), injetado em `FlightDetailPage` via `liveAvailability` (mesmo padrão de `onBook`/`logoutAction`, já que a feature de voos não conhece a de tempo real)
+- [x] 6.6 Tratamento de desconexão/reconexão do WebSocket — backoff (2s, 4s, ..., até 10s) guardando o último valor conhecido durante a reconexão, sem perder o número exibido
 
 **Checklist de fechamento do M6:**
-- [ ] Itens 6.1-6.6 revisados
-- [ ] Clean Code
-- [ ] Arquitetura
-- [ ] Componentização (tela usa só componentes do `dbook_design_system`, zero widget customizado solto)
-- [ ] Layout (espaçamento e montagem da tela seguem os padrões do `dbook_design_system`, nada de número solto ou arranjo remontado à mão)
-- [ ] Material Design (componentes são temas em cima de widgets Material 3 do Flutter, não reconstruídos do zero)
-- [ ] `analyze` + `format` + `test` limpos
-- [ ] Testes das camadas ainda sem cobertura
-- [ ] README atualizado
-- [ ] Cobertura mínima
+- [x] Itens 6.1-6.6 revisados — todos `[x]`
+- [x] Clean Code — `StompFrame` (parse/serialize), `StompAvailabilityClient` (conexão/reconexão/assinatura) e `DbookLiveAvailability` (widget) cada um com uma responsabilidade; comentário só onde o "porquê" não é óbvio (ex.: por que a auth é um header STOMP nativo e não HTTP, por que não há garantia de entrega)
+- [x] Arquitetura — `dbook_feature_realtime` depende só de `dbook_core_session`/`dbook_design_system`; `DbookRealtimeSocket` isola o `WebSocketChannel` de verdade atrás de uma porta fina, testável sem servidor real; a integração com `FlightDetailPage` é via widget injetado pelo app, mesmo padrão das outras features
+- [x] Componentização — o indicador usa só `Text`/`Container` simples (não há um componente de design system pra "dot de status ao vivo" ainda — decidido não criar um componente novo pra um único uso; se aparecer de novo, sobe pro `dbook_design_system`) com tokens (`DbookSpacing`) pro espaçamento
+- [x] Layout — espaçamento vem de `DbookSpacing`, sem número solto
+- [x] Material Design — não se aplica reconstrução de widget nativo aqui (é só texto + um indicador visual pequeno)
+- [x] `analyze` + `format` + `test` limpos — 12 pacotes, `melos run test` (Flutter) e `melos run test:dart` (Dart puro) verdes
+- [x] Testes das camadas ainda sem cobertura — `StompFrame` (serialize/parse, round-trip), `StompAvailabilityClient` (CONNECT com token, SUBSCRIBE após CONNECTED, MESSAGE vira `live`, ERROR vira `unavailable`, desconexão→reconexão com backoff via `fake_async`, dispose fecha o socket), `DbookLiveAvailability` (mostra a atualização ao vivo) e o novo slot `FlightDetailPage.liveAvailability`
+- [x] README atualizado — [README.md](README.md) com `dbook_feature_realtime` na estrutura e progresso do M6
+- [x] Cobertura mínima — combinado: **84.77%** (1842/2173 linhas); `dbook_feature_realtime` sozinho: 91.11%
 
 ## M7 — Sugestão por IA ⬜
 

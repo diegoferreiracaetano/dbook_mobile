@@ -155,4 +155,30 @@ void main() {
       expect(find.text('Select a Seat'), findsOneWidget);
     },
   );
+
+  testWidgets('given a flight when the detail page opens then shows the live '
+      'availability indicator instead of the static count', (tester) async {
+    final flight = Flight(
+      id: 1,
+      flightNumber: 'IB 6821',
+      originIataCode: 'GRU',
+      destinationIataCode: 'MAD',
+      departureTime: DateTime(2026, 1, 13, 10, 30),
+      arrivalTime: DateTime(2026, 1, 14, 6, 45),
+      seatClass: SeatClass.economy,
+      price: 450,
+      availableCapacity: 12,
+    );
+
+    await tester.pumpWidget(_app(loggedIn: true, flights: [flight]));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Search Flights'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('DBook Airlines · IB 6821'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Seats available'), findsOneWidget);
+    expect(find.text('Conectando...'), findsOneWidget);
+  });
 }

@@ -19,6 +19,7 @@ workspace:
   - packages/dbook_feature_auth
   - packages/dbook_feature_flights
   - packages/dbook_feature_booking
+  - packages/dbook_feature_realtime
 
 melos:
   name: dbook_mobile
