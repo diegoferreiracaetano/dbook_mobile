@@ -9,6 +9,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'support/mock_network_image.dart';
+
 class _NoSessionTokenStorage implements TokenStorage {
   @override
   Future<void> saveTokens(AuthTokens tokens) async {}
@@ -130,7 +132,7 @@ Future<void> _goToTab(WidgetTester tester, String label) async {
 
 void main() {
   group('onboarding (primeiro acesso)', () {
-    testWidgets(
+    testWidgetsWithMockImages(
       'given a fresh install when the app builds then shows onboarding',
       (tester) async {
         SharedPreferences.setMockInitialValues({});
@@ -143,7 +145,7 @@ void main() {
       },
     );
 
-    testWidgets(
+    testWidgetsWithMockImages(
       'given onboarding finished when Get Started is tapped then Home '
       'shows directly, with no login prompt',
       (tester) async {
@@ -163,7 +165,7 @@ void main() {
       },
     );
 
-    testWidgets(
+    testWidgetsWithMockImages(
       'given a returning user when the app builds then skips onboarding '
       'and goes straight to Home',
       (tester) async {
@@ -179,7 +181,7 @@ void main() {
   });
 
   group('visitante navega sem login (M9-9.1)', () {
-    testWidgets(
+    testWidgetsWithMockImages(
       'given no session when the drawer opens then shows an Entrar action, '
       'not Sair',
       (tester) async {
@@ -201,7 +203,7 @@ void main() {
       },
     );
 
-    testWidgets(
+    testWidgetsWithMockImages(
       'given a flight found when a guest searches then sees results and '
       'the flight detail with no login prompt anywhere',
       (tester) async {
@@ -216,7 +218,7 @@ void main() {
       },
     );
 
-    testWidgets(
+    testWidgetsWithMockImages(
       'given a guest when Ask DBook AI is tapped in the drawer then the '
       'Auth Gate opens login instead of the AI screen',
       (tester) async {
@@ -232,7 +234,7 @@ void main() {
       },
     );
 
-    testWidgets(
+    testWidgetsWithMockImages(
       'given a guest when the Trips tab opens then shows a guest '
       'placeholder, and tapping Entrar opens the Auth Gate',
       (tester) async {
@@ -260,7 +262,7 @@ void main() {
       },
     );
 
-    testWidgets(
+    testWidgetsWithMockImages(
       'given a guest when the Profile tab opens then shows a guest '
       'placeholder',
       (tester) async {
@@ -282,7 +284,7 @@ void main() {
   });
 
   group('Auth Gate na compra (M9-9.1)', () {
-    testWidgets(
+    testWidgetsWithMockImages(
       'given a guest when Book This Flight is tapped then the Auth Gate '
       'opens login instead of seat selection',
       (tester) async {
@@ -299,7 +301,7 @@ void main() {
       },
     );
 
-    testWidgets('given a guest who logs in through the Auth Gate then lands '
+    testWidgetsWithMockImages('given a guest who logs in through the Auth Gate then lands '
         'directly on seat selection for the flight they picked — never '
         'back on Home', (tester) async {
       _skipOnboarding();
@@ -336,7 +338,7 @@ void main() {
       expect(find.text('Book This Flight'), findsOneWidget);
     });
 
-    testWidgets(
+    testWidgetsWithMockImages(
       'given a logged in session when Book This Flight is tapped then '
       'goes straight to seat selection, no Auth Gate',
       (tester) async {
@@ -356,7 +358,7 @@ void main() {
   });
 
   group('sessão autenticada vê as 4 abas de verdade (M9-9.3)', () {
-    testWidgets(
+    testWidgetsWithMockImages(
       'given a logged in session when the drawer opens then shows Sair, '
       'not Entrar',
       (tester) async {
@@ -378,7 +380,7 @@ void main() {
       },
     );
 
-    testWidgets(
+    testWidgetsWithMockImages(
       'given a logged in session when the Trips tab opens then shows the '
       'bookings list, not the guest placeholder',
       (tester) async {
@@ -393,7 +395,7 @@ void main() {
       },
     );
 
-    testWidgets(
+    testWidgetsWithMockImages(
       'given a logged in session when the Profile tab opens then shows the '
       'session e-mail',
       (tester) async {
@@ -407,7 +409,7 @@ void main() {
       },
     );
 
-    testWidgets(
+    testWidgetsWithMockImages(
       'given a destination tapped on the Explore tab then the Home tab '
       'shows it pre-filled as the destination',
       (tester) async {
@@ -440,7 +442,7 @@ void main() {
     );
   });
 
-  testWidgets('given a flight when the detail page opens then shows the live '
+  testWidgetsWithMockImages('given a flight when the detail page opens then shows the live '
       'availability indicator instead of the static count', (tester) async {
     _skipOnboarding();
 

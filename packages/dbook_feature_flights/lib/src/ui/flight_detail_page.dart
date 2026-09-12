@@ -3,8 +3,15 @@ import 'package:dbook_domain/dbook_domain.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-final _dateTimeFormat = DateFormat('EEE, MMM d, yyyy · HH:mm');
+final _timeFormat = DateFormat('HH:mm');
+final _dateFormat = DateFormat('EEE, MMM d');
 final _priceFormat = NumberFormat.currency(symbol: r'$');
+
+String _formatDuration(Duration duration) {
+  final hours = duration.inHours;
+  final minutes = duration.inMinutes.remainder(60);
+  return '${hours}h ${minutes}m';
+}
 
 String _seatClassLabel(SeatClass seatClass) => switch (seatClass) {
   SeatClass.economy => 'Economy',
@@ -50,24 +57,18 @@ class FlightDetailPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '${flight.originIataCode} → ${flight.destinationIataCode}',
-                          style: Theme.of(context).textTheme.titleLarge,
+                          _dateFormat.format(flight.departureTime),
+                          style: Theme.of(context).textTheme.titleSmall,
                         ),
                         Chip(label: Text(_seatClassLabel(flight.seatClass))),
                       ],
                     ),
-                    const SizedBox(height: DbookSpacing.md),
+                    const SizedBox(height: DbookSpacing.lg),
+                    _FlightRouteTimeline(flight: flight),
+                    const SizedBox(height: DbookSpacing.lg),
                     DbookSummaryRow(
                       label: 'Flight number',
                       value: flight.flightNumber,
-                    ),
-                    DbookSummaryRow(
-                      label: 'Departure',
-                      value: _dateTimeFormat.format(flight.departureTime),
-                    ),
-                    DbookSummaryRow(
-                      label: 'Arrival',
-                      value: _dateTimeFormat.format(flight.arrivalTime),
                     ),
                     if (liveAvailability != null)
                       Padding(
@@ -119,6 +120,74 @@ class FlightDetailPage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Rota do voo com horários grandes e a mesma linha pontilhada + ícone de
+/// avião do card de resultado (`DbookFlightResultTile`) — reaproveita a
+/// mesma composição visual em vez de inventar outra.
+class _FlightRouteTimeline extends StatelessWidget {
+  const _FlightRouteTimeline({required this.flight});
+
+  final Flight flight;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+    final subtitleStyle = textTheme.bodyMedium?.copyWith(
+      color: colorScheme.onSurfaceVariant,
+    );
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _timeFormat.format(flight.departureTime),
+              style: textTheme.headlineSmall,
+            ),
+            Text(flight.originIataCode, style: subtitleStyle),
+          ],
+        ),
+        Expanded(
+          child: Column(
+            children: [
+              Text(
+                _formatDuration(
+                  flight.arrivalTime.difference(flight.departureTime),
+                ),
+                style: subtitleStyle,
+              ),
+              const SizedBox(height: DbookSpacing.xs),
+              Row(
+                children: [
+                  Expanded(
+                    child: Divider(color: colorScheme.outlineVariant, height: 1),
+                  ),
+                  Icon(Icons.flight, size: 16, color: colorScheme.primary),
+                  Expanded(
+                    child: Divider(color: colorScheme.outlineVariant, height: 1),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              _timeFormat.format(flight.arrivalTime),
+              style: textTheme.headlineSmall,
+            ),
+            Text(flight.destinationIataCode, style: subtitleStyle),
+          ],
+        ),
+      ],
     );
   }
 }

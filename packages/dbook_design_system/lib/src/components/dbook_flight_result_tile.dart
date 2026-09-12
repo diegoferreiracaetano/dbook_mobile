@@ -97,6 +97,29 @@ class DbookFlightResultTile extends StatelessWidget {
                           child: Column(
                             children: [
                               Text(durationLabel, style: subtitleStyle),
+                              const SizedBox(height: 2),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Divider(
+                                      color: colorScheme.outlineVariant,
+                                      height: 1,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.flight,
+                                    size: 12,
+                                    color: colorScheme.primary,
+                                  ),
+                                  Expanded(
+                                    child: Divider(
+                                      color: colorScheme.outlineVariant,
+                                      height: 1,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 2),
                               Text(stopsLabel, style: subtitleStyle),
                             ],
                           ),

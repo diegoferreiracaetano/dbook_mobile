@@ -27,7 +27,10 @@ void main() {
       ),
     );
 
-    expect(find.text('GRU → MAD'), findsOneWidget);
+    expect(find.text('GRU'), findsOneWidget);
+    expect(find.text('MAD'), findsOneWidget);
+    expect(find.text('10:30'), findsOneWidget);
+    expect(find.text('06:45'), findsOneWidget);
     expect(find.text('Business'), findsOneWidget);
     expect(find.text('IB 6821'), findsOneWidget);
     expect(find.text('4'), findsOneWidget);

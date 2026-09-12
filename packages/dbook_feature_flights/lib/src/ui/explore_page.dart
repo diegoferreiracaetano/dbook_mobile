@@ -2,7 +2,7 @@ import 'package:dbook_design_system/dbook_design_system.dart';
 import 'package:flutter/material.dart';
 
 import '../data/known_airports.dart';
-import 'destination_gradient.dart';
+import 'destination_grid_card.dart';
 
 /// Aba Explore — lista os destinos conhecidos (mesma fonte da Home, o
 /// backend não expõe um catálogo de destinos). Tocar um chama
@@ -23,15 +23,14 @@ class ExplorePage extends StatelessWidget {
           crossAxisCount: 2,
           mainAxisSpacing: DbookSpacing.md,
           crossAxisSpacing: DbookSpacing.md,
-          childAspectRatio: 0.85,
+          childAspectRatio: 0.95,
         ),
         itemCount: knownAirports.length,
         itemBuilder: (context, index) {
           final airport = knownAirports[index];
-          return DbookDestinationCard(
-            title: airport.city,
-            subtitle: airport.country,
-            background: BoxDecoration(gradient: destinationGradient(index)),
+          return DestinationCard(
+            airport: airport,
+            index: index,
             onTap: () => onSelectDestination(airport),
           );
         },

@@ -330,28 +330,60 @@ class _ProfilePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
-      appBar: const DbookAppBar(title: 'Profile'),
-      body: Padding(
-        padding: const EdgeInsets.all(DbookSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Card(
-              child: ListTile(
-                leading: const Icon(Icons.email_outlined),
-                title: const Text('E-mail'),
-                subtitle: Text(email ?? 'Não disponível nesta sessão'),
+      body: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          // Mesmo bloco na cor de marca do header da Home — sem
+          // avatar/stats fake, não temos foto nem esse dado de sessão.
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(
+              DbookSpacing.lg,
+              DbookSpacing.xl,
+              DbookSpacing.lg,
+              DbookSpacing.xl,
+            ),
+            color: colorScheme.primary,
+            child: SafeArea(
+              bottom: false,
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 32,
+                    backgroundColor: colorScheme.onPrimary.withValues(
+                      alpha: 0.2,
+                    ),
+                    child: Icon(
+                      Icons.person,
+                      color: colorScheme.onPrimary,
+                      size: 32,
+                    ),
+                  ),
+                  const SizedBox(height: DbookSpacing.sm),
+                  Text(
+                    email ?? 'Sessão sem e-mail salvo',
+                    style: textTheme.titleMedium?.copyWith(
+                      color: colorScheme.onPrimary,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: DbookSpacing.lg),
-            DbookButton(
+          ),
+          Padding(
+            padding: const EdgeInsets.all(DbookSpacing.lg),
+            child: DbookButton(
               label: 'Sair',
               variant: DbookButtonVariant.text,
-              onPressed: () => ref.read(authNotifierProvider.notifier).logout(),
+              onPressed: () =>
+                  ref.read(authNotifierProvider.notifier).logout(),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

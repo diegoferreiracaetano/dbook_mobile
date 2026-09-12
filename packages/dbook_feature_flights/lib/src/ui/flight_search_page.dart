@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import '../data/known_airports.dart';
 import '../state/flight_providers.dart';
 import 'airport_picker_sheet.dart';
-import 'destination_gradient.dart';
+import 'destination_grid_card.dart';
 
 /// Dados de busca preenchidos — devolvidos por [onSearch] quando origem,
 /// destino e data já estão selecionados.
@@ -102,7 +102,7 @@ class _FlightSearchPageState extends ConsumerState<FlightSearchPage> {
     });
 
     return Scaffold(
-      appBar: const DbookAppBar(title: 'DBook'),
+      appBar: const _HomeHeroBar(),
       drawer: widget.drawer,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(DbookSpacing.lg),
@@ -130,28 +130,24 @@ class _FlightSearchPageState extends ConsumerState<FlightSearchPage> {
               icon: Icons.travel_explore_outlined,
             ),
             const SizedBox(height: DbookSpacing.md),
-            SizedBox(
-              height: 140,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: knownAirports.length,
-                separatorBuilder: (_, _) =>
-                    const SizedBox(width: DbookSpacing.md),
-                itemBuilder: (context, index) {
-                  final airport = knownAirports[index];
-                  return SizedBox(
-                    width: 160,
-                    child: DbookDestinationCard(
-                      title: airport.city,
-                      subtitle: airport.country,
-                      background: BoxDecoration(
-                        gradient: destinationGradient(index),
-                      ),
-                      onTap: () => _selectDestination(airport),
-                    ),
-                  );
-                },
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: DbookSpacing.md,
+                crossAxisSpacing: DbookSpacing.md,
+                childAspectRatio: 0.95,
               ),
+              itemCount: knownAirports.length,
+              itemBuilder: (context, index) {
+                final airport = knownAirports[index];
+                return DestinationCard(
+                  airport: airport,
+                  index: index,
+                  onTap: () => _selectDestination(airport),
+                );
+              },
             ),
           ],
         ),
@@ -168,4 +164,66 @@ class _FlightSearchPageState extends ConsumerState<FlightSearchPage> {
       ),
     );
   }
+}
+
+/// Cabeçalho da Home — bloco na cor de marca com logo e tagline, no lugar
+/// da app bar plana das outras telas (referência visual: Figma Make "App
+/// de viagem com design system"). Continua sendo uma `AppBar` de verdade
+/// por baixo, então o ícone do Drawer aparece sozinho quando [drawer] está
+/// setado no `Scaffold` — nada de reimplementar esse comportamento.
+class _HomeHeroBar extends StatelessWidget implements PreferredSizeWidget {
+  const _HomeHeroBar();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return AppBar(
+      backgroundColor: colorScheme.primary,
+      foregroundColor: colorScheme.onPrimary,
+      elevation: 0,
+      toolbarHeight: 72,
+      title: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: colorScheme.onPrimary.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(DbookRadius.md),
+            ),
+            child: Icon(
+              Icons.flight_takeoff,
+              color: colorScheme.onPrimary,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: DbookSpacing.sm),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'DBook',
+                style: textTheme.titleMedium?.copyWith(
+                  color: colorScheme.onPrimary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                'Book Smarter, Travel Happier',
+                style: textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onPrimary.withValues(alpha: 0.75),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(72);
 }
