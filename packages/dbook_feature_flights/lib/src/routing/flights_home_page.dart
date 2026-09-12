@@ -11,13 +11,22 @@ import '../ui/flight_search_page.dart';
 /// quando o app crescer. Fica isolado num `Router` próprio (não precisa de
 /// um segundo `MaterialApp`: o app raiz já provê tema/Directionality).
 ///
-/// [logoutAction] aparece como ação na app bar da tela de busca — a feature
-/// de voos não conhece `AuthNotifier` (features não importam features),
-/// então quem monta essa tela (o app) decide o que "sair" faz.
+/// [logoutAction] e [myBookingsAction] aparecem como ações na app bar da
+/// tela de busca, e [onBookFlight] dispara no botão "Book This Flight" do
+/// detalhe — a feature de voos não conhece `AuthNotifier` nem a feature de
+/// reserva (features não importam features), então quem monta essa tela
+/// (o app) decide o que cada uma faz.
 class FlightsHomePage extends StatefulWidget {
-  const FlightsHomePage({super.key, this.logoutAction});
+  const FlightsHomePage({
+    super.key,
+    this.logoutAction,
+    this.myBookingsAction,
+    this.onBookFlight,
+  });
 
   final Widget? logoutAction;
+  final Widget? myBookingsAction;
+  final ValueChanged<Flight>? onBookFlight;
 
   @override
   State<FlightsHomePage> createState() => _FlightsHomePageState();
@@ -30,7 +39,10 @@ class _FlightsHomePageState extends State<FlightsHomePage> {
       GoRoute(
         path: '/',
         builder: (context, state) => FlightSearchPage(
-          actions: widget.logoutAction == null ? null : [widget.logoutAction!],
+          actions: [
+            if (widget.myBookingsAction != null) widget.myBookingsAction!,
+            if (widget.logoutAction != null) widget.logoutAction!,
+          ],
           onSearch: (query) => context.push('/results', extra: query),
         ),
       ),
@@ -44,8 +56,10 @@ class _FlightsHomePageState extends State<FlightsHomePage> {
       ),
       GoRoute(
         path: '/results/detail',
-        builder: (context, state) =>
-            FlightDetailPage(flight: state.extra! as Flight),
+        builder: (context, state) => FlightDetailPage(
+          flight: state.extra! as Flight,
+          onBook: widget.onBookFlight,
+        ),
       ),
     ],
   );

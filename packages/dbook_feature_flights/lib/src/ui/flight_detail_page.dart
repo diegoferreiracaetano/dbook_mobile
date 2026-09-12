@@ -15,11 +15,14 @@ String _seatClassLabel(SeatClass seatClass) => switch (seatClass) {
 
 /// Detalhe de um voo já buscado — recebe o [Flight] escolhido na lista de
 /// resultados (evita rebuscar ou modelar um "GET /flights/{id}" que o
-/// backend não expõe). A ação de reservar chega no M5.
+/// backend não expõe). [onBook] mora na feature de reserva (M5) — a de
+/// voos não a importa (features não importam features), então quem monta
+/// essa tela decide o que reservar faz.
 class FlightDetailPage extends StatelessWidget {
-  const FlightDetailPage({super.key, required this.flight});
+  const FlightDetailPage({super.key, required this.flight, this.onBook});
 
   final Flight flight;
+  final ValueChanged<Flight>? onBook;
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +75,13 @@ class FlightDetailPage extends StatelessWidget {
               amount: _priceFormat.format(flight.price),
               caption: 'per passenger',
             ),
+            if (onBook != null) ...[
+              const SizedBox(height: DbookSpacing.lg),
+              DbookButton(
+                label: 'Book This Flight',
+                onPressed: () => onBook!(flight),
+              ),
+            ],
           ],
         ),
       ),
