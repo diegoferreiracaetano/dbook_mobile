@@ -45,7 +45,7 @@ class AuthNotifier extends Notifier<AuthState> {
       final tokens = await ref
           .read(authRepositoryProvider)
           .login(email: email, password: password);
-      state = AuthState.loggedIn(tokens: tokens);
+      state = AuthState.loggedIn(tokens: tokens, email: email);
     } on DbookNetworkException catch (error) {
       state = AuthState.error(error.message);
     }
@@ -63,7 +63,7 @@ class AuthNotifier extends Notifier<AuthState> {
       final repository = ref.read(authRepositoryProvider);
       await repository.register(email: email, password: password);
       final tokens = await repository.login(email: email, password: password);
-      state = AuthState.loggedIn(tokens: tokens);
+      state = AuthState.loggedIn(tokens: tokens, email: email);
     } on DbookNetworkException catch (error) {
       state = AuthState.error(error.message);
     }

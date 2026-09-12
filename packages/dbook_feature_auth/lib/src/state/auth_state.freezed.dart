@@ -126,12 +126,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loggedOut,TResult Function()?  loading,TResult Function( AuthTokens tokens)?  loggedIn,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loggedOut,TResult Function()?  loading,TResult Function( AuthTokens tokens,  String? email)?  loggedIn,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case AuthLoggedOut() when loggedOut != null:
 return loggedOut();case AuthLoading() when loading != null:
 return loading();case AuthLoggedIn() when loggedIn != null:
-return loggedIn(_that.tokens);case AuthError() when error != null:
+return loggedIn(_that.tokens,_that.email);case AuthError() when error != null:
 return error(_that.message);case _:
   return orElse();
 
@@ -150,12 +150,12 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loggedOut,required TResult Function()  loading,required TResult Function( AuthTokens tokens)  loggedIn,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loggedOut,required TResult Function()  loading,required TResult Function( AuthTokens tokens,  String? email)  loggedIn,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case AuthLoggedOut():
 return loggedOut();case AuthLoading():
 return loading();case AuthLoggedIn():
-return loggedIn(_that.tokens);case AuthError():
+return loggedIn(_that.tokens,_that.email);case AuthError():
 return error(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -170,12 +170,12 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loggedOut,TResult? Function()?  loading,TResult? Function( AuthTokens tokens)?  loggedIn,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loggedOut,TResult? Function()?  loading,TResult? Function( AuthTokens tokens,  String? email)?  loggedIn,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case AuthLoggedOut() when loggedOut != null:
 return loggedOut();case AuthLoading() when loading != null:
 return loading();case AuthLoggedIn() when loggedIn != null:
-return loggedIn(_that.tokens);case AuthError() when error != null:
+return loggedIn(_that.tokens,_that.email);case AuthError() when error != null:
 return error(_that.message);case _:
   return null;
 
@@ -252,10 +252,11 @@ String toString() {
 
 
 class AuthLoggedIn implements AuthState {
-  const AuthLoggedIn({required this.tokens});
+  const AuthLoggedIn({required this.tokens, this.email});
   
 
  final  AuthTokens tokens;
+ final  String? email;
 
 /// Create a copy of AuthState
 /// with the given fields replaced by the non-null parameter values.
@@ -267,18 +268,18 @@ $AuthLoggedInCopyWith<AuthLoggedIn> get copyWith => _$AuthLoggedInCopyWithImpl<A
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthLoggedIn&&(identical(other.tokens, tokens) || other.tokens == tokens));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthLoggedIn&&(identical(other.tokens, tokens) || other.tokens == tokens)&&(identical(other.email, email) || other.email == email));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,tokens);
+    return Object.hash(runtimeType,tokens,email);
 }
 
 @override
 String toString() {
-    return 'AuthState.loggedIn(tokens: $tokens)';
+    return 'AuthState.loggedIn(tokens: $tokens, email: $email)';
 }
 
 
@@ -289,7 +290,7 @@ abstract mixin class $AuthLoggedInCopyWith<$Res> implements $AuthStateCopyWith<$
   factory $AuthLoggedInCopyWith(AuthLoggedIn value, $Res Function(AuthLoggedIn) _then) = _$AuthLoggedInCopyWithImpl;
 @useResult
 $Res call({
- AuthTokens tokens
+ AuthTokens tokens, String? email
 });
 
 
@@ -306,10 +307,11 @@ class _$AuthLoggedInCopyWithImpl<$Res>
 
 /// Create a copy of AuthState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? tokens = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? tokens = null,Object? email = freezed,}) {
   return _then(AuthLoggedIn(
 tokens: null == tokens ? _self.tokens : tokens // ignore: cast_nullable_to_non_nullable
-as AuthTokens,
+as AuthTokens,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

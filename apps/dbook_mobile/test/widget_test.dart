@@ -42,6 +42,7 @@ class _FakeLoggedInAuthNotifier extends AuthNotifier {
   @override
   AuthState build() => const AuthState.loggedIn(
     tokens: AuthTokens(accessToken: 'access', refreshToken: 'refresh'),
+    email: 'diego@dbook.com',
   );
 
   @override
@@ -117,6 +118,16 @@ Future<void> _searchAndOpenFlightDetail(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
+Future<void> _openDrawer(WidgetTester tester) async {
+  await tester.tap(find.byIcon(Icons.menu));
+  await tester.pumpAndSettle();
+}
+
+Future<void> _goToTab(WidgetTester tester, String label) async {
+  await tester.tap(find.widgetWithText(NavigationDestination, label));
+  await tester.pumpAndSettle();
+}
+
 void main() {
   group('onboarding (primeiro acesso)', () {
     testWidgets(
@@ -169,16 +180,24 @@ void main() {
 
   group('visitante navega sem login (M9-9.1)', () {
     testWidgets(
-      'given no session when Home builds then shows an Entrar action, not '
-      'logout',
+      'given no session when the drawer opens then shows an Entrar action, '
+      'not Sair',
       (tester) async {
         _skipOnboarding();
 
         await tester.pumpWidget(_app());
         await tester.pumpAndSettle();
+        await _openDrawer(tester);
 
-        expect(find.byIcon(Icons.login), findsOneWidget);
-        expect(find.byIcon(Icons.logout), findsNothing);
+        final drawer = find.byType(Drawer);
+        expect(
+          find.descendant(of: drawer, matching: find.text('Entrar')),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(of: drawer, matching: find.text('Sair')),
+          findsNothing,
+        );
       },
     );
 
@@ -198,14 +217,15 @@ void main() {
     );
 
     testWidgets(
-      'given a guest when Ask DBook AI is tapped then the Auth Gate opens '
-      'login instead of the AI screen',
+      'given a guest when Ask DBook AI is tapped in the drawer then the '
+      'Auth Gate opens login instead of the AI screen',
       (tester) async {
         _skipOnboarding();
 
         await tester.pumpWidget(_app());
         await tester.pumpAndSettle();
-        await tester.tap(find.byIcon(Icons.auto_awesome_outlined));
+        await _openDrawer(tester);
+        await tester.tap(find.text('Ask DBook AI'));
         await tester.pumpAndSettle();
 
         expect(find.text('Welcome Back'), findsOneWidget);
@@ -213,17 +233,50 @@ void main() {
     );
 
     testWidgets(
-      'given a guest when My Bookings is tapped then the Auth Gate opens '
-      'login instead of the bookings list',
+      'given a guest when the Trips tab opens then shows a guest '
+      'placeholder, and tapping Entrar opens the Auth Gate',
       (tester) async {
         _skipOnboarding();
 
         await tester.pumpWidget(_app());
         await tester.pumpAndSettle();
-        await tester.tap(find.byIcon(Icons.confirmation_number_outlined));
+        await _goToTab(tester, 'Trips');
+
+        final tripsGate = find.byKey(const Key('guest_gate_Trips'));
+        expect(
+          find.descendant(
+            of: tripsGate,
+            matching: find.text('Faça login para ver suas reservas.'),
+          ),
+          findsOneWidget,
+        );
+
+        await tester.tap(
+          find.descendant(of: tripsGate, matching: find.text('Entrar')),
+        );
         await tester.pumpAndSettle();
 
         expect(find.text('Welcome Back'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'given a guest when the Profile tab opens then shows a guest '
+      'placeholder',
+      (tester) async {
+        _skipOnboarding();
+
+        await tester.pumpWidget(_app());
+        await tester.pumpAndSettle();
+        await _goToTab(tester, 'Profile');
+
+        expect(
+          find.descendant(
+            of: find.byKey(const Key('guest_gate_Profile')),
+            matching: find.text('Faça login para ver seu perfil.'),
+          ),
+          findsOneWidget,
+        );
       },
     );
   });
@@ -302,21 +355,90 @@ void main() {
     );
   });
 
-  testWidgets(
-    'given a logged in session when Home builds then shows logout, my '
-    'bookings and AI suggestion actions',
-    (tester) async {
-      _skipOnboarding();
+  group('sessão autenticada vê as 4 abas de verdade (M9-9.3)', () {
+    testWidgets(
+      'given a logged in session when the drawer opens then shows Sair, '
+      'not Entrar',
+      (tester) async {
+        _skipOnboarding();
 
-      await tester.pumpWidget(_app(loggedIn: true));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(_app(loggedIn: true));
+        await tester.pumpAndSettle();
+        await _openDrawer(tester);
 
-      expect(find.text('Search Flights'), findsOneWidget);
-      expect(find.byIcon(Icons.logout), findsOneWidget);
-      expect(find.byIcon(Icons.confirmation_number_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.auto_awesome_outlined), findsOneWidget);
-    },
-  );
+        final drawer = find.byType(Drawer);
+        expect(
+          find.descendant(of: drawer, matching: find.text('Sair')),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(of: drawer, matching: find.text('Entrar')),
+          findsNothing,
+        );
+      },
+    );
+
+    testWidgets(
+      'given a logged in session when the Trips tab opens then shows the '
+      'bookings list, not the guest placeholder',
+      (tester) async {
+        _skipOnboarding();
+
+        await tester.pumpWidget(_app(loggedIn: true));
+        await tester.pumpAndSettle();
+        await _goToTab(tester, 'Trips');
+
+        expect(find.text('My Bookings'), findsOneWidget);
+        expect(find.text('Entre para continuar'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'given a logged in session when the Profile tab opens then shows the '
+      'session e-mail',
+      (tester) async {
+        _skipOnboarding();
+
+        await tester.pumpWidget(_app(loggedIn: true));
+        await tester.pumpAndSettle();
+        await _goToTab(tester, 'Profile');
+
+        expect(find.text('diego@dbook.com'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'given a destination tapped on the Explore tab then the Home tab '
+      'shows it pre-filled as the destination',
+      (tester) async {
+        _skipOnboarding();
+
+        await tester.pumpWidget(_app());
+        await tester.pumpAndSettle();
+        await _goToTab(tester, 'Explore');
+
+        final destination = find.descendant(
+          of: find.byType(ExplorePage),
+          matching: find.text(knownAirports[2].city),
+        );
+        final exploreScrollable = find.descendant(
+          of: find.byType(ExplorePage),
+          matching: find.byType(Scrollable),
+        );
+        await tester.scrollUntilVisible(
+          destination,
+          200,
+          scrollable: exploreScrollable,
+        );
+        await tester.ensureVisible(destination);
+        await tester.pumpAndSettle();
+        await tester.tap(destination);
+        await tester.pumpAndSettle();
+
+        expect(find.text(knownAirports[2].label), findsOneWidget);
+      },
+    );
+  });
 
   testWidgets('given a flight when the detail page opens then shows the live '
       'availability indicator instead of the static count', (tester) async {

@@ -1,9 +1,12 @@
 import 'package:dbook_design_system/dbook_design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../data/known_airports.dart';
+import '../state/flight_providers.dart';
 import 'airport_picker_sheet.dart';
+import 'destination_gradient.dart';
 
 /// Dados de busca preenchidos — devolvidos por [onSearch] quando origem,
 /// destino e data já estão selecionados.
@@ -22,17 +25,17 @@ class FlightSearchQuery {
 /// Tela de busca — origem/destino (seletor de aeroporto conhecido) e data.
 /// Passageiros não é um campo de verdade ainda: o backend não modela
 /// quantidade de passageiro na busca (isso entra na reserva, M5).
-class FlightSearchPage extends StatefulWidget {
-  const FlightSearchPage({super.key, required this.onSearch, this.actions});
+class FlightSearchPage extends ConsumerStatefulWidget {
+  const FlightSearchPage({super.key, required this.onSearch, this.drawer});
 
   final ValueChanged<FlightSearchQuery> onSearch;
-  final List<Widget>? actions;
+  final Widget? drawer;
 
   @override
-  State<FlightSearchPage> createState() => _FlightSearchPageState();
+  ConsumerState<FlightSearchPage> createState() => _FlightSearchPageState();
 }
 
-class _FlightSearchPageState extends State<FlightSearchPage> {
+class _FlightSearchPageState extends ConsumerState<FlightSearchPage> {
   KnownAirport? _origin = knownAirports.first;
   KnownAirport? _destination = knownAirports.length > 1
       ? knownAirports[1]
@@ -40,6 +43,10 @@ class _FlightSearchPageState extends State<FlightSearchPage> {
   DateTime _date = DateTime.now().add(const Duration(days: 1));
 
   static final _dateFormat = DateFormat('EEE, MMM d, yyyy');
+
+  void _selectDestination(KnownAirport destination) {
+    setState(() => _destination = destination);
+  }
 
   Future<void> _pickOrigin() async {
     final picked = await showAirportPickerSheet(context);
@@ -82,8 +89,21 @@ class _FlightSearchPageState extends State<FlightSearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Chega aqui vindo da aba Explore com um destino escolhido — o
+    // `IndexedStack` do shell mantém a Home montada mesmo fora de tela,
+    // então `initState` já rodou muito antes de qualquer seleção no
+    // Explore; só `ref.listen` continua reagindo depois disso. Limpa o
+    // provider assim que consome (não é estado de busca persistente, só
+    // uma ponte de navegação).
+    ref.listen<KnownAirport?>(prefillDestinationProvider, (previous, next) {
+      if (next == null) return;
+      ref.read(prefillDestinationProvider.notifier).set(null);
+      setState(() => _destination = next);
+    });
+
     return Scaffold(
-      appBar: DbookAppBar(title: 'DBook', actions: widget.actions),
+      appBar: const DbookAppBar(title: 'DBook'),
+      drawer: widget.drawer,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(DbookSpacing.lg),
         child: Column(
@@ -103,6 +123,35 @@ class _FlightSearchPageState extends State<FlightSearchPage> {
               onTapDestination: _pickDestination,
               onSwap: _swap,
               onTapDates: _pickDate,
+            ),
+            const SizedBox(height: DbookSpacing.xl),
+            const DbookSectionLabel(
+              text: 'Destinos em destaque',
+              icon: Icons.travel_explore_outlined,
+            ),
+            const SizedBox(height: DbookSpacing.md),
+            SizedBox(
+              height: 140,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: knownAirports.length,
+                separatorBuilder: (_, _) =>
+                    const SizedBox(width: DbookSpacing.md),
+                itemBuilder: (context, index) {
+                  final airport = knownAirports[index];
+                  return SizedBox(
+                    width: 160,
+                    child: DbookDestinationCard(
+                      title: airport.city,
+                      subtitle: airport.country,
+                      background: BoxDecoration(
+                        gradient: destinationGradient(index),
+                      ),
+                      onTap: () => _selectDestination(airport),
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),

@@ -140,14 +140,24 @@ void pushAuthGate(BuildContext context, {WidgetBuilder? onAuthenticated}) {
   );
 }
 
-/// O shell sempre visível depois do onboarding — visitante e usuário
-/// logado veem a mesma `FlightsHomePage`; a única diferença é que ações
-/// que exigem sessão (reservar, "Ask DBook AI" — `POST /ai/suggestions`
-/// exige auth) passam pelo Auth Gate primeiro quando não há sessão. Nem a
-/// feature de voos nem a de reserva conhecem `AuthNotifier` ou uma à
-/// outra (features não importam features), então é o app que decide isso.
-class _AppShell extends ConsumerWidget {
+/// O shell sempre visível depois do onboarding — 4 abas fixas (Home,
+/// Explore, Trips, Profile), visíveis pra visitante e usuário logado. Nem
+/// a feature de voos, nem a de reserva, nem a de auth se conhecem
+/// (features não importam features), então é o app que decide: ações que
+/// exigem sessão (reservar, Trips, Profile, "Ask DBook AI" — o backend
+/// exige auth em `POST /ai/suggestions`) passam pelo Auth Gate quando não
+/// há sessão. Trips/Profile continuam na barra pra visitante (em vez de
+/// sumir por sessão) — mostram um placeholder com CTA "Entrar", mais
+/// previsível que trocar o conjunto de abas dependendo do login.
+class _AppShell extends ConsumerStatefulWidget {
   const _AppShell();
+
+  @override
+  ConsumerState<_AppShell> createState() => _AppShellState();
+}
+
+class _AppShellState extends ConsumerState<_AppShell> {
+  int _tabIndex = 0;
 
   static void _openAiSuggestions(
     BuildContext context, {
@@ -161,20 +171,6 @@ class _AppShell extends ConsumerWidget {
       return;
     }
     pushAuthGate(context, onAuthenticated: (_) => const AiSuggestionPage());
-  }
-
-  static void _openMyBookings(
-    BuildContext context, {
-    required bool isLoggedIn,
-  }) {
-    final navigator = Navigator.of(context, rootNavigator: true);
-    if (isLoggedIn) {
-      navigator.push(
-        MaterialPageRoute<void>(builder: (_) => const MyBookingsPage()),
-      );
-      return;
-    }
-    pushAuthGate(context, onAuthenticated: (_) => const MyBookingsPage());
   }
 
   static void _bookFlight(
@@ -197,37 +193,165 @@ class _AppShell extends ConsumerWidget {
     );
   }
 
+  void _selectExploreDestination(KnownAirport destination) {
+    ref.read(prefillDestinationProvider.notifier).set(destination);
+    setState(() => _tabIndex = 0);
+  }
+
+  Widget _buildDrawer(BuildContext context, {required bool isLoggedIn}) {
+    return Drawer(
+      child: SafeArea(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(child: Center(child: Text('DBook'))),
+            ListTile(
+              leading: const Icon(Icons.auto_awesome_outlined),
+              title: const Text('Ask DBook AI'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _openAiSuggestions(context, isLoggedIn: isLoggedIn);
+              },
+            ),
+            const Divider(),
+            if (isLoggedIn)
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: const Text('Sair'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  ref.read(authNotifierProvider.notifier).logout();
+                },
+              )
+            else
+              ListTile(
+                leading: const Icon(Icons.login),
+                title: const Text('Entrar'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  pushAuthGate(context);
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _guestGate(
+    BuildContext context, {
+    required String title,
+    required String message,
+  }) {
+    return Scaffold(
+      key: ValueKey('guest_gate_$title'),
+      appBar: DbookAppBar(title: title),
+      body: DbookStatusPlaceholder(
+        icon: Icons.lock_outline,
+        title: 'Entre para continuar',
+        message: message,
+        actionLabel: 'Entrar',
+        onAction: () => pushAuthGate(context),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final authState = ref.watch(authNotifierProvider);
+    final isLoggedIn = authState is AuthLoggedIn;
+    final email = authState is AuthLoggedIn ? authState.email : null;
+
+    final tabs = [
+      FlightsHomePage(
+        drawer: _buildDrawer(context, isLoggedIn: isLoggedIn),
+        onBookFlight: (flight) =>
+            _bookFlight(context, flight, isLoggedIn: isLoggedIn),
+        liveAvailabilityBuilder: (flight) => DbookLiveAvailability(
+          bookableId: flight.id,
+          fallbackCapacity: flight.availableCapacity,
+        ),
+      ),
+      ExplorePage(onSelectDestination: _selectExploreDestination),
+      isLoggedIn
+          ? const MyBookingsPage()
+          : _guestGate(
+              context,
+              title: 'Trips',
+              message: 'Faça login para ver suas reservas.',
+            ),
+      isLoggedIn
+          ? _ProfilePage(email: email)
+          : _guestGate(
+              context,
+              title: 'Profile',
+              message: 'Faça login para ver seu perfil.',
+            ),
+    ];
+
+    return Scaffold(
+      body: IndexedStack(index: _tabIndex, children: tabs),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _tabIndex,
+        onDestinationSelected: (index) => setState(() => _tabIndex = index),
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.explore_outlined),
+            selectedIcon: Icon(Icons.explore),
+            label: 'Explore',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.confirmation_number_outlined),
+            selectedIcon: Icon(Icons.confirmation_number),
+            label: 'Trips',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Perfil — só o que já existe em memória da sessão (sem `GET /users/me`
+/// no backend pra buscar mais nada além disso).
+class _ProfilePage extends ConsumerWidget {
+  const _ProfilePage({required this.email});
+
+  final String? email;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isLoggedIn = ref.watch(authNotifierProvider) is AuthLoggedIn;
-
-    return FlightsHomePage(
-      aiSuggestionsAction: IconButton(
-        icon: const Icon(Icons.auto_awesome_outlined),
-        tooltip: 'Ask DBook AI',
-        onPressed: () => _openAiSuggestions(context, isLoggedIn: isLoggedIn),
-      ),
-      myBookingsAction: IconButton(
-        icon: const Icon(Icons.confirmation_number_outlined),
-        tooltip: 'My Bookings',
-        onPressed: () => _openMyBookings(context, isLoggedIn: isLoggedIn),
-      ),
-      logoutAction: isLoggedIn
-          ? IconButton(
-              icon: const Icon(Icons.logout),
-              tooltip: 'Sair',
-              onPressed: () => ref.read(authNotifierProvider.notifier).logout(),
-            )
-          : IconButton(
-              icon: const Icon(Icons.login),
-              tooltip: 'Entrar',
-              onPressed: () => pushAuthGate(context),
+    return Scaffold(
+      appBar: const DbookAppBar(title: 'Profile'),
+      body: Padding(
+        padding: const EdgeInsets.all(DbookSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.email_outlined),
+                title: const Text('E-mail'),
+                subtitle: Text(email ?? 'Não disponível nesta sessão'),
+              ),
             ),
-      onBookFlight: (flight) =>
-          _bookFlight(context, flight, isLoggedIn: isLoggedIn),
-      liveAvailabilityBuilder: (flight) => DbookLiveAvailability(
-        bookableId: flight.id,
-        fallbackCapacity: flight.availableCapacity,
+            const SizedBox(height: DbookSpacing.lg),
+            DbookButton(
+              label: 'Sair',
+              variant: DbookButtonVariant.text,
+              onPressed: () => ref.read(authNotifierProvider.notifier).logout(),
+            ),
+          ],
+        ),
       ),
     );
   }
