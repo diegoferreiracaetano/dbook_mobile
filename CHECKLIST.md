@@ -180,27 +180,29 @@ Decisão: `dioProvider`/`DbookAuthInterceptor` saíram de `dbook_feature_auth` p
 - [x] README atualizado — [README.md](README.md) com `dbook_core_session`/`dbook_feature_flights` na estrutura e progresso do M4
 - [x] Cobertura mínima — combinado: **83.34%** (1531/1837 linhas); `dbook_feature_flights` sozinho: 85.31%
 
-## M5 — Reserva ⬜
+## M5 — Reserva ✅
 
-- [ ] 5.1 Criar o pacote `packages/dbook_feature_booking`
-- [ ] 5.2 Implementação real do `BookingRepository`
-- [ ] 5.3 Ação de reservar a partir da tela de detalhe (botão + confirmação)
-- [ ] 5.4 Riverpod: `BookingNotifier`
-- [ ] 5.5 Tela "minhas reservas" (lista com status PENDING/CONFIRMED/CANCELLED)
-- [ ] 5.6 Ação de cancelar reserva
-- [ ] 5.7 Tratamento de erro específico: 409 (sem disponibilidade), 403 (não é dono), 404
+Decisão: o backend não expõe um "GET /bookings" (só criar e cancelar) — não tem como listar as reservas do usuário depois que o app fecha. "Minhas reservas" (5.5) mostra as reservas feitas **nesta sessão** (`MyBookingsNotifier`, em memória, enriquecidas com o `Flight`/`Seat` já em mãos no momento da reserva), não um histórico persistente. Mesmo espírito da decisão dos aeroportos no M4: entregar algo real e honesto com o que a API de fato oferece, documentado, em vez de inventar um endpoint que não existe.
+
+- [x] 5.1 Criar o pacote `packages/dbook_feature_booking`
+- [x] 5.2 Implementação real do `BookingRepository` — já existia desde o M2 (`BookingRepositoryImpl`); só faltava o provider ligando ao Dio autenticado
+- [x] 5.3 Ação de reservar a partir da tela de detalhe (botão + confirmação) — `FlightDetailPage.onBook` (novo, opcional) abre `SeatSelectionPage`; `showDbookConfirmationDialog` antes de criar a reserva de verdade
+- [x] 5.4 Riverpod: `BookingNotifier` — `SeatSelectionNotifier` (idle/loadingSeats/seatsError/ready com seleção+erro de reserva embutidos/booked) + `MyBookingsNotifier` (lista da sessão)
+- [x] 5.5 Tela "minhas reservas" (lista com status PENDING/CONFIRMED/CANCELLED) — `MyBookingsPage`, com a ressalva de escopo acima
+- [x] 5.6 Ação de cancelar reserva — botão no `MyBookingsPage` (só quando `PENDING`, mesma regra do backend), com confirmação
+- [x] 5.7 Tratamento de erro específico: 409 (sem disponibilidade), 403 (não é dono), 404 — `DbookNetworkException.message` já carrega a mensagem do backend pra cada um desses status (mapeados desde o M2); a reserva mostra inline sem perder o mapa de assentos, o cancelamento mostra num snackbar
 
 **Checklist de fechamento do M5:**
-- [ ] Itens 5.1-5.7 revisados
-- [ ] Clean Code
-- [ ] Arquitetura
-- [ ] Componentização (tela usa só componentes do `dbook_design_system`, zero widget customizado solto)
-- [ ] Layout (espaçamento e montagem da tela seguem os padrões do `dbook_design_system`, nada de número solto ou arranjo remontado à mão)
-- [ ] Material Design (componentes são temas em cima de widgets Material 3 do Flutter, não reconstruídos do zero)
-- [ ] `analyze` + `format` + `test` limpos
-- [ ] Testes das camadas ainda sem cobertura
-- [ ] README atualizado
-- [ ] Cobertura mínima
+- [x] Itens 5.1-5.7 revisados — todos `[x]`
+- [x] Clean Code — `SeatSelectionNotifier`/`MyBookingsNotifier` cada um cuida de uma responsabilidade; comentário só onde o "porquê" não é óbvio (ex.: por que `BookingRecord` só existe em memória, por que o estado `ready` guarda o erro de reserva em vez de ter um estado `error` separado — perder o mapa de assentos numa falha de reserva seria pior UX)
+- [x] Arquitetura — `dbook_feature_booking` depende só de `dbook_domain`/`dbook_core_network`/`dbook_core_session`/`dbook_design_system`; monta seu próprio `flightRepositoryProvider` interno (não exportado) em vez de importar o de `dbook_feature_flights`, já que features não importam features; a ligação busca↔reserva (botão "Book This Flight", ícone "My Bookings") é feita pelo app via callbacks injetados, mesmo padrão do logout no M4
+- [x] Componentização — `SeatSelectionPage`/`BookingSuccessPage`/`MyBookingsPage` usam só `DbookSeatCell`/`DbookLegendItem`/`showDbookConfirmationDialog`/`DbookSuccessScreen`/`DbookStatusBadge`/`DbookInlineStatusBanner`/`DbookStatusPlaceholder` do `dbook_design_system`; zero widget de UI construído solto
+- [x] Layout — espaçamento vem de `DbookSpacing`, grid de assentos via `GridView`/`SliverGridDelegateWithFixedCrossAxisCount` (padrão nativo, não remontado à mão)
+- [x] Material Design — `GridView`/`Card`/`showModalBottomSheet`/`AlertDialog` (via `showDbookConfirmationDialog`) nativos via tema
+- [x] `analyze` + `format` + `test` limpos — 11 pacotes, `melos run test` (Flutter) e `melos run test:dart` (Dart puro) verdes
+- [x] Testes das camadas ainda sem cobertura — `SeatSelectionNotifier` (carregar assentos, selecionar, confirmar com sucesso/erro 409), `MyBookingsNotifier` (adicionar, cancelar com sucesso/erro 403), `SeatSelectionPage`, `MyBookingsPage` (vazio, pendente com cancelar, confirmada sem cancelar, cancelamento com sucesso/erro) e o novo `FlightDetailPage.onBook`
+- [x] README atualizado — [README.md](README.md) com `dbook_feature_booking` na estrutura e progresso do M5
+- [x] Cobertura mínima — combinado: **84.27%** (1709/2028 linhas); `dbook_feature_booking` sozinho: 93.99%
 
 ## M6 — Tempo real ⬜
 

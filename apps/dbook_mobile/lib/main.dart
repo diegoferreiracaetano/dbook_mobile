@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dbook_core_session/dbook_core_session.dart';
 import 'package:dbook_design_system/dbook_design_system.dart';
 import 'package:dbook_feature_auth/dbook_feature_auth.dart';
+import 'package:dbook_feature_booking/dbook_feature_booking.dart';
 import 'package:dbook_feature_flights/dbook_feature_flights.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -109,20 +110,32 @@ class _UnauthenticatedFlow extends StatelessWidget {
   }
 }
 
-/// Tela logada de verdade — a feature de voos (busca → resultados →
-/// detalhe, M4) não conhece `AuthNotifier` (features não importam
-/// features), então é o app que monta o botão de sair e repassa como ação
-/// da app bar da busca.
+/// Tela logada de verdade — nem a feature de voos (M4) nem a de reserva
+/// (M5) conhecem `AuthNotifier` ou uma à outra (features não importam
+/// features), então é o app que monta as ações da app bar e liga o botão
+/// "Book This Flight" do detalhe à tela de seleção de assento, empurrada no
+/// Navigator raiz (fora do `Router` interno da feature de voos).
 class _AuthenticatedHome extends ConsumerWidget {
   const _AuthenticatedHome();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return FlightsHomePage(
+      myBookingsAction: IconButton(
+        icon: const Icon(Icons.confirmation_number_outlined),
+        tooltip: 'My Bookings',
+        onPressed: () => Navigator.of(
+          context,
+          rootNavigator: true,
+        ).push(MaterialPageRoute(builder: (_) => const MyBookingsPage())),
+      ),
       logoutAction: IconButton(
         icon: const Icon(Icons.logout),
         tooltip: 'Sair',
         onPressed: () => ref.read(authNotifierProvider.notifier).logout(),
+      ),
+      onBookFlight: (flight) => Navigator.of(context, rootNavigator: true).push(
+        MaterialPageRoute(builder: (_) => SeatSelectionPage(flight: flight)),
       ),
     );
   }
