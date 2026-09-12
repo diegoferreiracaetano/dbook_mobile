@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dbook_core_session/dbook_core_session.dart';
 import 'package:dbook_design_system/dbook_design_system.dart';
+import 'package:dbook_domain/dbook_domain.dart';
 import 'package:dbook_feature_auth/dbook_feature_auth.dart';
 import 'package:dbook_feature_ai/dbook_feature_ai.dart';
 import 'package:dbook_feature_booking/dbook_feature_booking.dart';
@@ -10,6 +11,7 @@ import 'package:dbook_feature_realtime/dbook_feature_realtime.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Backend rodando localmente na máquina host: emulador Android enxerga o
 /// host via `10.0.2.2`; todo o resto (iOS simulator, web, desktop) enxerga
@@ -45,9 +47,14 @@ class DbookMobileApp extends StatelessWidget {
   }
 }
 
-/// Decide, a partir da sessão salva, qual fluxo mostrar: enquanto o
-/// bootstrap roda (3.8) mostra um loading; depois, ou o usuário está logado
-/// (`_HomePlaceholderPage`) ou passa pelo fluxo de onboarding/login/cadastro.
+const _hasOnboardedPrefsKey = 'has_onboarded';
+
+/// Só decide 2 coisas, nenhuma delas é "o usuário está logado?" (M9-9.1):
+/// se já passou pelo onboarding (uma vez só, guardado localmente) e, se
+/// não, mostra ele. Depois disso é sempre o shell — busca é pública
+/// (`GET /flights/search` não exige sessão), então não há motivo pra
+/// travar a primeira tela nisso. O bootstrap de sessão roda em paralelo,
+/// sem bloquear: só afeta se o shell já nasce "logado" ou não.
 class _AppRoot extends ConsumerStatefulWidget {
   const _AppRoot();
 
@@ -56,97 +63,168 @@ class _AppRoot extends ConsumerStatefulWidget {
 }
 
 class _AppRootState extends ConsumerState<_AppRoot> {
-  var _bootstrapped = false;
+  bool? _hasOnboarded;
 
   @override
   void initState() {
     super.initState();
+    _loadOnboardingFlag();
     // Riverpod não permite mudar o estado de um provider durante o build da
-    // árvore de widgets — adia pro fim do primeiro frame.
+    // árvore de widgets — adia pro fim do primeiro frame. Não é aguardado:
+    // a Home não espera a sessão resolver pra aparecer.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(authNotifierProvider.notifier).bootstrap().whenComplete(() {
-        if (mounted) setState(() => _bootstrapped = true);
-      });
+      ref.read(authNotifierProvider.notifier).bootstrap();
     });
   }
 
+  Future<void> _loadOnboardingFlag() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(
+        () => _hasOnboarded = prefs.getBool(_hasOnboardedPrefsKey) ?? false,
+      );
+    }
+  }
+
+  Future<void> _completeOnboarding() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_hasOnboardedPrefsKey, true);
+    if (mounted) setState(() => _hasOnboarded = true);
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (!_bootstrapped) {
+    final hasOnboarded = _hasOnboarded;
+    if (hasOnboarded == null) {
       return const Scaffold(body: DbookLoadingIndicator());
     }
-
-    final state = ref.watch(authNotifierProvider);
-    if (state is AuthLoggedIn) return const _AuthenticatedHome();
-    return const _UnauthenticatedFlow();
+    if (!hasOnboarded) {
+      return OnboardingPage(onFinished: _completeOnboarding);
+    }
+    return const _AppShell();
   }
 }
 
-/// Onboarding → Login ↔ Cadastro, com pilha de navegação de verdade
-/// (voltar funciona) — rotas de feature de verdade chegam com `go_router`
-/// em M4.
-class _UnauthenticatedFlow extends StatelessWidget {
-  const _UnauthenticatedFlow();
+/// Empurra login/cadastro na Navigator raiz (fora do `Router` interno de
+/// qualquer feature) e, ao autenticar, volta pra rota de origem e empurra
+/// [onAuthenticated] (quando informado — sem destino, só volta pra origem,
+/// caso do botão avulso "Entrar") — nunca deixa login/cadastro no
+/// back-stack e nunca devolve pra Home (M9-9.1: mesmo se o usuário passar
+/// por login *e depois* cadastro no meio do caminho, o back-stack final é
+/// só origem→destino).
+void pushAuthGate(BuildContext context, {WidgetBuilder? onAuthenticated}) {
+  final navigator = Navigator.of(context, rootNavigator: true);
+  final origin = ModalRoute.of(context);
 
-  @override
-  Widget build(BuildContext context) {
-    return Navigator(
-      onGenerateRoute: (settings) {
-        return MaterialPageRoute<void>(
-          settings: settings,
-          builder: (context) => switch (settings.name) {
-            '/login' => LoginPage(
-              onNavigateToRegister: () =>
-                  Navigator.of(context).pushNamed('/register'),
+  void goToDestination() {
+    navigator.popUntil((route) => route == origin || route.isFirst);
+    if (onAuthenticated != null) {
+      navigator.push(MaterialPageRoute<void>(builder: onAuthenticated));
+    }
+  }
+
+  navigator.push(
+    MaterialPageRoute<void>(
+      builder: (context) => LoginPage(
+        onLoggedIn: goToDestination,
+        onNavigateToRegister: () => navigator.push(
+          MaterialPageRoute<void>(
+            builder: (context) => RegisterPage(
+              onRegistered: goToDestination,
+              onNavigateToLogin: () => navigator.pop(),
             ),
-            '/register' => RegisterPage(
-              onNavigateToLogin: () => Navigator.of(context).pop(),
-            ),
-            _ => OnboardingPage(
-              onFinished: () => Navigator.of(context).pushNamed('/login'),
-            ),
-          },
-        );
-      },
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+/// O shell sempre visível depois do onboarding — visitante e usuário
+/// logado veem a mesma `FlightsHomePage`; a única diferença é que ações
+/// que exigem sessão (reservar, "Ask DBook AI" — `POST /ai/suggestions`
+/// exige auth) passam pelo Auth Gate primeiro quando não há sessão. Nem a
+/// feature de voos nem a de reserva conhecem `AuthNotifier` ou uma à
+/// outra (features não importam features), então é o app que decide isso.
+class _AppShell extends ConsumerWidget {
+  const _AppShell();
+
+  static void _openAiSuggestions(
+    BuildContext context, {
+    required bool isLoggedIn,
+  }) {
+    final navigator = Navigator.of(context, rootNavigator: true);
+    if (isLoggedIn) {
+      navigator.push(
+        MaterialPageRoute<void>(builder: (_) => const AiSuggestionPage()),
+      );
+      return;
+    }
+    pushAuthGate(context, onAuthenticated: (_) => const AiSuggestionPage());
+  }
+
+  static void _openMyBookings(
+    BuildContext context, {
+    required bool isLoggedIn,
+  }) {
+    final navigator = Navigator.of(context, rootNavigator: true);
+    if (isLoggedIn) {
+      navigator.push(
+        MaterialPageRoute<void>(builder: (_) => const MyBookingsPage()),
+      );
+      return;
+    }
+    pushAuthGate(context, onAuthenticated: (_) => const MyBookingsPage());
+  }
+
+  static void _bookFlight(
+    BuildContext context,
+    Flight flight, {
+    required bool isLoggedIn,
+  }) {
+    final navigator = Navigator.of(context, rootNavigator: true);
+    if (isLoggedIn) {
+      navigator.push(
+        MaterialPageRoute<void>(
+          builder: (_) => SeatSelectionPage(flight: flight),
+        ),
+      );
+      return;
+    }
+    pushAuthGate(
+      context,
+      onAuthenticated: (_) => SeatSelectionPage(flight: flight),
     );
   }
-}
-
-/// Tela logada de verdade — nem a feature de voos (M4) nem a de reserva
-/// (M5) conhecem `AuthNotifier` ou uma à outra (features não importam
-/// features), então é o app que monta as ações da app bar e liga o botão
-/// "Book This Flight" do detalhe à tela de seleção de assento, empurrada no
-/// Navigator raiz (fora do `Router` interno da feature de voos).
-class _AuthenticatedHome extends ConsumerWidget {
-  const _AuthenticatedHome();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isLoggedIn = ref.watch(authNotifierProvider) is AuthLoggedIn;
+
     return FlightsHomePage(
       aiSuggestionsAction: IconButton(
         icon: const Icon(Icons.auto_awesome_outlined),
         tooltip: 'Ask DBook AI',
-        onPressed: () => Navigator.of(
-          context,
-          rootNavigator: true,
-        ).push(MaterialPageRoute(builder: (_) => const AiSuggestionPage())),
+        onPressed: () => _openAiSuggestions(context, isLoggedIn: isLoggedIn),
       ),
       myBookingsAction: IconButton(
         icon: const Icon(Icons.confirmation_number_outlined),
         tooltip: 'My Bookings',
-        onPressed: () => Navigator.of(
-          context,
-          rootNavigator: true,
-        ).push(MaterialPageRoute(builder: (_) => const MyBookingsPage())),
+        onPressed: () => _openMyBookings(context, isLoggedIn: isLoggedIn),
       ),
-      logoutAction: IconButton(
-        icon: const Icon(Icons.logout),
-        tooltip: 'Sair',
-        onPressed: () => ref.read(authNotifierProvider.notifier).logout(),
-      ),
-      onBookFlight: (flight) => Navigator.of(context, rootNavigator: true).push(
-        MaterialPageRoute(builder: (_) => SeatSelectionPage(flight: flight)),
-      ),
+      logoutAction: isLoggedIn
+          ? IconButton(
+              icon: const Icon(Icons.logout),
+              tooltip: 'Sair',
+              onPressed: () => ref.read(authNotifierProvider.notifier).logout(),
+            )
+          : IconButton(
+              icon: const Icon(Icons.login),
+              tooltip: 'Entrar',
+              onPressed: () => pushAuthGate(context),
+            ),
+      onBookFlight: (flight) =>
+          _bookFlight(context, flight, isLoggedIn: isLoggedIn),
       liveAvailabilityBuilder: (flight) => DbookLiveAvailability(
         bookableId: flight.id,
         fallbackCapacity: flight.availableCapacity,

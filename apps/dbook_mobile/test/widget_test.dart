@@ -7,6 +7,7 @@ import 'package:dbook_mobile/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class _NoSessionTokenStorage implements TokenStorage {
   @override
@@ -47,76 +48,266 @@ class _FakeLoggedInAuthNotifier extends AuthNotifier {
   Future<void> bootstrap() async {}
 }
 
-Widget _app({bool loggedIn = false, List<Flight> flights = const []}) {
+class _FakeAuthRepository implements AuthRepository {
+  var loginCallCount = 0;
+
+  @override
+  Future<User> register({required String email, required String password}) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<AuthTokens> login({
+    required String email,
+    required String password,
+  }) async {
+    loginCallCount++;
+    return const AuthTokens(accessToken: 'access', refreshToken: 'refresh');
+  }
+
+  @override
+  Future<AuthTokens> refresh(String refreshToken) {
+    throw UnimplementedError();
+  }
+}
+
+Flight _sampleFlight() => Flight(
+  id: 1,
+  flightNumber: 'IB 6821',
+  originIataCode: 'GRU',
+  destinationIataCode: 'MAD',
+  departureTime: DateTime(2026, 1, 13, 10, 30),
+  arrivalTime: DateTime(2026, 1, 14, 6, 45),
+  seatClass: SeatClass.economy,
+  price: 450,
+  availableCapacity: 12,
+);
+
+Widget _app({
+  bool loggedIn = false,
+  List<Flight> flights = const [],
+  AuthRepository? authRepository,
+}) {
   return ProviderScope(
     overrides: [
       baseUrlProvider.overrideWithValue('http://localhost:8080'),
       tokenStorageProvider.overrideWithValue(_NoSessionTokenStorage()),
-      if (loggedIn) ...[
+      flightRepositoryProvider.overrideWithValue(
+        _FakeFlightRepository(flights: flights),
+      ),
+      if (authRepository != null)
+        authRepositoryProvider.overrideWithValue(authRepository),
+      if (loggedIn)
         authNotifierProvider.overrideWith(_FakeLoggedInAuthNotifier.new),
-        flightRepositoryProvider.overrideWithValue(
-          _FakeFlightRepository(flights: flights),
-        ),
-      ],
     ],
     child: const DbookMobileApp(),
   );
 }
 
+/// Onboarding é "primeira vez só" (M9-9.1) — todo teste que não é
+/// especificamente sobre onboarding já nasce com a flag marcada, senão
+/// cairia no onboarding em vez da tela que o teste quer checar.
+void _skipOnboarding() =>
+    SharedPreferences.setMockInitialValues({'has_onboarded': true});
+
+Future<void> _searchAndOpenFlightDetail(WidgetTester tester) async {
+  await tester.tap(find.text('Search Flights'));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('DBook Airlines · IB 6821'));
+  await tester.pumpAndSettle();
+}
+
 void main() {
+  group('onboarding (primeiro acesso)', () {
+    testWidgets(
+      'given a fresh install when the app builds then shows onboarding',
+      (tester) async {
+        SharedPreferences.setMockInitialValues({});
+
+        await tester.pumpWidget(_app());
+        await tester.pumpAndSettle();
+
+        expect(find.text('Discover New Horizons'), findsOneWidget);
+        expect(find.text('Skip'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'given onboarding finished when Get Started is tapped then Home '
+      'shows directly, with no login prompt',
+      (tester) async {
+        SharedPreferences.setMockInitialValues({});
+
+        await tester.pumpWidget(_app());
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Next'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Next'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Get Started'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Search Flights'), findsOneWidget);
+        expect(find.text('Welcome Back'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'given a returning user when the app builds then skips onboarding '
+      'and goes straight to Home',
+      (tester) async {
+        _skipOnboarding();
+
+        await tester.pumpWidget(_app());
+        await tester.pumpAndSettle();
+
+        expect(find.text('Search Flights'), findsOneWidget);
+        expect(find.text('Discover New Horizons'), findsNothing);
+      },
+    );
+  });
+
+  group('visitante navega sem login (M9-9.1)', () {
+    testWidgets(
+      'given no session when Home builds then shows an Entrar action, not '
+      'logout',
+      (tester) async {
+        _skipOnboarding();
+
+        await tester.pumpWidget(_app());
+        await tester.pumpAndSettle();
+
+        expect(find.byIcon(Icons.login), findsOneWidget);
+        expect(find.byIcon(Icons.logout), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'given a flight found when a guest searches then sees results and '
+      'the flight detail with no login prompt anywhere',
+      (tester) async {
+        _skipOnboarding();
+
+        await tester.pumpWidget(_app(flights: [_sampleFlight()]));
+        await tester.pumpAndSettle();
+        await _searchAndOpenFlightDetail(tester);
+
+        expect(find.text('Book This Flight'), findsOneWidget);
+        expect(find.text('Welcome Back'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'given a guest when Ask DBook AI is tapped then the Auth Gate opens '
+      'login instead of the AI screen',
+      (tester) async {
+        _skipOnboarding();
+
+        await tester.pumpWidget(_app());
+        await tester.pumpAndSettle();
+        await tester.tap(find.byIcon(Icons.auto_awesome_outlined));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Welcome Back'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'given a guest when My Bookings is tapped then the Auth Gate opens '
+      'login instead of the bookings list',
+      (tester) async {
+        _skipOnboarding();
+
+        await tester.pumpWidget(_app());
+        await tester.pumpAndSettle();
+        await tester.tap(find.byIcon(Icons.confirmation_number_outlined));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Welcome Back'), findsOneWidget);
+      },
+    );
+  });
+
+  group('Auth Gate na compra (M9-9.1)', () {
+    testWidgets(
+      'given a guest when Book This Flight is tapped then the Auth Gate '
+      'opens login instead of seat selection',
+      (tester) async {
+        _skipOnboarding();
+
+        await tester.pumpWidget(_app(flights: [_sampleFlight()]));
+        await tester.pumpAndSettle();
+        await _searchAndOpenFlightDetail(tester);
+        await tester.tap(find.text('Book This Flight'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Welcome Back'), findsOneWidget);
+        expect(find.text('Select a Seat'), findsNothing);
+      },
+    );
+
+    testWidgets('given a guest who logs in through the Auth Gate then lands '
+        'directly on seat selection for the flight they picked — never '
+        'back on Home', (tester) async {
+      _skipOnboarding();
+      final authRepository = _FakeAuthRepository();
+
+      await tester.pumpWidget(
+        _app(flights: [_sampleFlight()], authRepository: authRepository),
+      );
+      await tester.pumpAndSettle();
+      await _searchAndOpenFlightDetail(tester);
+      await tester.tap(find.text('Book This Flight'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'E-mail'),
+        'diego@dbook.com',
+      );
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Senha'),
+        'hunter2',
+      );
+      await tester.tap(find.text('Sign In'));
+      await tester.pumpAndSettle();
+
+      expect(authRepository.loginCallCount, 1);
+      expect(find.text('Select a Seat'), findsOneWidget);
+      expect(find.text('Welcome Back'), findsNothing);
+
+      // Voltar da tela de assento cai no detalhe do voo (a origem do
+      // gate), nunca na Home nem no login — back-stack coerente.
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+
+      expect(find.text('Book This Flight'), findsOneWidget);
+    });
+
+    testWidgets(
+      'given a logged in session when Book This Flight is tapped then '
+      'goes straight to seat selection, no Auth Gate',
+      (tester) async {
+        _skipOnboarding();
+
+        await tester.pumpWidget(
+          _app(loggedIn: true, flights: [_sampleFlight()]),
+        );
+        await tester.pumpAndSettle();
+        await _searchAndOpenFlightDetail(tester);
+        await tester.tap(find.text('Book This Flight'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Select a Seat'), findsOneWidget);
+      },
+    );
+  });
+
   testWidgets(
-    'given no saved session when the app builds then the first onboarding '
-    'slide renders',
+    'given a logged in session when Home builds then shows logout, my '
+    'bookings and AI suggestion actions',
     (tester) async {
-      await tester.pumpWidget(_app());
-      await tester.pumpAndSettle();
+      _skipOnboarding();
 
-      expect(find.text('Discover New Horizons'), findsOneWidget);
-      expect(find.text('Skip'), findsOneWidget);
-      expect(find.text('Next'), findsOneWidget);
-    },
-  );
-
-  testWidgets(
-    'given Next tapped three times when settled then Get Started shows',
-    (tester) async {
-      await tester.pumpWidget(_app());
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Next'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Next'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Travel Your Way'), findsOneWidget);
-      expect(find.text('Get Started'), findsOneWidget);
-      expect(find.text('Skip'), findsNothing);
-    },
-  );
-
-  testWidgets(
-    'given onboarding finished when Get Started is tapped then the login '
-    'screen shows',
-    (tester) async {
-      await tester.pumpWidget(_app());
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Next'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Next'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Get Started'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Welcome Back'), findsOneWidget);
-      expect(find.text('Sign In'), findsOneWidget);
-    },
-  );
-
-  testWidgets(
-    'given a logged in session when the app builds then the flight search '
-    'screen shows with logout and my bookings actions',
-    (tester) async {
       await tester.pumpWidget(_app(loggedIn: true));
       await tester.pumpAndSettle();
 
@@ -127,71 +318,13 @@ void main() {
     },
   );
 
-  testWidgets(
-    'given the AI suggestions action when tapped then opens the ask AI '
-    'screen',
-    (tester) async {
-      await tester.pumpWidget(_app(loggedIn: true));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byIcon(Icons.auto_awesome_outlined));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Ask DBook AI'), findsOneWidget);
-    },
-  );
-
-  testWidgets(
-    'given a flight found when Book This Flight is tapped then the seat '
-    'selection screen opens',
-    (tester) async {
-      final flight = Flight(
-        id: 1,
-        flightNumber: 'IB 6821',
-        originIataCode: 'GRU',
-        destinationIataCode: 'MAD',
-        departureTime: DateTime(2026, 1, 13, 10, 30),
-        arrivalTime: DateTime(2026, 1, 14, 6, 45),
-        seatClass: SeatClass.economy,
-        price: 450,
-        availableCapacity: 12,
-      );
-
-      await tester.pumpWidget(_app(loggedIn: true, flights: [flight]));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Search Flights'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('DBook Airlines · IB 6821'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Book This Flight'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Select a Seat'), findsOneWidget);
-    },
-  );
-
   testWidgets('given a flight when the detail page opens then shows the live '
       'availability indicator instead of the static count', (tester) async {
-    final flight = Flight(
-      id: 1,
-      flightNumber: 'IB 6821',
-      originIataCode: 'GRU',
-      destinationIataCode: 'MAD',
-      departureTime: DateTime(2026, 1, 13, 10, 30),
-      arrivalTime: DateTime(2026, 1, 14, 6, 45),
-      seatClass: SeatClass.economy,
-      price: 450,
-      availableCapacity: 12,
-    );
+    _skipOnboarding();
 
-    await tester.pumpWidget(_app(loggedIn: true, flights: [flight]));
+    await tester.pumpWidget(_app(loggedIn: true, flights: [_sampleFlight()]));
     await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Search Flights'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('DBook Airlines · IB 6821'));
-    await tester.pumpAndSettle();
+    await _searchAndOpenFlightDetail(tester);
 
     expect(find.text('Seats available'), findsOneWidget);
     expect(find.text('Conectando...'), findsOneWidget);

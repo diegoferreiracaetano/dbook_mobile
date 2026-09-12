@@ -40,6 +40,8 @@ dependencies:
     path: ../../packages/dbook_core_session
   dbook_design_system:
     path: ../../packages/dbook_design_system
+  dbook_domain:
+    path: ../../packages/dbook_domain
   dbook_feature_ai:
     path: ../../packages/dbook_feature_ai
   dbook_feature_auth:
@@ -51,12 +53,11 @@ dependencies:
   dbook_feature_realtime:
     path: ../../packages/dbook_feature_realtime
   flutter_riverpod: ^3.4.3
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   dbook_core_storage:
     path: ../../packages/dbook_core_storage
-  dbook_domain:
-    path: ../../packages/dbook_domain
   flutter_test:
     sdk: flutter
   integration_test:

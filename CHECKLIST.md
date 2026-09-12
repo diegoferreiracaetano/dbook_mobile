@@ -271,6 +271,41 @@ Decisão: só entra depois que o app já builda e roda de ponta a ponta manualme
 - [x] README atualizado — [README.md](README.md) com a seção de CI/CD e as instruções dos secrets
 - [x] Cobertura mínima — inalterada (não há código Dart novo neste marco); segue em **85.04%**, verificado pelo próprio gate da CI (`very_good_coverage`, mínimo 80%)
 
+## M9 — Remediação de navegação e UX ⬜
+
+Decisão: revisão crítica (2026-09-12) encontrou o app bloqueando busca/
+resultados/detalhe atrás de login, contrariando o próprio contrato do
+backend (`GET /flights/search` e `GET /bookables/{id}/seats` são
+`permitAll()` em `SecurityConfig.kt`) — nenhum concorrente real exige
+conta pra ver preço. Auditoria completa e causa raiz de cada item em
+`docs/m9_remediation_spec.md` (mesmo documento aprovado como plano).
+Escopo negativo explícito: pagamento real, alteração de reserva com
+diferença de preço, check-in, favoritos, notificações, configurações de
+conta, hotéis/carros/experiências e deep link pra voo/reserva específica
+ficam de fora desta rodada — nenhum tem endpoint no backend, e construir
+a tela sem o backend repetiria o erro que motivou esta revisão.
+
+- [ ] 9.1 Auth Gate real — `_AppRoot` para de decidir qual tela mostrar por `AuthState`; visitante busca, vê resultados e detalhe sem login; gate dispara em "Select Flight" (preservando o `Flight` selecionado), em "Ask DBook AI" (`POST /ai/suggestions` exige sessão, achado corrigido depois de checar `AiSuggestionController.kt`) e nas abas Trips/Profile (item 9.3); bootstrap de sessão para de bloquear o primeiro frame; onboarding roda uma vez só (flag local)
+- [ ] 9.2 Ação fixa no rodapé (`Scaffold.bottomNavigationBar`) em `FlightSearchPage`, `FlightDetailPage` e no resumo de `SeatSelectionPage` — troca de botão solto no fim da `Column`
+- [ ] 9.3 Shell do app: bottom nav (Home/Explore/Trips/Profile, sempre visível) + Drawer, usando `navigationBarTheme`/`drawerTheme` (temados desde o M1, nunca consumidos) — Trips/Profile mostram `DbookStatusPlaceholder` + CTA "Entrar" pra visitante
+- [ ] 9.4 Home ganha destinos em destaque (`DbookDestinationCard`, existe desde o M1, nunca usado) acima do card de busca
+- [ ] 9.5 Explore + Destinations — 3 aeroportos conhecidos como destino, fotos novas e reconhecíveis (confirmar comigo antes de baixar, mesmo processo do M1); tocar um destino pré-preenche a busca
+- [ ] 9.6 Review Order — novo, entre seleção de assento e confirmação; resumo real, **sem campo de pagamento** (não existe endpoint de pagamento no backend), confirma e chama `POST /bookings` de verdade
+- [ ] 9.7 `/trips/{id}` (detalhe de uma reserva da sessão) e Profile (e-mail capturado no login/registro, só sessão — sem `GET /users/me`)
+- [ ] 9.8 Polimento client-side: ordenar/filtrar resultado já buscado (sem parâmetro novo na API) e banner de offline (`connectivity_plus` + `DbookInlineStatusBanner`, já existe)
+
+**Checklist de fechamento do M9:**
+- [ ] Itens 9.1-9.8 revisados
+- [ ] Clean Code
+- [ ] Arquitetura (features seguem sem se importar entre si; Auth Gate mora no app, não em feature)
+- [ ] Componentização (zero widget novo fora do `dbook_design_system` sem necessidade real — reaproveitar o que já existe antes de criar componente novo)
+- [ ] Layout (ação sempre fixa no rodapé, sem número solto)
+- [ ] Material Design (`NavigationBar`/`Drawer` nativos via tema, não reconstruídos)
+- [ ] `analyze` + `format` + `test` limpos, incluindo `apps/dbook_mobile/test/widget_test.dart` reescrito pro fluxo sem login obrigatório
+- [ ] Comparação visual lado a lado com o UI kit de referência no Browser pane, tela por tela alterada — não só os testes automatizados
+- [ ] README atualizado
+- [ ] Cobertura mínima
+
 ## Ideias futuras (fora da numeração)
 
 - Golden tests (regressão visual) pros componentes do `dbook_design_system`
