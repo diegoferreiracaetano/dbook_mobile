@@ -66,4 +66,36 @@ void main() {
       expect(booked, flight);
     },
   );
+
+  testWidgets(
+    'given liveAvailability when built then shows it instead of the static '
+    'capacity',
+    (tester) async {
+      final flight = Flight(
+        id: 1,
+        flightNumber: 'IB 6821',
+        originIataCode: 'GRU',
+        destinationIataCode: 'MAD',
+        departureTime: DateTime(2026, 1, 13, 10, 30),
+        arrivalTime: DateTime(2026, 1, 14, 6, 45),
+        seatClass: SeatClass.business,
+        price: 1250,
+        availableCapacity: 4,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: DbookTheme.light,
+          home: FlightDetailPage(
+            flight: flight,
+            liveAvailability: const Text('live-availability-widget'),
+          ),
+        ),
+      );
+
+      expect(find.text('Seats available'), findsOneWidget);
+      expect(find.text('live-availability-widget'), findsOneWidget);
+      expect(find.text('4'), findsNothing);
+    },
+  );
 }

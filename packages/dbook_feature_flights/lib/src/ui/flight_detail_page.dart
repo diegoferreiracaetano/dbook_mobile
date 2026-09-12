@@ -15,14 +15,21 @@ String _seatClassLabel(SeatClass seatClass) => switch (seatClass) {
 
 /// Detalhe de um voo já buscado — recebe o [Flight] escolhido na lista de
 /// resultados (evita rebuscar ou modelar um "GET /flights/{id}" que o
-/// backend não expõe). [onBook] mora na feature de reserva (M5) — a de
-/// voos não a importa (features não importam features), então quem monta
-/// essa tela decide o que reservar faz.
+/// backend não expõe). [onBook] mora na feature de reserva (M5) e
+/// [liveAvailability] na de tempo real (M6) — a de voos não importa
+/// nenhuma das duas (features não importam features), então quem monta
+/// essa tela decide o que cada uma faz.
 class FlightDetailPage extends StatelessWidget {
-  const FlightDetailPage({super.key, required this.flight, this.onBook});
+  const FlightDetailPage({
+    super.key,
+    required this.flight,
+    this.onBook,
+    this.liveAvailability,
+  });
 
   final Flight flight;
   final ValueChanged<Flight>? onBook;
+  final Widget? liveAvailability;
 
   @override
   Widget build(BuildContext context) {
@@ -62,10 +69,27 @@ class FlightDetailPage extends StatelessWidget {
                       label: 'Arrival',
                       value: _dateTimeFormat.format(flight.arrivalTime),
                     ),
-                    DbookSummaryRow(
-                      label: 'Seats available',
-                      value: '${flight.availableCapacity}',
-                    ),
+                    if (liveAvailability != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: DbookSpacing.xs,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Seats available',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            liveAvailability!,
+                          ],
+                        ),
+                      )
+                    else
+                      DbookSummaryRow(
+                        label: 'Seats available',
+                        value: '${flight.availableCapacity}',
+                      ),
                   ],
                 ),
               ),
