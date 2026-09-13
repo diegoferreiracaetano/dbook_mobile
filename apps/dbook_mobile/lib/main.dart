@@ -263,6 +263,11 @@ class _AppShellState extends ConsumerState<_AppShell> {
     setState(() => _tabIndex = 0);
   }
 
+  void _selectHomeRegion(String region) {
+    ref.read(prefillRegionProvider.notifier).set(region);
+    setState(() => _tabIndex = 1);
+  }
+
   List<Widget> _homeActions(BuildContext context, {required bool isLoggedIn}) {
     return [
       IconButton(
@@ -322,6 +327,7 @@ class _AppShellState extends ConsumerState<_AppShell> {
           bookableId: flight.id,
           fallbackCapacity: flight.availableCapacity,
         ),
+        onSelectRegion: _selectHomeRegion,
       ),
       ExplorePage(onSelectDestination: _selectExploreDestination),
       isLoggedIn

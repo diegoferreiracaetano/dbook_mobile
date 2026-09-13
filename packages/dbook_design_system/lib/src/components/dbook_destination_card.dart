@@ -9,13 +9,13 @@ class DbookDestinationCard extends StatelessWidget {
   const DbookDestinationCard({
     super.key,
     required this.title,
-    required this.subtitle,
+    this.subtitle,
     required this.background,
     this.onTap,
   });
 
   final String title;
-  final String subtitle;
+  final String? subtitle;
 
   /// Gradiente ou imagem de fundo — quem chama decide (nem toda tela tem
   /// foto real disponível; um `LinearGradient` também é válido aqui).
@@ -51,11 +51,12 @@ class DbookDestinationCard extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleSmall
                         ?.copyWith(color: Colors.white),
                   ),
-                  Text(
-                    subtitle,
-                    style: Theme.of(context).textTheme.bodySmall
-                        ?.copyWith(color: Colors.white),
-                  ),
+                  if (subtitle != null)
+                    Text(
+                      subtitle!,
+                      style: Theme.of(context).textTheme.bodySmall
+                          ?.copyWith(color: Colors.white),
+                    ),
                 ],
               ),
             ),

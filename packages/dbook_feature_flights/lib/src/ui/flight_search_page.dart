@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import '../state/flight_providers.dart';
 import 'airport_picker_sheet.dart';
 import 'destination_grid_card.dart';
-import 'destinations_by_region.dart';
+import 'region_carousel.dart';
 
 /// Dados de busca preenchidos — devolvidos por [onSearch] quando origem,
 /// destino e data já estão selecionados.
@@ -55,12 +55,22 @@ class _FlightLeg {
 /// Passageiros não é um campo de verdade ainda: o backend não modela
 /// quantidade de passageiro na busca (isso entra na reserva, M5).
 class FlightSearchPage extends ConsumerStatefulWidget {
-  const FlightSearchPage({super.key, required this.onSearch, this.actions});
+  const FlightSearchPage({
+    super.key,
+    required this.onSearch,
+    this.onSelectRegion,
+    this.actions,
+  });
 
   /// Sempre a lista completa de trechos, na ordem em que devem ser
   /// buscados — 1 item pra Round Trip/One Way, 1+N pra Multi-city (ver
   /// [_TripType]).
   final ValueChanged<List<FlightSearchQuery>> onSearch;
+
+  /// Tocar um card do carrossel de regiões chama isto — quem monta esta
+  /// página decide o que fazer (levar pra aba Explore já filtrada
+  /// naquela região, no caso do app).
+  final ValueChanged<String>? onSelectRegion;
   final List<Widget>? actions;
 
   @override
@@ -384,11 +394,18 @@ class _FlightSearchPageState extends ConsumerState<FlightSearchPage> {
                                 .toList(),
                             onSelect: _selectDestination,
                           ),
-                          const SizedBox(height: DbookSpacing.xl),
-                          DestinationsByRegion(
-                            destinations: value,
-                            onSelect: _selectDestination,
-                          ),
+                          if (widget.onSelectRegion != null) ...[
+                            const SizedBox(height: DbookSpacing.xl),
+                            const DbookSectionLabel(
+                              text: 'Explore por região',
+                              icon: Icons.public_outlined,
+                            ),
+                            const SizedBox(height: DbookSpacing.md),
+                            RegionCarousel(
+                              destinations: value,
+                              onSelectRegion: widget.onSelectRegion!,
+                            ),
+                          ],
                         ],
                       ),
                       AsyncError() => DbookStatusPlaceholder(

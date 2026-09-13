@@ -42,3 +42,17 @@ final prefillDestinationProvider =
     NotifierProvider<PrefillDestinationNotifier, Destination?>(
       PrefillDestinationNotifier.new,
     );
+
+/// Mesma ponte efêmera de [PrefillDestinationNotifier], só que pra região:
+/// tocar um card do carrossel de regiões na Home seta este provider, a
+/// Explore lê uma vez (e limpa) pra pré-selecionar o filtro da região
+/// tocada.
+class PrefillRegionNotifier extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void set(String? region) => state = region;
+}
+
+final prefillRegionProvider =
+    NotifierProvider<PrefillRegionNotifier, String?>(PrefillRegionNotifier.new);

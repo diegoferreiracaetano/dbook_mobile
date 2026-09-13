@@ -468,6 +468,67 @@ void main() {
         expect(find.text(_destinations[2].label), findsOneWidget);
       },
     );
+
+    testWidgetsWithMockImages(
+      'given a region card tapped on the Home carousel then the Explore '
+      'tab shows only that region, pre-selected',
+      (tester) async {
+        _skipOnboarding();
+
+        await tester.pumpWidget(_app());
+        await tester.pumpAndSettle();
+
+        // Escopado à FlightSearchPage (Home) porque a Explore também tem
+        // um card/chip "América do Norte" na própria árvore (montada por
+        // baixo, via IndexedStack) — sem escopo, `.first` podia acabar
+        // pegando o `Scrollable`/texto errado.
+        final homeScrollable = find
+            .descendant(
+              of: find.byType(FlightSearchPage),
+              matching: find.byType(Scrollable),
+            )
+            .first;
+        final regionCard = find
+            .descendant(
+              of: find.byType(FlightSearchPage),
+              matching: find.text('América do Norte'),
+            )
+            .first;
+        await tester.scrollUntilVisible(
+          regionCard,
+          200,
+          scrollable: homeScrollable,
+        );
+        await tester.tap(regionCard);
+        await tester.pumpAndSettle();
+
+        expect(
+          tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
+          1,
+        );
+        // O chip "América do Norte" já vem selecionado no filtro
+        // "Destinos por região" — só o destino daquela região aparece
+        // ali. Escopado a `DestinationsByRegion` (não a `ExplorePage`
+        // inteira): "São Paulo" continua legitimamente visível em
+        // "Principais destinos" (é popular, não passa pelo filtro de
+        // região) — e a Home também continua montada por baixo
+        // (IndexedStack) com o próprio "São Paulo" no grid de destaque.
+        expect(
+          find.descendant(
+            of: find.byType(DestinationsByRegion),
+            matching: find.text('New York'),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: find.byType(DestinationsByRegion),
+            matching: find.text('São Paulo'),
+          ),
+          findsNothing,
+        );
+      },
+    );
   });
 
   testWidgetsWithMockImages('given a flight when the detail page opens then shows the live '

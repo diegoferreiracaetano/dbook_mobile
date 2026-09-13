@@ -413,15 +413,25 @@ desde o M11. Três idas e voltas de design até fechar:
    foi reescrito de seções estáticas por região pra um filtro de fato:
    chips de seleção única ("Todos" + uma por região) acima de uma única
    grade que mostra só os destinos da região escolhida.
+5. Depois de ver o filtro funcionando (na Home e na Explore), o usuário
+   corrigiu de novo: na **Home** especificamente, o filtro de chips
+   estava errado — o certo era um **carrossel com 1 card por região**
+   (foto + nome), não um filtro. A Explore continua com o filtro de
+   chips (não foi questionado); só a Home trocou. Confirmado com o
+   usuário: tocar um card do carrossel leva pra Explore já filtrada
+   naquela região — reaproveita o mesmo mecanismo de "ponte efêmera"
+   já usado pra Explore→Home (`prefillDestinationProvider`), só que
+   Home→Explore (`prefillRegionProvider`).
 
 O resultado final: **uma chamada só** (`GET /destinations`, sem mudança),
-`region`/`isPopular` chegam junto com cada destino, e tanto a Home quanto
-a Explore filtram a mesma lista já carregada por
-`featuredDestinationsProvider` de duas formas — um grid fixo pra
-`isPopular` e um grid filtrável por `region` via chips. A lógica de
-filtro por região foi extraída pra um widget só (`DestinationsByRegion`,
-com estado próprio de seleção), reaproveitado pelas duas telas — nenhum
-provider novo, nenhum endpoint novo, nenhuma lógica duplicada.
+`region`/`isPopular` chegam junto com cada destino. A Home mostra um
+grid fixo (`isPopular`) + um carrossel de regiões (`RegionCarousel`,
+sem filtro, só navegação); a Explore mostra o mesmo grid fixo + um
+filtro de verdade por região (`DestinationsByRegion`, com chips). Tocar
+um card do carrossel na Home seta `prefillRegionProvider` e troca pra
+aba Explore, que já nasce com aquela região selecionada no filtro —
+nenhum provider novo além dessa ponte efêmera, nenhum endpoint novo,
+nenhuma lógica duplicada entre as duas telas.
 
 - [x] 12.1 `Destination` (domínio) e `DestinationResponseDto` ganham `region`/`isPopular`, espelhando o M14 do backend
 - [x] 12.2 `ExplorePage` reescrita: `_ExploreContent` filtra `destinations.where((d) => d.isPopular)` pra "Principais destinos" e usa `DestinationsByRegion` pra "Destinos por região"
@@ -429,19 +439,23 @@ provider novo, nenhum endpoint novo, nenhuma lógica duplicada.
 - [x] 12.4 `DestinationsByRegion` (`dbook_feature_flights`) — `StatefulWidget` com estado próprio (`_selectedIndex`); monta os labels ("Todos" + `region`s distintas, ordenadas) pro `DbookChipRow` e filtra a lista pro `DestinationCardGrid` de acordo com o chip selecionado; widget compartilhado, não duplicado em cada tela
 - [x] 12.5 `flight_search_page.dart` (Home): "Destinos em destaque" passa a filtrar `isPopular` (igual à Explore); "Mais destinos" (lista horizontal plana) removida e substituída por `DestinationsByRegion` — mesmo componente das duas telas, com estado de filtro independente em cada uma
 - [x] 12.6 Testes: `destinations_by_region_test.dart` (novo) — todos aparecem sem filtro, tocar um chip filtra, voltar pra "Todos" mostra tudo de novo, tocar um destino dispara `onSelect`; `dbook_chip_row_test.dart` (novo, design system); fixtures de `Destination(...)` em todo o workspace ganham `region`/`isPopular`; `widget_test.dart` (app) e `flight_search_page_test.dart` ajustados — um destino popular aparece 2x na página (destaque + região, estado "Todos"), então o teste que toca nele usa `.first`
-- [x] 12.7 `analyze` + `test` limpos em todo o workspace
+- [x] 12.7 `RegionCarousel` (novo, `dbook_feature_flights`) — carrossel horizontal, 1 card por `region` distinta (`DbookDestinationCard` reaproveitado, foto do 1º destino daquela região); `DbookDestinationCard.subtitle` virou opcional (o card de região não tem subtítulo, só a foto+nome — mudança pontual no design system, sem quebrar os usos existentes)
+- [x] 12.8 `prefillRegionProvider` (novo, mesmo padrão de `prefillDestinationProvider`) — Home seta ao tocar um card do carrossel, `DestinationsByRegion` (agora `ConsumerStatefulWidget`) escuta via `ref.listen` e pré-seleciona o chip da região recebida; `main.dart._selectHomeRegion` troca a aba pra Explore, espelhando `_selectExploreDestination`
+- [x] 12.9 `flight_search_page.dart` (Home): "Destinos por região" (filtro de chips) trocado por "Explore por região" (`RegionCarousel`, sem filtro — só navega); `FlightSearchPage`/`FlightsHomePage` ganham o parâmetro `onSelectRegion`, repassado até `main.dart`
+- [x] 12.10 Testes: `region_carousel_test.dart` (novo) — 1 card por região, tocar dispara `onSelectRegion`; `widget_test.dart` (app) ganhou um teste de ponta a ponta — tocar "América do Norte" no carrossel da Home troca pra Explore com o chip "América do Norte" já selecionado (escopado a `DestinationsByRegion`, não à `ExplorePage` inteira — "São Paulo" continua aparecendo em "Principais destinos", que não passa pelo filtro de região); `dbook_destination_card_test.dart` ganhou o caso sem subtítulo
+- [x] 12.11 `analyze` + `test` limpos em todo o workspace
 
 **Checklist de fechamento do M12:**
-- [x] Itens 12.1-12.7 revisados
+- [x] Itens 12.1-12.11 revisados
 - [x] Clean Code
-- [x] Arquitetura (sem estrutura paralela — `region`/`isPopular` são atributos do mesmo `Destination`, as páginas só filtram o que já têm em mãos)
-- [x] Componentização (`DbookChipRow` no design system antes da feature; `DestinationsByRegion` extraído e reaproveitado por Home e Explore)
+- [x] Arquitetura (sem estrutura paralela — `region`/`isPopular` são atributos do mesmo `Destination`; a ponte Home→Explore reaproveita o mesmo padrão já usado pra Explore→Home)
+- [x] Componentização (`DbookChipRow` no design system antes da feature; `DestinationsByRegion`/`RegionCarousel` cada um com sua responsabilidade — filtro na Explore, navegação na Home — sem duplicar a leitura de `region`)
 - [x] Layout
 - [x] Material Design
 - [x] `melos exec -- flutter analyze` + `melos run test` limpos em todo o workspace
-- [x] Comparação visual no Browser pane — Home e Explore mostram "Destinos em destaque"/"Principais destinos" (4 cards) seguido de "Destinos por região" com os chips "Todos/América do Norte/América do Sul/Europa"; tocar "Europa" filtra pra Londres/Paris/Lisboa, tocar "América do Norte" filtra pra New York/Miami, sem overflow, nas duas telas, com estado de filtro independente entre Home e Explore
+- [x] Comparação visual no Browser pane — Home mostra "Destinos em destaque" (4 cards) seguido de "Explore por região" (carrossel horizontal com foto real por região); tocar um card leva pra Explore com o chip daquela região já selecionado (testado com "Europa": chip fica azul, grade mostra só Londres/Paris/Lisboa)
 - [x] README atualizado
-- [x] Cobertura mínima — combinado: **82.20%** (2489/3028 linhas), acima do mínimo de 80%
+- [x] Cobertura mínima — combinado: **82.17%** (2516/3062 linhas), acima do mínimo de 80%
 
 ## Ideias futuras (fora da numeração)
 

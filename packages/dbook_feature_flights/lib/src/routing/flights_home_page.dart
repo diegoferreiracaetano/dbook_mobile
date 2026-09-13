@@ -28,12 +28,17 @@ class FlightsHomePage extends StatefulWidget {
     this.onBookFlight,
     this.liveAvailabilityBuilder,
     this.onQueueLegs,
+    this.onSelectRegion,
   });
 
   final List<Widget>? actions;
   final ValueChanged<Flight>? onBookFlight;
   final Widget Function(Flight flight)? liveAvailabilityBuilder;
   final ValueChanged<List<FlightSearchQuery>>? onQueueLegs;
+
+  /// Repassado direto pro carrossel de regiões da tela de busca — ver
+  /// `FlightSearchPage.onSelectRegion`.
+  final ValueChanged<String>? onSelectRegion;
 
   @override
   State<FlightsHomePage> createState() => _FlightsHomePageState();
@@ -47,6 +52,7 @@ class _FlightsHomePageState extends State<FlightsHomePage> {
         path: '/',
         builder: (context, state) => FlightSearchPage(
           actions: widget.actions,
+          onSelectRegion: widget.onSelectRegion,
           onSearch: (queries) {
             widget.onQueueLegs?.call(queries.skip(1).toList());
             context.push('/results', extra: queries.first);

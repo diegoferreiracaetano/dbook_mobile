@@ -28,4 +28,22 @@ void main() {
     await tester.tap(find.byType(DbookDestinationCard));
     expect(tapCount, 1);
   });
+
+  testWidgets('given no subtitle when built then only the title renders', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: DbookTheme.light,
+        home: const Scaffold(
+          body: DbookDestinationCard(
+            title: 'Europa',
+            background: BoxDecoration(color: Colors.blue),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Europa'), findsOneWidget);
+  });
 }
