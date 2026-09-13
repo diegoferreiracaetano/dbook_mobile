@@ -6,8 +6,8 @@ import 'package:intl/intl.dart';
 
 import '../state/flight_providers.dart';
 import 'airport_picker_sheet.dart';
-import 'destination_gradient.dart';
 import 'destination_grid_card.dart';
+import 'destinations_by_region.dart';
 
 /// Dados de busca preenchidos — devolvidos por [onSearch] quando origem,
 /// destino e data já estão selecionados.
@@ -375,9 +375,21 @@ class _FlightSearchPageState extends ConsumerState<FlightSearchPage> {
                     ),
                     const SizedBox(height: DbookSpacing.md),
                     switch (destinationsAsync) {
-                      AsyncData(:final value) => DestinationCardGrid(
-                        destinations: value,
-                        onSelect: _selectDestination,
+                      AsyncData(:final value) => Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          DestinationCardGrid(
+                            destinations: value
+                                .where((d) => d.isPopular)
+                                .toList(),
+                            onSelect: _selectDestination,
+                          ),
+                          const SizedBox(height: DbookSpacing.xl),
+                          DestinationsByRegion(
+                            destinations: value,
+                            onSelect: _selectDestination,
+                          ),
+                        ],
                       ),
                       AsyncError() => DbookStatusPlaceholder(
                         icon: Icons.error_outline,
@@ -392,33 +404,6 @@ class _FlightSearchPageState extends ConsumerState<FlightSearchPage> {
                         message: 'Carregando destinos...',
                       ),
                     },
-                    const SizedBox(height: DbookSpacing.xl),
-                    const DbookSectionLabel(
-                      text: 'Mais destinos',
-                      icon: Icons.public_outlined,
-                    ),
-                    const SizedBox(height: DbookSpacing.md),
-                    SizedBox(
-                      height: 120,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: _destinations.length,
-                        separatorBuilder: (_, _) =>
-                            const SizedBox(width: DbookSpacing.md),
-                        itemBuilder: (context, index) {
-                          final destination = _destinations[index];
-                          return SizedBox(
-                            width: 140,
-                            child: DbookDestinationCard(
-                              title: destination.city,
-                              subtitle: destination.country,
-                              background: destinationBackground(destination),
-                              onTap: () => _selectDestination(destination),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
                   ],
                 ),
               ),

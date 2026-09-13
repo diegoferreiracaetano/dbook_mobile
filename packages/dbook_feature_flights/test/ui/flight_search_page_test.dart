@@ -284,17 +284,20 @@ void main() {
       await tester.pumpWidget(_app(FlightSearchPage(onSearch: (_) {})));
       await tester.pumpAndSettle();
 
-      // A grade de "Destinos em destaque" tem 2 colunas — New York é o
-      // 3º item (2ª linha), pode ficar fora da área visível do teste. Há
-      // 2 `Scrollable`s na árvore (o `SingleChildScrollView` da página e
-      // o `GridView` em si, mesmo com `NeverScrollableScrollPhysics`) —
-      // o primeiro é o da página, o que precisa rolar aqui. "New York"
-      // também aparece na seção "Mais destinos" (outro estilo de card),
-      // então o toque tem que ficar restrito ao `DestinationCard`.
-      final destination = find.descendant(
-        of: find.byType(DestinationCard),
-        matching: find.text(_destinations[2].city),
-      );
+      // New York é popular, então aparece 2x na página — uma vez em
+      // "Destinos em destaque" e de novo em "Destinos por região"
+      // ("América do Norte") — `.first` porque tocar qualquer uma das
+      // duas cópias visuais dispara o mesmo callback, com o mesmo
+      // destino. Há 2 `Scrollable`s na árvore (o `SingleChildScrollView`
+      // da página e o `GridView` em si, mesmo com
+      // `NeverScrollableScrollPhysics`) — o primeiro é o da página, o
+      // que precisa rolar aqui.
+      final destination = find
+          .descendant(
+            of: find.byType(DestinationCard),
+            matching: find.text(_destinations[2].city),
+          )
+          .first;
       await tester.scrollUntilVisible(
         destination,
         200,

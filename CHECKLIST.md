@@ -383,12 +383,12 @@ Miami, Buenos Aires).
 - [x] README atualizado
 - [x] Cobertura mínima — combinado: **82.29%** (2453/2981 linhas), acima do mínimo de 80% do gate de CI (`very_good_coverage`)
 
-## M12 — Explore com "Principais destinos" e "Destinos por região" ✅
+## M12 — "Principais destinos" e "Destinos por região" (Explore + Home) ✅
 
 Pedido do usuário, com uma referência visual (tela "04. Destinations"):
 a aba Explore precisava separar os destinos em dois grupos — principais
 destinos e destinos por região — em vez da grade única e flat que existia
-desde o M11. Duas idas e voltas de design até fechar:
+desde o M11. Três idas e voltas de design até fechar:
 
 1. Primeira proposta (região vinda do backend, um campo a mais em
    `Destination`) foi aprovada, mas ao começar a implementar ficou claro
@@ -401,29 +401,38 @@ desde o M11. Duas idas e voltas de design até fechar:
    um corte arbitrário no front (ex.: os 3 primeiros) — foi descartada
    pelo mesmo motivo de sempre: seria dado de negócio decidido no
    Flutter, não no backend.
+3. Depois de ver a Explore pronta, o usuário pediu a mesma estrutura na
+   Home — "Destinos em destaque" (que até então mostrava a lista
+   inteira, sem filtrar por `isPopular`) e "Mais destinos" (lista
+   horizontal plana, sem noção de região) ficaram inconsistentes com a
+   Explore recém-construída.
 
 O resultado final: **uma chamada só** (`GET /destinations`, sem mudança),
-`region`/`isPopular` chegam junto com cada destino, e a página agrupa a
-mesma lista já carregada por `featuredDestinationsProvider` de duas formas
-— filtrando por `isPopular` e agrupando por `region`. Nenhum provider novo,
-nenhum endpoint novo.
+`region`/`isPopular` chegam junto com cada destino, e tanto a Home quanto
+a Explore agrupam a mesma lista já carregada por
+`featuredDestinationsProvider` de duas formas — filtrando por `isPopular`
+e agrupando por `region`. A lógica de agrupar por região foi extraída pra
+um widget só (`DestinationsByRegion`), reaproveitado pelas duas telas —
+nenhum provider novo, nenhum endpoint novo, nenhuma lógica duplicada.
 
 - [x] 12.1 `Destination` (domínio) e `DestinationResponseDto` ganham `region`/`isPopular`, espelhando o M14 do backend
-- [x] 12.2 `ExplorePage` reescrita: `_ExploreContent` filtra `destinations.where((d) => d.isPopular)` pra "Principais destinos" e agrupa por `region` (`Map<String, List<Destination>>`, chaves ordenadas) pra "Destinos por região" — cada grupo reaproveita o `DestinationCardGrid` já existente, nenhum componente novo
-- [x] 12.3 Testes: fixtures de `Destination(...)` em todo o workspace ganham `region`/`isPopular`; `widget_test.dart` (app) ajustado — um destino popular aparece 2x na página agora (destaque + região), então o teste que toca nele usa `.first` (tocar qualquer cópia visual dispara o mesmo callback, com o mesmo destino)
-- [x] 12.4 `analyze` + `test` limpos em todo o workspace
+- [x] 12.2 `ExplorePage` reescrita: `_ExploreContent` filtra `destinations.where((d) => d.isPopular)` pra "Principais destinos" e usa `DestinationsByRegion` pra "Destinos por região"
+- [x] 12.3 `DestinationsByRegion` (novo) — agrupa por `region` (`Map<String, List<Destination>>`, chaves ordenadas) e renderiza uma seção (rótulo + `DestinationCardGrid`) por grupo; widget compartilhado, não veio duplicado em cada tela
+- [x] 12.4 `flight_search_page.dart` (Home): "Destinos em destaque" passa a filtrar `isPopular` (igual à Explore); "Mais destinos" (lista horizontal plana) removida e substituída por `DestinationsByRegion` — mesma estrutura, mesmo componente, das duas telas
+- [x] 12.5 Testes: fixtures de `Destination(...)` em todo o workspace ganham `region`/`isPopular`; `widget_test.dart` (app) e `flight_search_page_test.dart` ajustados — um destino popular aparece 2x na página agora (destaque + região), então o teste que toca nele usa `.first` (tocar qualquer cópia visual dispara o mesmo callback, com o mesmo destino)
+- [x] 12.6 `analyze` + `test` limpos em todo o workspace
 
 **Checklist de fechamento do M12:**
-- [x] Itens 12.1-12.4 revisados
+- [x] Itens 12.1-12.6 revisados
 - [x] Clean Code
-- [x] Arquitetura (sem estrutura paralela — `region`/`isPopular` são atributos do mesmo `Destination`, a página só agrupa o que já tem em mãos)
-- [x] Componentização (zero componentes novos — `DestinationCardGrid` reaproveitado 4x na mesma página)
+- [x] Arquitetura (sem estrutura paralela — `region`/`isPopular` são atributos do mesmo `Destination`, as páginas só agrupam o que já têm em mãos)
+- [x] Componentização (`DestinationsByRegion` extraído e reaproveitado por Home e Explore — não duplicou a lógica de agrupamento)
 - [x] Layout
 - [x] Material Design
 - [x] `melos exec -- flutter analyze` + `melos run test` limpos em todo o workspace
-- [x] Comparação visual no Browser pane — Explore mostra "Principais destinos" (4 cards) seguido de "América do Norte", "América do Sul" e "Europa" (cada uma com os destinos reais daquela região, incluindo os populares repetidos — confirmado que São Paulo/Rio aparecem certo em "América do Sul" e Buenos Aires, que não é popular, aparece só lá)
+- [x] Comparação visual no Browser pane — Home e Explore mostram "Destinos em destaque"/"Principais destinos" (4 cards) seguido de "América do Norte", "América do Sul" e "Europa" (cada uma com os destinos reais daquela região, incluindo os populares repetidos — confirmado que São Paulo/Rio aparecem certo em "América do Sul" e Buenos Aires, que não é popular, aparece só lá), sem overflow, nas duas telas
 - [x] README atualizado
-- [x] Cobertura mínima — combinado: **81.83%** (2455/3000 linhas), acima do mínimo de 80%
+- [x] Cobertura mínima — combinado: **82.07%** (2463/3001 linhas), acima do mínimo de 80%
 
 ## Ideias futuras (fora da numeração)
 

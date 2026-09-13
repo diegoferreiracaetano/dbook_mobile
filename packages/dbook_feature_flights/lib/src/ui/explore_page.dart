@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../state/flight_providers.dart';
 import 'destination_grid_card.dart';
+import 'destinations_by_region.dart';
 
 /// Aba Explore — lista os destinos conhecidos (`GET /destinations`, mesma
 /// fonte da Home), organizados em dois grupos: "Principais destinos"
@@ -56,11 +57,6 @@ class _ExploreContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final popular = destinations.where((d) => d.isPopular).toList();
-    final byRegion = <String, List<Destination>>{};
-    for (final destination in destinations) {
-      byRegion.putIfAbsent(destination.region, () => []).add(destination);
-    }
-    final regions = byRegion.keys.toList()..sort();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(DbookSpacing.lg),
@@ -79,15 +75,10 @@ class _ExploreContent extends StatelessWidget {
             ),
             const SizedBox(height: DbookSpacing.xl),
           ],
-          for (final region in regions) ...[
-            DbookSectionLabel(text: region, icon: Icons.public_outlined),
-            const SizedBox(height: DbookSpacing.md),
-            DestinationCardGrid(
-              destinations: byRegion[region]!,
-              onSelect: onSelectDestination,
-            ),
-            const SizedBox(height: DbookSpacing.xl),
-          ],
+          DestinationsByRegion(
+            destinations: destinations,
+            onSelect: onSelectDestination,
+          ),
         ],
       ),
     );
