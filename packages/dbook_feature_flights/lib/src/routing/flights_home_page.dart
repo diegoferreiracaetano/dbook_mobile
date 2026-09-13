@@ -11,24 +11,29 @@ import '../ui/flight_search_page.dart';
 /// quando o app crescer. Fica isolado num `Router` próprio (não precisa de
 /// um segundo `MaterialApp`: o app raiz já provê tema/Directionality).
 ///
-/// [drawer] aparece na tela de busca (raiz desta rota), [onBookFlight]
-/// dispara no botão "Book This Flight" do detalhe e
+/// [actions] aparece no cabeçalho da tela de busca (raiz desta rota),
+/// [onBookFlight] dispara no botão "Book This Flight" do detalhe,
 /// [liveAvailabilityBuilder] monta o indicador de disponibilidade ao vivo
-/// pro voo do detalhe — a feature de voos não conhece `AuthNotifier` nem
-/// as features de reserva/tempo real/sugestão por IA (features não
-/// importam features), então quem monta essa tela (o app) decide o que
-/// cada uma faz.
+/// pro voo do detalhe e [onQueueLegs] avisa o app sobre trechos extras de
+/// uma busca Multi-city (o 1º trecho sempre segue pela rota `/results`
+/// normal abaixo; do 2º em diante não tem como usar o `go_router` interno
+/// — moram fora dessa aba, na jornada de reserva) — a feature de voos não
+/// conhece `AuthNotifier` nem as features de reserva/tempo real/sugestão
+/// por IA (features não importam features), então quem monta essa tela (o
+/// app) decide o que cada uma faz.
 class FlightsHomePage extends StatefulWidget {
   const FlightsHomePage({
     super.key,
-    this.drawer,
+    this.actions,
     this.onBookFlight,
     this.liveAvailabilityBuilder,
+    this.onQueueLegs,
   });
 
-  final Widget? drawer;
+  final List<Widget>? actions;
   final ValueChanged<Flight>? onBookFlight;
   final Widget Function(Flight flight)? liveAvailabilityBuilder;
+  final ValueChanged<List<FlightSearchQuery>>? onQueueLegs;
 
   @override
   State<FlightsHomePage> createState() => _FlightsHomePageState();
@@ -41,8 +46,11 @@ class _FlightsHomePageState extends State<FlightsHomePage> {
       GoRoute(
         path: '/',
         builder: (context, state) => FlightSearchPage(
-          drawer: widget.drawer,
-          onSearch: (query) => context.push('/results', extra: query),
+          actions: widget.actions,
+          onSearch: (queries) {
+            widget.onQueueLegs?.call(queries.skip(1).toList());
+            context.push('/results', extra: queries.first);
+          },
         ),
       ),
       GoRoute(

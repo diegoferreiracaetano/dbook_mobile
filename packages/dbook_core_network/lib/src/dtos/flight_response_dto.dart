@@ -17,6 +17,8 @@ abstract class FlightResponseDto with _$FlightResponseDto {
   const factory FlightResponseDto({
     required int id,
     required String flightNumber,
+    required String airlineIataCode,
+    required String airlineName,
     required String origin,
     required String destination,
     required String departureTime,
@@ -33,6 +35,8 @@ abstract class FlightResponseDto with _$FlightResponseDto {
     return Flight(
       id: id,
       flightNumber: flightNumber,
+      airlineIataCode: airlineIataCode,
+      airlineName: airlineName,
       originIataCode: origin,
       destinationIataCode: destination,
       departureTime: DateTime.parse(departureTime),

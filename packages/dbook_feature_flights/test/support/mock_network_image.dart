@@ -20,8 +20,9 @@ import 'package:flutter_test/flutter_test.dart';
 /// `testWidgetsWithMockImages` garante essa ordem.
 void testWidgetsWithMockImages(
   String description,
-  Future<void> Function(WidgetTester tester) callback,
-) {
+  Future<void> Function(WidgetTester tester) callback, {
+  bool skip = false,
+}) {
   testWidgets(description, (tester) async {
     debugNetworkImageHttpClientProvider = () => _FakeHttpClient();
     try {
@@ -29,7 +30,7 @@ void testWidgetsWithMockImages(
     } finally {
       debugNetworkImageHttpClientProvider = null;
     }
-  });
+  }, skip: skip);
 }
 
 const _transparentPngBase64 =

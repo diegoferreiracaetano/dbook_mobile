@@ -70,7 +70,7 @@ abstract final class DbookColorScheme {
         brightness: Brightness.dark,
       ).copyWith(
         primary: DbookPalette.primaryHover,
-        onPrimary: DbookPalette.n900,
+        onPrimary: DbookPalette.white,
         primaryContainer: DbookPalette.primaryPressed,
         onPrimaryContainer: DbookPalette.primaryLight,
         secondary: DbookPalette.secondary,

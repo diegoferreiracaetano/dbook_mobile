@@ -159,6 +159,12 @@ class _AppShell extends ConsumerStatefulWidget {
 class _AppShellState extends ConsumerState<_AppShell> {
   int _tabIndex = 0;
 
+  /// Trechos 2+ de uma busca Multi-city — populado quando a Home dispara
+  /// [FlightsHomePage.onQueueLegs] (1º trecho segue pelo fluxo normal via
+  /// `go_router` interno da Home). Consumido em [_bookFlight] pra saber
+  /// se, depois de reservar o trecho atual, tem mais um pra encadear.
+  List<FlightSearchQuery> _pendingLegs = [];
+
   static void _openAiSuggestions(
     BuildContext context, {
     required bool isLoggedIn,
@@ -173,69 +179,109 @@ class _AppShellState extends ConsumerState<_AppShell> {
     pushAuthGate(context, onAuthenticated: (_) => const AiSuggestionPage());
   }
 
+  /// Multi-city não é "1 trecho de verdade + resto decorativo": o backend
+  /// não tem conceito de reserva multi-trecho (`POST /bookings` é sempre 1
+  /// voo), então cada trecho vira uma compra real e independente,
+  /// encadeada nesta mesma jornada — busca→detalhe→assento→confirmação,
+  /// repetido pra cada trecho da lista. [remainingLegs] é o que falta
+  /// depois do trecho atual; a tela de sucesso (`BookingSuccessPage`)
+  /// oferece seguir pro próximo quando a lista não está vazia.
   static void _bookFlight(
     BuildContext context,
     Flight flight, {
     required bool isLoggedIn,
+    List<FlightSearchQuery> remainingLegs = const [],
   }) {
-    final navigator = Navigator.of(context, rootNavigator: true);
-    if (isLoggedIn) {
-      navigator.push(
-        MaterialPageRoute<void>(
-          builder: (_) => SeatSelectionPage(flight: flight),
-        ),
+    Widget buildSeatSelection(BuildContext _) {
+      final nextLeg = remainingLegs.isEmpty ? null : remainingLegs.first;
+      return SeatSelectionPage(
+        flight: flight,
+        nextLegLabel: nextLeg == null
+            ? null
+            : '${nextLeg.origin.label} → ${nextLeg.destination.label}',
+        onNextLeg: nextLeg == null
+            ? null
+            : () => _searchNextLeg(
+                context,
+                nextLeg,
+                remainingLegs.skip(1).toList(),
+                isLoggedIn: isLoggedIn,
+              ),
       );
+    }
+
+    if (isLoggedIn) {
+      Navigator.of(
+        context,
+        rootNavigator: true,
+      ).push(MaterialPageRoute<void>(builder: buildSeatSelection));
       return;
     }
-    pushAuthGate(
-      context,
-      onAuthenticated: (_) => SeatSelectionPage(flight: flight),
+    pushAuthGate(context, onAuthenticated: buildSeatSelection);
+  }
+
+  /// Busca o próximo trecho da fila — direto no root navigator (fora do
+  /// `go_router` interno da `FlightsHomePage`, que só existe dentro da aba
+  /// Home), reaproveitando `FlightResultsPage`/`FlightDetailPage` com
+  /// `Navigator.push` comum, mesmo padrão que `pushAuthGate`/`_bookFlight`
+  /// já usam.
+  static void _searchNextLeg(
+    BuildContext context,
+    FlightSearchQuery query,
+    List<FlightSearchQuery> remainingAfter, {
+    required bool isLoggedIn,
+  }) {
+    final navigator = Navigator.of(context, rootNavigator: true);
+    navigator.push(
+      MaterialPageRoute<void>(
+        builder: (_) => FlightResultsPage(
+          query: query,
+          onSelectFlight: (flight) => navigator.push(
+            MaterialPageRoute<void>(
+              builder: (_) => FlightDetailPage(
+                flight: flight,
+                onBook: (selected) => _bookFlight(
+                  context,
+                  selected,
+                  isLoggedIn: isLoggedIn,
+                  remainingLegs: remainingAfter,
+                ),
+                liveAvailability: DbookLiveAvailability(
+                  bookableId: flight.id,
+                  fallbackCapacity: flight.availableCapacity,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
-  void _selectExploreDestination(KnownAirport destination) {
+  void _selectExploreDestination(Destination destination) {
     ref.read(prefillDestinationProvider.notifier).set(destination);
     setState(() => _tabIndex = 0);
   }
 
-  Widget _buildDrawer(BuildContext context, {required bool isLoggedIn}) {
-    return Drawer(
-      child: SafeArea(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(child: Center(child: Text('DBook'))),
-            ListTile(
-              leading: const Icon(Icons.auto_awesome_outlined),
-              title: const Text('Ask DBook AI'),
-              onTap: () {
-                Navigator.of(context).pop();
-                _openAiSuggestions(context, isLoggedIn: isLoggedIn);
-              },
-            ),
-            const Divider(),
-            if (isLoggedIn)
-              ListTile(
-                leading: const Icon(Icons.logout),
-                title: const Text('Sair'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  ref.read(authNotifierProvider.notifier).logout();
-                },
-              )
-            else
-              ListTile(
-                leading: const Icon(Icons.login),
-                title: const Text('Entrar'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  pushAuthGate(context);
-                },
-              ),
-          ],
-        ),
+  List<Widget> _homeActions(BuildContext context, {required bool isLoggedIn}) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.auto_awesome_outlined),
+        tooltip: 'Ask DBook AI',
+        onPressed: () => _openAiSuggestions(context, isLoggedIn: isLoggedIn),
       ),
-    );
+      isLoggedIn
+          ? IconButton(
+              icon: const Icon(Icons.logout),
+              tooltip: 'Sair',
+              onPressed: () => ref.read(authNotifierProvider.notifier).logout(),
+            )
+          : IconButton(
+              icon: const Icon(Icons.login),
+              tooltip: 'Entrar',
+              onPressed: () => pushAuthGate(context),
+            ),
+    ];
   }
 
   Widget _guestGate(
@@ -264,9 +310,14 @@ class _AppShellState extends ConsumerState<_AppShell> {
 
     final tabs = [
       FlightsHomePage(
-        drawer: _buildDrawer(context, isLoggedIn: isLoggedIn),
-        onBookFlight: (flight) =>
-            _bookFlight(context, flight, isLoggedIn: isLoggedIn),
+        actions: _homeActions(context, isLoggedIn: isLoggedIn),
+        onQueueLegs: (legs) => setState(() => _pendingLegs = legs),
+        onBookFlight: (flight) => _bookFlight(
+          context,
+          flight,
+          isLoggedIn: isLoggedIn,
+          remainingLegs: _pendingLegs,
+        ),
         liveAvailabilityBuilder: (flight) => DbookLiveAvailability(
           bookableId: flight.id,
           fallbackCapacity: flight.availableCapacity,

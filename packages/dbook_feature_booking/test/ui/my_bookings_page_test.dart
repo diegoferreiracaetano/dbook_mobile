@@ -39,6 +39,8 @@ const _seat = Seat(
 Flight _flight() => Flight(
   id: 1,
   flightNumber: 'IB 6821',
+  airlineIataCode: 'IB',
+  airlineName: 'Iberia',
   originIataCode: 'GRU',
   destinationIataCode: 'MAD',
   departureTime: DateTime(2026, 1, 13, 10, 30),

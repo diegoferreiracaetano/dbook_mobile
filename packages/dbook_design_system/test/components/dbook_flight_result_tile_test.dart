@@ -58,4 +58,31 @@ void main() {
       expect(shape.side.color, DbookColorScheme.light.primary);
     },
   );
+
+  testWidgets(
+    'given an airlineIataCode and airlineColor when built then the badge '
+    'shows the code instead of the generic icon',
+    (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: DbookTheme.light,
+          home: const Scaffold(
+            body: DbookFlightResultTile(
+              airlineName: 'Iberia',
+              airlineIataCode: 'IB',
+              airlineColor: Colors.red,
+              departureTime: '10:30',
+              departureAirport: 'GRU',
+              arrivalTime: '06:45',
+              arrivalAirport: 'MAD',
+              durationLabel: '2h 15m',
+              price: '\$450',
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('IB'), findsOneWidget);
+    },
+  );
 }

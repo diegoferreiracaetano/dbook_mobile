@@ -286,15 +286,17 @@ ficam de fora desta rodada — nenhum tem endpoint no backend, e construir
 a tela sem o backend repetiria o erro que motivou esta revisão.
 
 - [x] 9.1 Auth Gate real — `_AppRoot` para de decidir qual tela mostrar por `AuthState`; visitante busca, vê resultados e detalhe sem login; gate dispara em "Book This Flight" (preservando o `Flight` selecionado), em "Ask DBook AI" (`POST /ai/suggestions` exige sessão, achado corrigido depois de checar `AiSuggestionController.kt`), em "My Bookings" e no ícone avulso "Entrar"; bootstrap de sessão para de bloquear o primeiro frame; onboarding roda uma vez só (flag local via `shared_preferences`); `pushAuthGate` (helper único) garante back-stack coerente — testado ponta a ponta em `widget_test.dart` (12 casos) e visualmente no Browser pane
-- [x] 9.2 Ação fixa no rodapé (`Scaffold.bottomNavigationBar`) em `FlightSearchPage`, `FlightDetailPage` (preço + botão juntos, como na tela 06 do kit) e no resumo de `SeatSelectionPage` (extraído pra `_SeatSelectionFooter`) — troca de botão solto no fim da `Column`, sem quebrar nenhum teste existente
+- [x] 9.2 Ação fixa no rodapé (`Scaffold.bottomNavigationBar`) em `FlightDetailPage` (preço + botão juntos, como na tela 06 do kit) e no resumo de `SeatSelectionPage` (extraído pra `_SeatSelectionFooter`) — troca de botão solto no fim da `Column`, sem quebrar nenhum teste existente. **Exceção em `FlightSearchPage`** (pedido explícito do usuário depois de comparar com a referência visual): o botão "Search Flights" vive dentro do próprio `DbookTripSummaryCard` (novos parâmetros `searchLabel`/`onSearch`), não mais solto num `bottomNavigationBar` — só nessa tela
 - [x] 9.3 Shell do app: `IndexedStack` de 4 abas (Home/Explore/Trips/Profile, sempre visíveis) + `NavigationBar`, usando `navigationBarTheme` (temado desde o M1, nunca consumido); Drawer (`drawerTheme`, idem) acessível pela Home com "Ask DBook AI" e Sair/Entrar — App bar de `FlightSearchPage` perdeu os ícones soltos (myBookings/aiSuggestions/logout), tudo migrou pro Drawer ou virou aba própria; Trips/Profile mostram `DbookStatusPlaceholder` + CTA "Entrar" pra visitante em vez de exigir login pra ver a aba — testado em `widget_test.dart` (16 casos)
 - [x] 9.4 Home ganha "Destinos em destaque" (grade de 2 colunas, `DestinationCard` — foto em cima, nome/país embaixo) acima do card de busca; tocar preenche o destino da busca direto
 - [x] 9.5 Aba Explore — mesma grade dos 3 aeroportos conhecidos; tocar seta um provider efêmero (`prefillDestinationProvider`, `Notifier` — `StateProvider` não existe mais no Riverpod 3.x deste projeto) que a Home consome via `ref.listen` (não `initState`: a Home fica montada o tempo todo no `IndexedStack`, então só `ref.listen` continua reagindo depois do primeiro build) e volta pra aba Home com o destino pré-preenchido
 - [x] 9.4/9.5 fotos reais — 3 fotos Unsplash (São Paulo/GRU, Rio/GIG, New York/JFK) confirmadas com o usuário antes de usar, mesmo processo do M1; carregadas via URL direta do CDN (`KnownAirport.photoUrl` + `NetworkImage`, sem asset bundled — pedido explícito do usuário), com fallback pro degradê quando `photoUrl` é nulo. Créditos em `packages/dbook_feature_flights/docs/destination_photo_credits.md`
-- [x] Revisão visual adicional (fora da numeração, pedida pelo usuário depois de comparar com um app de referência gerado no Figma Make): reaproveitadas só as partes compatíveis com o backend — header hero azul com logo/tagline na Home, linha pontilhada + ícone de avião conectando horários no card de resultado (`DbookFlightResultTile`) e no detalhe do voo, header em bloco azul no Profile. Ficaram de fora abas Fly/Sleep/Eat, tipo de viagem (round/one-way/multi-city), banner de ofertas, preço nos cards de destino, "Explore by Region", filtro/seletor de dia nos resultados, taxa de bagagem, stats e menu fake do Profile — nenhum tem endpoint no backend
+- [x] Revisão visual adicional (fora da numeração, pedida pelo usuário depois de comparar com um app de referência gerado no Figma Make): reaproveitadas só as partes compatíveis com o backend — header hero azul com logo/tagline na Home, linha pontilhada + ícone de avião conectando horários no card de resultado (`DbookFlightResultTile`) e no detalhe do voo, header em bloco azul no Profile. Ficaram de fora abas Fly/Sleep/Eat, banner de ofertas, preço nos cards de destino, "Explore by Region", filtro/seletor de dia nos resultados, taxa de bagagem, stats e menu fake do Profile — nenhum tem endpoint no backend
+- [x] Tipo de viagem — Round Trip/One Way/Multi-city implementados (`_TripType`, `DbookTripSummaryCard.returnDateLabel`), com revisão do usuário depois de 3 entregas com nota baixa (3, depois 5, depois 0 duas vezes no Multi-city especificamente — corrigido só depois de pesquisar o comportamento real do Google Flights, ver `feedback_selfreview_before_delivery.md`): grade de "Destinos em destaque" corrigida (`DestinationCardGrid` calcula a altura da célula em vez de um `childAspectRatio` fixo, eliminando espaço vazio), botão de busca movido pra dentro do card (ver exceção do item 9.2), Multi-city começa com 1 trecho só e encadeia a origem do próximo a partir do destino anterior (mesmo comportamento do Google Flights), e **implementado como N compras reais e independentes encadeadas** (não decorativo): cada trecho extra (seção dentro do mesmo `DbookTripSummaryCard` via `extraContent`, layout confirmado com o usuário) passa pelos mesmos endpoints reais que o fluxo de 1 trecho (`GET /flights/search` → `GET /bookables/{id}/seats` → `POST /bookings`), encadeado via `BookingSuccessPage.onNextLeg`/`SeatSelectionPage` (novos parâmetros opcionais) e orquestrado em `_AppShellState._searchNextLeg` (root navigator, fora do `go_router` interno da Home) — cada trecho vira reserva separada, visível na aba Trips. **Radios de tipo de viagem desativados na UI por pedido do usuário** (`_TripTypeRow.enabled: false`, `IgnorePointer`+`Opacity`) até uma próxima revisão — trava em Round Trip; a lógica de Multi-city continua implementada e coberta por teste (`skip: _tripTypeDisabled` nos 4 cenários que dependiam do rádio, não apagados), só inacessível pela UI por enquanto. Confirmado visualmente no Browser pane (2026-09-13): rádios aparecem esmaecidos e não respondem a toque
 - [ ] 9.6 Review Order — novo, entre seleção de assento e confirmação; resumo real, **sem campo de pagamento** (não existe endpoint de pagamento no backend), confirma e chama `POST /bookings` de verdade
 - [x] 9.7 (parcial) Profile — e-mail capturado no login/registro (`AuthState.loggedIn.email`, só sessão — sem `GET /users/me`, fica `null` se a sessão veio do bootstrap); `/trips/{id}` (detalhe de uma reserva) ainda não construído
 - [ ] 9.8 Polimento client-side: ordenar/filtrar resultado já buscado (sem parâmetro novo na API) e banner de offline (`connectivity_plus` + `DbookInlineStatusBanner`, já existe)
+- [x] 9.9 Grade "Destinos em destaque" (`DestinationCard`, `destination_grid_card.dart`) ganha preço real ("from $X", menor preço do destino via `lowestPriceProvider`/`GET /flights/lowest-price` do M12 do backend) e favorito local (`FavoriteDestinationsNotifier`, `shared_preferences` — sem endpoint de favoritos no backend, decisão: não é dado que precisa sincronizar entre dispositivos nesta fase). Testado de ponta a ponta no Browser pane com backend real e dados seedados: São Paulo/Rio/New York mostraram exatamente os preços confirmados via `curl` ($730/$382/$422), toque no coração encheu de vermelho e sobreviveu a um reload completo da página. Achado durante essa verificação e corrigido no backend: `SecurityConfig` nunca teve CORS configurado — nenhum request de browser chegava em nenhum endpoint (ver nota no `CHECKLIST.md` do `dbook`, M12)
 
 **Checklist de fechamento do M9:**
 - [ ] Itens 9.1-9.8 revisados
@@ -307,6 +309,79 @@ a tela sem o backend repetiria o erro que motivou esta revisão.
 - [ ] Comparação visual lado a lado com o UI kit de referência no Browser pane, tela por tela alterada — não só os testes automatizados
 - [ ] README atualizado
 - [ ] Cobertura mínima
+
+## M10 — Tela de Resultados da Busca (redesign) ✅
+
+Decisão (2026-09-12): redesign da `FlightResultsPage` a partir de uma
+referência visual real compartilhada pelo usuário (cabeçalho com botão
+Filter, faixa de datas com preço, contagem de voos + selo de melhor
+preço, selo de companhia colorido por card). Duas decisões fechadas com
+o usuário antes de começar:
+- **Companhia aérea**: dado real, não inventado no mobile — depende do
+  M11 do backend (`dbook`), que adiciona `Airline` seguindo o mesmo
+  padrão de `Airport`.
+- **Faixa de datas**: preços reais, não decorativos — cada data da
+  faixa (±2 dias da data buscada) dispara sua própria busca em
+  `GET /flights/search` (endpoint já existe, aceita só uma data exata
+  por chamada — sem endpoint novo no backend), mostrando o menor preço
+  real encontrado; tocar numa data refaz a busca principal pra ela.
+
+- [x] 10.1 `Flight` (domínio Flutter) ganhou `airlineName`/`airlineIataCode`, espelhando o `FlightResponse` novo do M11 do backend
+- [x] 10.2 Cabeçalho via `DbookAppBar(title:, subtitle:)` — "origem → destino" + "data · passageiros" — com botão Filter nas `actions` (bottom sheet de ordenar por preço/duração e filtrar por classe de cabine sobre os resultados já buscados, sem parâmetro novo na API)
+- [x] 10.3 Faixa de datas horizontal rolável (±2 dias, `dateStripProvider`/`DateStripQuery`), uma busca real (`GET /flights/search`) por data, menor preço encontrado em cada chip; tocar numa data recentraliza a faixa e refaz a busca principal pra ela
+- [x] 10.4 Contagem "N flights found" + selo "Best prices today" (só aparece quando o preço do dia selecionado é de fato o menor da faixa visível — comparado contra `dateStripProvider`, nunca decorativo)
+- [x] 10.5 `DbookFlightResultTile` ganhou `airlineIataCode`/`airlineColor` — selo quadrado colorido com o código IATA em vez do ícone genérico; cor fixa por companhia conhecida (`_knownAirlineColors`, as 6 do seed do M11 do backend) com fallback por hash pra qualquer código novo — evita duas companhias diferentes caindo na mesma cor por coincidência
+- [x] 10.6 Testes: `dbook_flight_result_tile_test.dart` (selo colorido), `flight_results_page_test.dart` ganhou 3 cenários novos (preço real por dia + selo "Best prices today", troca de dia recarrega a lista, filtro por classe muda a contagem) — 7 cenários no total, todos passando; corrigidos 2 bugs reais achados pelos próprios testes: a faixa de datas ficava girando pra sempre quando a busca falhava (nunca tratava `AsyncError`), e a folha de filtro estourava a altura da tela (sem `SingleChildScrollView`)
+- [x] 10.7 Revisão visual no Browser pane com backend real e dados seedados: cabeçalho, faixa de datas, contagem+selo, selos coloridos de companhia e o filtro (ordenar/filtrar) testados de ponta a ponta — bateu uma inconsistência real durante a própria revisão (LATAM e United caindo na mesma cor por hash) e foi corrigida ali mesmo (item 10.5)
+
+**Checklist de fechamento do M10:**
+- [x] Itens 10.1-10.7 revisados
+- [x] Clean Code
+- [x] Arquitetura (`dbook_feature_flights` não passou a depender de nada novo fora do padrão já usado — `shared_preferences` já tinha entrado no M9 pro favorito)
+- [x] Componentização (`DbookFlightResultTile` estendido em vez de um componente novo; `DbookAppBar` já suportava título+subtítulo+actions, não precisou de header customizado)
+- [x] Layout
+- [x] Material Design
+- [x] `analyze` + `test` limpos em todo o workspace (`melos exec -- flutter analyze` e `melos run test`)
+- [x] Comparação visual lado a lado com a referência no Browser pane — não só testes automatizados
+- [x] README atualizado — seção Progresso ganhou M9 (parcial) e M10
+- [x] Cobertura mínima — combinado: **82.95%** (2427/2926 linhas), acima do mínimo de 80% do gate de CI (`very_good_coverage`)
+
+## M11 — `Destination` substitui `KnownAirport` (front burro) ✅
+
+Decisão (2026-09-13): `knownAirports` era uma lista fixa de 3 aeroportos
+hardcoded no Flutter — dado de negócio vivendo no front, contra o pedido
+explícito do usuário ("front deve ser burro e não ter regras de
+negócio"). Depende do M13 do backend (`dbook`), que expõe
+`GET /destinations` com aeroporto+foto+menor preço real numa resposta
+só. Esse marco troca `KnownAirport` (dado estático) por `Destination`
+(entidade de domínio alimentada pela API) em todo lugar que hoje usa a
+lista fixa — busca, seletor de origem/destino, grade da Home, aba
+Explore — e cria 5 destinos novos de verdade (Londres, Paris, Lisboa,
+Miami, Buenos Aires).
+
+- [x] 11.1 `dbook_domain`: entidade `Destination` (iataCode, city, country, photoUrl, lowestPrice) + porta `DestinationRepository.getFeaturedDestinations()`; **remove** `FlightRepository.getLowestPrice` (responsabilidade de preço por destino migra inteira pra `DestinationRepository`) — reaproveitou a entidade `Airport` que já existia sem uso (código morto) em vez de criar `Destination` do zero (`git mv` + rename)
+- [x] 11.2 `dbook_core_network`: `DestinationResponseDto` + `DestinationRepositoryImpl` (`GET /destinations`); **remove** `LowestPriceResponseDto`/`FlightRepositoryImpl.getLowestPrice` (código morto depois da troca)
+- [x] 11.3 `dbook_feature_flights`: apaga `known_airports.dart`; `flight_providers.dart` troca `lowestPriceProvider` (família, 1 chamada por destino) por `featuredDestinationsProvider` (1 chamada só); `DestinationCardGrid`/`DestinationCard`/`destination_gradient.dart`/`airport_picker_sheet.dart` passam a receber `Destination` em vez de `KnownAirport`
+- [x] 11.4 `explore_page.dart` vira `ConsumerWidget` com loading/erro de verdade (antes era estático, não precisava); `flight_search_page.dart`: `_origin`/`_destination` iniciam `null` e se auto-preenchem quando `featuredDestinationsProvider` resolve pela 1ª vez (`ref.listen`, só se o usuário ainda não escolheu nada); pull-to-refresh passa a invalidar 1 provider só (`ref.refresh(featuredDestinationsProvider.future)`)
+- [x] 11.5 `main.dart`: `_selectExploreDestination` recebe `Destination`
+- [x] 11.6 Testes atualizados pra `destinationRepositoryProvider.overrideWithValue(...)` em vez de rastrear chamada por código IATA (mais simples que os fakes de preço de hoje) — `flight_search_page_test.dart`, `flight_results_page_test.dart`, `destination_grid_card_test.dart` e `widget_test.dart` (app) migrados
+- [x] 11.7 Revisão visual no Browser pane: Home/Explore/seletor de busca mostrando os 8 destinos com foto/preço real
+
+**Bug encontrado e corrigido durante a revisão visual:** `airport_picker_sheet.dart` usava um `Column` com `mainAxisSize: MainAxisSize.min` e um `for` direto sobre a lista — funcionava com 3 aeroportos fixos, mas com os 8 destinos reais estourou o bottom sheet (`RenderFlex overflowed by 449 pixels`, visível só no Browser pane, não pego pelos testes automatizados porque eles não testam o tamanho real da tela). Corrigido trocando o `for` por `Flexible(child: ListView.builder(...))` e limitando a altura do sheet a 70% da tela (`constraints: BoxConstraints(maxHeight: ...)` em `showModalBottomSheet`).
+
+**Outro problema encontrado (ambiente, não código):** o servidor de dev do Browser pane (`preview_start`) estava servindo um build antigo, anterior a toda a refatoração — a Home só mostrava 3 destinos e a rede batia em `/flights/lowest-price` (endpoint removido nesta sessão), não em `/destinations`. `flutter run` no modo Web Server não faz watch automático de mudanças em pacotes do monorepo; precisou de `preview_stop` + `preview_start` (restart completo, não hot reload) pra recompilar do zero e pegar o código novo.
+
+**Checklist de fechamento do M11:**
+- [x] Itens 11.1-11.7 revisados
+- [x] Clean Code
+- [x] Arquitetura (front sem dado fixo de negócio — só renderiza o que a API manda; `Destination` inteiro vem de `GET /destinations`, incluindo foto)
+- [x] Componentização (`airport_picker_sheet.dart` ganhou scroll de verdade em vez de crescer sem limite)
+- [x] Layout
+- [x] Material Design
+- [x] `analyze` + `test` limpos em todo o workspace (`melos exec -- flutter analyze` e `melos run test`)
+- [x] Comparação visual lado a lado no Browser pane — Home (grade "Destinos em destaque" com os 8 + "Mais destinos"), Explore (mesma grade) e o seletor de origem/destino da busca, todos com foto e preço reais, sem overflow
+- [x] README atualizado
+- [x] Cobertura mínima — combinado: **82.29%** (2453/2981 linhas), acima do mínimo de 80% do gate de CI (`very_good_coverage`)
 
 ## Ideias futuras (fora da numeração)
 

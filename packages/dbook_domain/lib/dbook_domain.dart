@@ -3,10 +3,10 @@
 library;
 
 export 'src/entities/ai_suggestion.dart';
-export 'src/entities/airport.dart';
 export 'src/entities/auth_tokens.dart';
 export 'src/entities/booking.dart';
 export 'src/entities/booking_status.dart';
+export 'src/entities/destination.dart';
 export 'src/entities/flight.dart';
 export 'src/entities/role.dart';
 export 'src/entities/seat.dart';
@@ -16,6 +16,7 @@ export 'src/entities/user.dart';
 export 'src/repositories/ai_suggestion_repository.dart';
 export 'src/repositories/auth_repository.dart';
 export 'src/repositories/booking_repository.dart';
+export 'src/repositories/destination_repository.dart';
 export 'src/repositories/flight_repository.dart';
 export 'src/use_cases/cancel_booking_use_case.dart';
 export 'src/use_cases/get_seats_use_case.dart';

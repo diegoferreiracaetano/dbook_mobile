@@ -45,6 +45,8 @@ void main() {
           {
             'id': 1,
             'flightNumber': 'IB 6821',
+            'airlineIataCode': 'IB',
+            'airlineName': 'Iberia',
             'origin': 'GRU',
             'destination': 'MAD',
             'departureTime': '2026-01-13T10:30:00',

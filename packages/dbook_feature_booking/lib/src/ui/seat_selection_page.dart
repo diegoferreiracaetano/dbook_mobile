@@ -22,9 +22,20 @@ DbookSeatState _seatCellState(Seat seat, Seat? selected) {
 /// deixa escolher um assento livre e confirma a reserva. Ao reservar com
 /// sucesso, troca (não empilha) pela tela de sucesso.
 class SeatSelectionPage extends ConsumerStatefulWidget {
-  const SeatSelectionPage({super.key, required this.flight});
+  const SeatSelectionPage({
+    super.key,
+    required this.flight,
+    this.nextLegLabel,
+    this.onNextLeg,
+  });
 
   final Flight flight;
+
+  /// Repassados pra `BookingSuccessPage` depois de reservar — usados só na
+  /// jornada Multi-city (M9-9.x), onde cada trecho é uma reserva real
+  /// independente e a tela de sucesso oferece seguir pro próximo.
+  final String? nextLegLabel;
+  final VoidCallback? onNextLeg;
 
   @override
   ConsumerState<SeatSelectionPage> createState() => _SeatSelectionPageState();
@@ -50,7 +61,11 @@ class _SeatSelectionPageState extends ConsumerState<SeatSelectionPage> {
       if (next is SeatSelectionBooked) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (_) => BookingSuccessPage(record: next.record),
+            builder: (_) => BookingSuccessPage(
+              record: next.record,
+              nextLegLabel: widget.nextLegLabel,
+              onNextLeg: widget.onNextLeg,
+            ),
           ),
         );
       }

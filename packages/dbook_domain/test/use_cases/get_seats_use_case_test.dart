@@ -18,6 +18,7 @@ class _FakeFlightRepository implements FlightRepository {
       Seat(id: 1, bookableId: 10, label: '3A', status: SeatStatus.available),
     ];
   }
+
 }
 
 void main() {

@@ -13,6 +13,8 @@ abstract class Flight with _$Flight {
   const factory Flight({
     required int id,
     required String flightNumber,
+    required String airlineIataCode,
+    required String airlineName,
     required String originIataCode,
     required String destinationIataCode,
     required DateTime departureTime,

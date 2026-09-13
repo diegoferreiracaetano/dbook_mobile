@@ -16,6 +16,8 @@ class DbookFlightResultTile extends StatelessWidget {
     required this.arrivalAirport,
     required this.durationLabel,
     required this.price,
+    this.airlineIataCode,
+    this.airlineColor,
     this.airlineIcon = Icons.flight,
     this.flightNumber,
     this.stopsLabel = 'Nonstop',
@@ -25,6 +27,12 @@ class DbookFlightResultTile extends StatelessWidget {
 
   final String airlineName;
   final String? flightNumber;
+
+  /// Quando informado (com [airlineColor]), o selo vira um quadrado colorido
+  /// com o código IATA da companhia (ex.: referência visual real de apps de
+  /// busca de voo) em vez do ícone genérico de avião.
+  final String? airlineIataCode;
+  final Color? airlineColor;
   final IconData airlineIcon;
   final String departureTime;
   final String departureAirport;
@@ -59,18 +67,10 @@ class DbookFlightResultTile extends StatelessWidget {
           padding: const EdgeInsets.all(DbookSpacing.md),
           child: Row(
             children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  airlineIcon,
-                  size: 18,
-                  color: colorScheme.onPrimaryContainer,
-                ),
+              _AirlineBadge(
+                iataCode: airlineIataCode,
+                color: airlineColor,
+                icon: airlineIcon,
               ),
               const SizedBox(width: DbookSpacing.sm),
               Expanded(
@@ -156,6 +156,47 @@ class DbookFlightResultTile extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _AirlineBadge extends StatelessWidget {
+  const _AirlineBadge({required this.iataCode, required this.color, required this.icon});
+
+  final String? iataCode;
+  final Color? color;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    if (iataCode == null || color == null) {
+      return Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: colorScheme.primaryContainer,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, size: 18, color: colorScheme.onPrimaryContainer),
+      );
+    }
+
+    return Container(
+      width: 36,
+      height: 36,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(DbookRadius.sm),
+      ),
+      child: Text(
+        iataCode!,
+        style: Theme.of(
+          context,
+        ).textTheme.labelMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
       ),
     );
   }

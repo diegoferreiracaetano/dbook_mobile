@@ -24,7 +24,7 @@ void main() {
     expect(find.text('Madrid (MAD)'), findsOneWidget);
     expect(find.text('Jan 13 - Jan 30, 2026'), findsOneWidget);
     expect(find.text('1 Adult, Economy'), findsOneWidget);
-    expect(find.byIcon(Icons.swap_horiz), findsOneWidget);
+    expect(find.byIcon(Icons.swap_vert), findsOneWidget);
   });
 
   testWidgets(
@@ -55,6 +55,93 @@ void main() {
 
       expect(originTaps, 1);
       expect(destinationTaps, 1);
+    },
+  );
+
+  testWidgets(
+    'given extraContent when built then it renders between Passengers and '
+    'the search button, inside the same card',
+    (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: DbookTheme.light,
+          home: const Scaffold(
+            body: DbookTripSummaryCard(
+              origin: 'São Paulo (GRU)',
+              destination: 'Madrid (MAD)',
+              dateRangeLabel: 'Jan 13 - Jan 30, 2026',
+              passengersLabel: '1 Adult, Economy',
+              searchLabel: 'Search Flights',
+              extraContent: [Text('Flight 2 section')],
+            ),
+          ),
+        ),
+      );
+
+      expect(
+        find.descendant(
+          of: find.byType(Card),
+          matching: find.text('Flight 2 section'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byType(Card),
+          matching: find.text('Search Flights'),
+        ),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets(
+    'given a searchLabel when built then the search button renders and '
+    'fires onSearch',
+    (tester) async {
+      var searchTaps = 0;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: DbookTheme.light,
+          home: Scaffold(
+            body: DbookTripSummaryCard(
+              origin: 'São Paulo (GRU)',
+              destination: 'Madrid (MAD)',
+              dateRangeLabel: 'Jan 13 - Jan 30, 2026',
+              passengersLabel: '1 Adult, Economy',
+              searchLabel: 'Search Flights',
+              onSearch: () => searchTaps++,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Search Flights'), findsOneWidget);
+      await tester.tap(find.text('Search Flights'));
+
+      expect(searchTaps, 1);
+    },
+  );
+
+  testWidgets(
+    'given no searchLabel when built then no search button renders',
+    (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: DbookTheme.light,
+          home: const Scaffold(
+            body: DbookTripSummaryCard(
+              origin: 'São Paulo (GRU)',
+              destination: 'Madrid (MAD)',
+              dateRangeLabel: 'Jan 13 - Jan 30, 2026',
+              passengersLabel: '1 Adult, Economy',
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byIcon(Icons.search), findsNothing);
     },
   );
 

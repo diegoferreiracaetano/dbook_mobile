@@ -36,6 +36,33 @@ class _FakeFlightRepository implements FlightRepository {
 
   @override
   Future<List<Seat>> getSeats(int bookableId) async => [];
+
+}
+
+const _destinations = [
+  Destination(
+    iataCode: 'GRU',
+    city: 'São Paulo',
+    country: 'Brasil',
+    photoUrl: 'https://example.com/gru.jpg',
+  ),
+  Destination(
+    iataCode: 'GIG',
+    city: 'Rio de Janeiro',
+    country: 'Brasil',
+    photoUrl: 'https://example.com/gig.jpg',
+  ),
+  Destination(
+    iataCode: 'JFK',
+    city: 'New York',
+    country: 'Estados Unidos',
+    photoUrl: 'https://example.com/jfk.jpg',
+  ),
+];
+
+class _FakeDestinationRepository implements DestinationRepository {
+  @override
+  Future<List<Destination>> getFeaturedDestinations() async => _destinations;
 }
 
 /// Já nasce logado — pula o bootstrap real (que bateria na rede de
@@ -77,6 +104,8 @@ class _FakeAuthRepository implements AuthRepository {
 Flight _sampleFlight() => Flight(
   id: 1,
   flightNumber: 'IB 6821',
+  airlineIataCode: 'IB',
+  airlineName: 'Iberia',
   originIataCode: 'GRU',
   destinationIataCode: 'MAD',
   departureTime: DateTime(2026, 1, 13, 10, 30),
@@ -98,6 +127,9 @@ Widget _app({
       flightRepositoryProvider.overrideWithValue(
         _FakeFlightRepository(flights: flights),
       ),
+      destinationRepositoryProvider.overrideWithValue(
+        _FakeDestinationRepository(),
+      ),
       if (authRepository != null)
         authRepositoryProvider.overrideWithValue(authRepository),
       if (loggedIn)
@@ -116,12 +148,7 @@ void _skipOnboarding() =>
 Future<void> _searchAndOpenFlightDetail(WidgetTester tester) async {
   await tester.tap(find.text('Search Flights'));
   await tester.pumpAndSettle();
-  await tester.tap(find.text('DBook Airlines · IB 6821'));
-  await tester.pumpAndSettle();
-}
-
-Future<void> _openDrawer(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.menu));
+  await tester.tap(find.text('Iberia · IB 6821'));
   await tester.pumpAndSettle();
 }
 
@@ -182,24 +209,16 @@ void main() {
 
   group('visitante navega sem login (M9-9.1)', () {
     testWidgetsWithMockImages(
-      'given no session when the drawer opens then shows an Entrar action, '
-      'not Sair',
+      'given no session when Home builds then shows an Entrar action, not '
+      'logout',
       (tester) async {
         _skipOnboarding();
 
         await tester.pumpWidget(_app());
         await tester.pumpAndSettle();
-        await _openDrawer(tester);
 
-        final drawer = find.byType(Drawer);
-        expect(
-          find.descendant(of: drawer, matching: find.text('Entrar')),
-          findsOneWidget,
-        );
-        expect(
-          find.descendant(of: drawer, matching: find.text('Sair')),
-          findsNothing,
-        );
+        expect(find.byIcon(Icons.login), findsOneWidget);
+        expect(find.byIcon(Icons.logout), findsNothing);
       },
     );
 
@@ -219,15 +238,14 @@ void main() {
     );
 
     testWidgetsWithMockImages(
-      'given a guest when Ask DBook AI is tapped in the drawer then the '
-      'Auth Gate opens login instead of the AI screen',
+      'given a guest when Ask DBook AI is tapped then the Auth Gate opens '
+      'login instead of the AI screen',
       (tester) async {
         _skipOnboarding();
 
         await tester.pumpWidget(_app());
         await tester.pumpAndSettle();
-        await _openDrawer(tester);
-        await tester.tap(find.text('Ask DBook AI'));
+        await tester.tap(find.byIcon(Icons.auto_awesome_outlined));
         await tester.pumpAndSettle();
 
         expect(find.text('Welcome Back'), findsOneWidget);
@@ -359,24 +377,16 @@ void main() {
 
   group('sessão autenticada vê as 4 abas de verdade (M9-9.3)', () {
     testWidgetsWithMockImages(
-      'given a logged in session when the drawer opens then shows Sair, '
-      'not Entrar',
+      'given a logged in session when Home builds then shows a logout '
+      'action, not Entrar',
       (tester) async {
         _skipOnboarding();
 
         await tester.pumpWidget(_app(loggedIn: true));
         await tester.pumpAndSettle();
-        await _openDrawer(tester);
 
-        final drawer = find.byType(Drawer);
-        expect(
-          find.descendant(of: drawer, matching: find.text('Sair')),
-          findsOneWidget,
-        );
-        expect(
-          find.descendant(of: drawer, matching: find.text('Entrar')),
-          findsNothing,
-        );
+        expect(find.byIcon(Icons.logout), findsOneWidget);
+        expect(find.byIcon(Icons.login), findsNothing);
       },
     );
 
@@ -421,12 +431,18 @@ void main() {
 
         final destination = find.descendant(
           of: find.byType(ExplorePage),
-          matching: find.text(knownAirports[2].city),
+          matching: find.text(_destinations[2].city),
         );
-        final exploreScrollable = find.descendant(
-          of: find.byType(ExplorePage),
-          matching: find.byType(Scrollable),
-        );
+        // ExplorePage envolve a grade num SingleChildScrollView — o
+        // próprio GridView continua sendo um Scrollable por baixo (mesmo
+        // com NeverScrollableScrollPhysics), então há 2 na árvore; o
+        // primeiro é o da página, que precisa rolar aqui.
+        final exploreScrollable = find
+            .descendant(
+              of: find.byType(ExplorePage),
+              matching: find.byType(Scrollable),
+            )
+            .first;
         await tester.scrollUntilVisible(
           destination,
           200,
@@ -437,7 +453,7 @@ void main() {
         await tester.tap(destination);
         await tester.pumpAndSettle();
 
-        expect(find.text(knownAirports[2].label), findsOneWidget);
+        expect(find.text(_destinations[2].label), findsOneWidget);
       },
     );
   });

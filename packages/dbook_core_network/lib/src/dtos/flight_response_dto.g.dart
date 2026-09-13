@@ -10,6 +10,8 @@ _FlightResponseDto _$FlightResponseDtoFromJson(Map<String, dynamic> json) =>
     _FlightResponseDto(
       id: (json['id'] as num).toInt(),
       flightNumber: json['flightNumber'] as String,
+      airlineIataCode: json['airlineIataCode'] as String,
+      airlineName: json['airlineName'] as String,
       origin: json['origin'] as String,
       destination: json['destination'] as String,
       departureTime: json['departureTime'] as String,
@@ -23,6 +25,8 @@ Map<String, dynamic> _$FlightResponseDtoToJson(_FlightResponseDto instance) =>
     <String, dynamic>{
       'id': instance.id,
       'flightNumber': instance.flightNumber,
+      'airlineIataCode': instance.airlineIataCode,
+      'airlineName': instance.airlineName,
       'origin': instance.origin,
       'destination': instance.destination,
       'departureTime': instance.departureTime,

@@ -23,6 +23,7 @@ class _FakeFlightRepository implements FlightRepository {
     if (error != null) throw error!;
     return seats;
   }
+
 }
 
 class _FakeBookingRepository implements BookingRepository {
@@ -57,6 +58,8 @@ class _FakeBookingRepository implements BookingRepository {
 Flight _flight() => Flight(
   id: 1,
   flightNumber: 'IB 6821',
+  airlineIataCode: 'IB',
+  airlineName: 'Iberia',
   originIataCode: 'GRU',
   destinationIataCode: 'MAD',
   departureTime: DateTime(2026, 1, 13, 10, 30),
