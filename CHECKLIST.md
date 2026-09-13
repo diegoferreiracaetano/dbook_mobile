@@ -406,33 +406,42 @@ desde o M11. Três idas e voltas de design até fechar:
    inteira, sem filtrar por `isPopular`) e "Mais destinos" (lista
    horizontal plana, sem noção de região) ficaram inconsistentes com a
    Explore recém-construída.
+4. Com as duas telas prontas, o usuário apontou que "Destinos por
+   região" ainda não era o que foi combinado: as regiões eram só seções
+   estáticas (uma abaixo da outra, sempre todas visíveis), sem nenhuma
+   interação — ele queria "região como filtro clicável". `DestinationsByRegion`
+   foi reescrito de seções estáticas por região pra um filtro de fato:
+   chips de seleção única ("Todos" + uma por região) acima de uma única
+   grade que mostra só os destinos da região escolhida.
 
 O resultado final: **uma chamada só** (`GET /destinations`, sem mudança),
 `region`/`isPopular` chegam junto com cada destino, e tanto a Home quanto
-a Explore agrupam a mesma lista já carregada por
-`featuredDestinationsProvider` de duas formas — filtrando por `isPopular`
-e agrupando por `region`. A lógica de agrupar por região foi extraída pra
-um widget só (`DestinationsByRegion`), reaproveitado pelas duas telas —
-nenhum provider novo, nenhum endpoint novo, nenhuma lógica duplicada.
+a Explore filtram a mesma lista já carregada por
+`featuredDestinationsProvider` de duas formas — um grid fixo pra
+`isPopular` e um grid filtrável por `region` via chips. A lógica de
+filtro por região foi extraída pra um widget só (`DestinationsByRegion`,
+com estado próprio de seleção), reaproveitado pelas duas telas — nenhum
+provider novo, nenhum endpoint novo, nenhuma lógica duplicada.
 
 - [x] 12.1 `Destination` (domínio) e `DestinationResponseDto` ganham `region`/`isPopular`, espelhando o M14 do backend
 - [x] 12.2 `ExplorePage` reescrita: `_ExploreContent` filtra `destinations.where((d) => d.isPopular)` pra "Principais destinos" e usa `DestinationsByRegion` pra "Destinos por região"
-- [x] 12.3 `DestinationsByRegion` (novo) — agrupa por `region` (`Map<String, List<Destination>>`, chaves ordenadas) e renderiza uma seção (rótulo + `DestinationCardGrid`) por grupo; widget compartilhado, não veio duplicado em cada tela
-- [x] 12.4 `flight_search_page.dart` (Home): "Destinos em destaque" passa a filtrar `isPopular` (igual à Explore); "Mais destinos" (lista horizontal plana) removida e substituída por `DestinationsByRegion` — mesma estrutura, mesmo componente, das duas telas
-- [x] 12.5 Testes: fixtures de `Destination(...)` em todo o workspace ganham `region`/`isPopular`; `widget_test.dart` (app) e `flight_search_page_test.dart` ajustados — um destino popular aparece 2x na página agora (destaque + região), então o teste que toca nele usa `.first` (tocar qualquer cópia visual dispara o mesmo callback, com o mesmo destino)
-- [x] 12.6 `analyze` + `test` limpos em todo o workspace
+- [x] 12.3 `DbookChipRow` (novo, `dbook_design_system`) — faixa horizontal de chips de seleção única, mesmo padrão visual do `DbookFareDateStrip` já existente (chip cheio quando selecionado); componente do design system antes da feature usar, não o contrário
+- [x] 12.4 `DestinationsByRegion` (`dbook_feature_flights`) — `StatefulWidget` com estado próprio (`_selectedIndex`); monta os labels ("Todos" + `region`s distintas, ordenadas) pro `DbookChipRow` e filtra a lista pro `DestinationCardGrid` de acordo com o chip selecionado; widget compartilhado, não duplicado em cada tela
+- [x] 12.5 `flight_search_page.dart` (Home): "Destinos em destaque" passa a filtrar `isPopular` (igual à Explore); "Mais destinos" (lista horizontal plana) removida e substituída por `DestinationsByRegion` — mesmo componente das duas telas, com estado de filtro independente em cada uma
+- [x] 12.6 Testes: `destinations_by_region_test.dart` (novo) — todos aparecem sem filtro, tocar um chip filtra, voltar pra "Todos" mostra tudo de novo, tocar um destino dispara `onSelect`; `dbook_chip_row_test.dart` (novo, design system); fixtures de `Destination(...)` em todo o workspace ganham `region`/`isPopular`; `widget_test.dart` (app) e `flight_search_page_test.dart` ajustados — um destino popular aparece 2x na página (destaque + região, estado "Todos"), então o teste que toca nele usa `.first`
+- [x] 12.7 `analyze` + `test` limpos em todo o workspace
 
 **Checklist de fechamento do M12:**
-- [x] Itens 12.1-12.6 revisados
+- [x] Itens 12.1-12.7 revisados
 - [x] Clean Code
-- [x] Arquitetura (sem estrutura paralela — `region`/`isPopular` são atributos do mesmo `Destination`, as páginas só agrupam o que já têm em mãos)
-- [x] Componentização (`DestinationsByRegion` extraído e reaproveitado por Home e Explore — não duplicou a lógica de agrupamento)
+- [x] Arquitetura (sem estrutura paralela — `region`/`isPopular` são atributos do mesmo `Destination`, as páginas só filtram o que já têm em mãos)
+- [x] Componentização (`DbookChipRow` no design system antes da feature; `DestinationsByRegion` extraído e reaproveitado por Home e Explore)
 - [x] Layout
 - [x] Material Design
 - [x] `melos exec -- flutter analyze` + `melos run test` limpos em todo o workspace
-- [x] Comparação visual no Browser pane — Home e Explore mostram "Destinos em destaque"/"Principais destinos" (4 cards) seguido de "América do Norte", "América do Sul" e "Europa" (cada uma com os destinos reais daquela região, incluindo os populares repetidos — confirmado que São Paulo/Rio aparecem certo em "América do Sul" e Buenos Aires, que não é popular, aparece só lá), sem overflow, nas duas telas
+- [x] Comparação visual no Browser pane — Home e Explore mostram "Destinos em destaque"/"Principais destinos" (4 cards) seguido de "Destinos por região" com os chips "Todos/América do Norte/América do Sul/Europa"; tocar "Europa" filtra pra Londres/Paris/Lisboa, tocar "América do Norte" filtra pra New York/Miami, sem overflow, nas duas telas, com estado de filtro independente entre Home e Explore
 - [x] README atualizado
-- [x] Cobertura mínima — combinado: **82.07%** (2463/3001 linhas), acima do mínimo de 80%
+- [x] Cobertura mínima — combinado: **82.20%** (2489/3028 linhas), acima do mínimo de 80%
 
 ## Ideias futuras (fora da numeração)
 

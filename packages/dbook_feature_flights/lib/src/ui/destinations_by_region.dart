@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 
 import 'destination_grid_card.dart';
 
-/// Agrupa [destinations] por `region` e renderiza uma seção (rótulo +
-/// grade) por grupo, ordenadas alfabeticamente. Usado pela Home e pela
-/// aba Explore — as duas recebem a mesma lista já carregada por
-/// `featuredDestinationsProvider` e só agrupam de um jeito diferente, sem
-/// buscar nada novo.
-class DestinationsByRegion extends StatelessWidget {
+/// Filtro de destinos por região — chips de seleção única ("Todos" +
+/// uma por `region` distinta, em ordem alfabética) acima de uma grade
+/// que mostra só os destinos da região escolhida. Usado pela Home e pela
+/// aba Explore, que recebem a mesma lista já carregada por
+/// `featuredDestinationsProvider` e só filtram/exibem de formas
+/// diferentes — nenhuma busca nova.
+class DestinationsByRegion extends StatefulWidget {
   const DestinationsByRegion({
     super.key,
     required this.destinations,
@@ -20,25 +21,39 @@ class DestinationsByRegion extends StatelessWidget {
   final ValueChanged<Destination> onSelect;
 
   @override
+  State<DestinationsByRegion> createState() => _DestinationsByRegionState();
+}
+
+class _DestinationsByRegionState extends State<DestinationsByRegion> {
+  var _selectedIndex = 0;
+
+  @override
   Widget build(BuildContext context) {
-    final byRegion = <String, List<Destination>>{};
-    for (final destination in destinations) {
-      byRegion.putIfAbsent(destination.region, () => []).add(destination);
-    }
-    final regions = byRegion.keys.toList()..sort();
+    final regions = widget.destinations.map((d) => d.region).toSet().toList()
+      ..sort();
+    final labels = ['Todos', ...regions];
+    final selectedRegion = _selectedIndex == 0
+        ? null
+        : regions[_selectedIndex - 1];
+    final filtered = selectedRegion == null
+        ? widget.destinations
+        : widget.destinations.where((d) => d.region == selectedRegion).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (final region in regions) ...[
-          DbookSectionLabel(text: region, icon: Icons.public_outlined),
-          const SizedBox(height: DbookSpacing.md),
-          DestinationCardGrid(
-            destinations: byRegion[region]!,
-            onSelect: onSelect,
-          ),
-          const SizedBox(height: DbookSpacing.xl),
-        ],
+        const DbookSectionLabel(
+          text: 'Destinos por região',
+          icon: Icons.public_outlined,
+        ),
+        const SizedBox(height: DbookSpacing.md),
+        DbookChipRow(
+          labels: labels,
+          selectedIndex: _selectedIndex,
+          onSelected: (index) => setState(() => _selectedIndex = index),
+        ),
+        const SizedBox(height: DbookSpacing.md),
+        DestinationCardGrid(destinations: filtered, onSelect: widget.onSelect),
       ],
     );
   }
