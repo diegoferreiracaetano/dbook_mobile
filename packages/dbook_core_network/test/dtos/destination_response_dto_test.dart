@@ -8,11 +8,15 @@ void main() {
       'city': 'Rio de Janeiro',
       'country': 'Brasil',
       'photoUrl': 'https://example.com/gig.jpg',
+      'region': 'América do Sul',
+      'isPopular': true,
       'lowestPrice': 305.0,
     });
 
     expect(dto.iataCode, 'GIG');
     expect(dto.city, 'Rio de Janeiro');
+    expect(dto.region, 'América do Sul');
+    expect(dto.isPopular, true);
     expect(dto.lowestPrice, 305.0);
   });
 
@@ -25,6 +29,8 @@ void main() {
         'city': 'Londres',
         'country': 'Reino Unido',
         'photoUrl': 'https://example.com/lhr.jpg',
+        'region': 'Europa',
+        'isPopular': false,
         'lowestPrice': null,
       }).toDomain();
 

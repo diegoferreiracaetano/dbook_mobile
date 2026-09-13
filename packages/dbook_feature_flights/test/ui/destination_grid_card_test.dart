@@ -13,6 +13,8 @@ const _destination = Destination(
   city: 'São Paulo',
   country: 'Brasil',
   photoUrl: 'https://example.com/gru.jpg',
+  region: 'América do Sul',
+  isPopular: true,
 );
 
 Widget _app(Widget home) {

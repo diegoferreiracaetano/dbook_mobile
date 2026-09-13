@@ -70,12 +70,16 @@ const _origin = Destination(
   city: 'São Paulo',
   country: 'Brasil',
   photoUrl: 'https://example.com/gru.jpg',
+  region: 'América do Sul',
+  isPopular: true,
 );
 const _destination = Destination(
   iataCode: 'GIG',
   city: 'Rio de Janeiro',
   country: 'Brasil',
   photoUrl: 'https://example.com/gig.jpg',
+  region: 'América do Sul',
+  isPopular: true,
 );
 
 final _query = FlightSearchQuery(

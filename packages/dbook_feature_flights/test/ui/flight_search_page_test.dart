@@ -13,18 +13,24 @@ const _destinations = [
     city: 'São Paulo',
     country: 'Brasil',
     photoUrl: 'https://example.com/gru.jpg',
+    region: 'América do Sul',
+    isPopular: true,
   ),
   Destination(
     iataCode: 'GIG',
     city: 'Rio de Janeiro',
     country: 'Brasil',
     photoUrl: 'https://example.com/gig.jpg',
+    region: 'América do Sul',
+    isPopular: true,
   ),
   Destination(
     iataCode: 'JFK',
     city: 'New York',
     country: 'Estados Unidos',
     photoUrl: 'https://example.com/jfk.jpg',
+    region: 'América do Norte',
+    isPopular: true,
   ),
 ];
 

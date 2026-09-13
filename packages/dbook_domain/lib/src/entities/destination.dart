@@ -16,6 +16,8 @@ abstract class Destination with _$Destination {
     required String city,
     required String country,
     required String photoUrl,
+    required String region,
+    required bool isPopular,
     double? lowestPrice,
   }) = _Destination;
 

@@ -45,18 +45,24 @@ const _destinations = [
     city: 'São Paulo',
     country: 'Brasil',
     photoUrl: 'https://example.com/gru.jpg',
+    region: 'América do Sul',
+    isPopular: true,
   ),
   Destination(
     iataCode: 'GIG',
     city: 'Rio de Janeiro',
     country: 'Brasil',
     photoUrl: 'https://example.com/gig.jpg',
+    region: 'América do Sul',
+    isPopular: true,
   ),
   Destination(
     iataCode: 'JFK',
     city: 'New York',
     country: 'Estados Unidos',
     photoUrl: 'https://example.com/jfk.jpg',
+    region: 'América do Norte',
+    isPopular: true,
   ),
 ];
 
@@ -429,10 +435,16 @@ void main() {
         await tester.pumpAndSettle();
         await _goToTab(tester, 'Explore');
 
-        final destination = find.descendant(
-          of: find.byType(ExplorePage),
-          matching: find.text(_destinations[2].city),
-        );
+        // `New York` é popular, então aparece 2x na página (em "Principais
+        // destinos" e de novo em "Destinos por região") — `.first` porque
+        // tocar qualquer uma das duas cópias visuais é equivalente, dispara
+        // o mesmo callback com o mesmo destino.
+        final destination = find
+            .descendant(
+              of: find.byType(ExplorePage),
+              matching: find.text(_destinations[2].city),
+            )
+            .first;
         // ExplorePage envolve a grade num SingleChildScrollView — o
         // próprio GridView continua sendo um Scrollable por baixo (mesmo
         // com NeverScrollableScrollPhysics), então há 2 na árvore; o

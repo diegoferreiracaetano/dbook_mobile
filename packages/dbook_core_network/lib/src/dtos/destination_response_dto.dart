@@ -14,6 +14,8 @@ abstract class DestinationResponseDto with _$DestinationResponseDto {
     required String city,
     required String country,
     required String photoUrl,
+    required String region,
+    required bool isPopular,
     double? lowestPrice,
   }) = _DestinationResponseDto;
 
@@ -26,6 +28,8 @@ abstract class DestinationResponseDto with _$DestinationResponseDto {
       city: city,
       country: country,
       photoUrl: photoUrl,
+      region: region,
+      isPopular: isPopular,
       lowestPrice: lowestPrice,
     );
   }
