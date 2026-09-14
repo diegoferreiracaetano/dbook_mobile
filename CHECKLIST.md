@@ -495,6 +495,32 @@ o resto do app.
 - [x] README atualizado
 - [x] Cobertura mínima — combinado: **81.79%** (2596/3174 linhas), acima do mínimo de 80% do gate de CI (`very_good_coverage`)
 
+## M14 — Assento por modelo de avião real ✅
+
+Decisão (2026-09-14): a seleção de assento era só um `GridView` fixo de 6
+colunas, sempre igual pra qualquer voo — "hoje só tem quadrados, está
+muito pobre... verificar o modelo do avião... se o avião ele for de duas
+fileiras com dois assentos, mostrar duas fileiras com dois assentos, se
+for com duas fileiras e três assentos mostrar [o de verdade]". O backend
+já resolve tudo isso desde o M16 (`aircraftType`/`seatLayout` reais em
+todo `FlightResponse`); faltava o app agrupar por fileira/corredor em vez
+de tratar a lista de assentos como um grid genérico.
+
+- [x] 14.1 `Flight` (domínio) e `FlightResponseDto` ganham `aircraftType: String`/`seatLayout: List<int>` — passthrough puro, o front nunca calcula o mapeamento avião→layout, só recebe o array já resolvido (mesmo princípio de "front burro" do M16 do backend)
+- [x] 14.2 `DbookSeatCell` redesenhada — 40×40 (antes 28×28 fixo), topo mais arredondado que a base (lembra o encosto de uma poltrona, sem tentar desenhar um ícone literal de avião), `label` novo e visível dentro da célula (antes não mostrava nada); mantém as 3 cores de estado (available/selected/occupied)
+- [x] 14.3 `seat_selection_page.dart` reescrita: `_seatsByRow`/`_columnBlocksFor` (novos, privados) parseiam `seat.label` (regex `^(\d+)([A-Z])$`) e agrupam pelas letras de cada bloco do `flight.seatLayout` (`[3,3]` → A,B,C | D,E,F; `[3,4,3]` → A,B,C | D,E,F,G | H,I,J); número da fileira à esquerda, letras das colunas no topo, corredor visível entre blocos; fundo com cantos arredondados (`colorScheme.surfaceContainerHighest`) lembrando a seção transversal de uma cabine; mapa dentro de scroll horizontal+vertical pra caber aeronaves largas (10 assentos/fileira do Boeing 777) sem quebrar o layout em telas estreitas
+- [x] 14.4 Testes: `dbook_seat_cell_test.dart` ganhou os casos de `label` (visível/ausente); `seat_selection_page_test.dart` ganhou 2+2 (Embraer E195, 1 corredor, 4 assentos) e 3+4+3 (Boeing 777, 2 corredores, 10 assentos) além dos 4 testes já existentes (seleção/reserva continuam funcionando exatamente como antes — mesma lógica de estado, só mudou o agrupamento visual); DTOs/fixtures de `Flight(...)` em todo o workspace ganharam `aircraftType`/`seatLayout`
+- [x] 14.5 `melos exec -- flutter analyze` + `melos exec -- dart format --set-exit-if-changed .` + `melos run test` (Flutter) + `dart test` (pacotes Dart puros) limpos em todo o workspace
+
+**Checklist de fechamento do M14:**
+- [x] Itens 14.1-14.5 revisados
+- [x] Clean Code
+- [x] Arquitetura (backend continua a única fonte da regra fileira/corredor — `seatLayoutFor` só no `dbook`; o mobile só agrupa o array que já chega pronto, sem tabela própria de avião→layout)
+- [x] `melos exec -- flutter analyze` + `melos run test` + `dart test` limpos em todo o workspace
+- [x] Testado manualmente no Browser pane, ponta a ponta com dado real do backend: voo Boeing 777 (`aircraftType` real) mostra exatamente 10 assentos por fileira em 3 blocos (A-C, D-G, H-J) com 2 corredores, scroll horizontal revela as colunas H/I/J; voo Embraer E195 mostra exatamente 2+2 (A,B | C,D) com 1 corredor, cabe sem scroll; tocar um assento seleciona (célula fica azul) e atualiza o rodapé ("Book Seat 1D")
+- [x] README atualizado
+- [x] Cobertura mínima — combinado: **82.12%** (2668/3249 linhas), acima do mínimo de 80% do gate de CI (`very_good_coverage`)
+
 ## Ideias futuras (fora da numeração)
 
 - Golden tests (regressão visual) pros componentes do `dbook_design_system`

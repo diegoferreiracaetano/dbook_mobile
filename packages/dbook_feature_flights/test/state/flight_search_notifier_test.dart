@@ -28,7 +28,6 @@ class _FakeFlightRepository implements FlightRepository {
 
   @override
   Future<List<Seat>> getSeats(int bookableId) async => [];
-
 }
 
 Flight _flight({SeatClass seatClass = SeatClass.economy}) => Flight(
@@ -43,6 +42,8 @@ Flight _flight({SeatClass seatClass = SeatClass.economy}) => Flight(
   seatClass: seatClass,
   price: 450,
   availableCapacity: 12,
+  aircraftType: 'Airbus A320',
+  seatLayout: const [3, 3],
 );
 
 ProviderContainer _buildContainer(FlightRepository repository) {

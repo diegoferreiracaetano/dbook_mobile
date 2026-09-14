@@ -134,6 +134,8 @@ Flight _sampleFlight() => Flight(
   seatClass: SeatClass.economy,
   price: 450,
   availableCapacity: 12,
+  aircraftType: 'Airbus A320',
+  seatLayout: const [3, 3],
 );
 
 Widget _app({

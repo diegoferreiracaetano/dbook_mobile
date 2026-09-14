@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$FlightResponseDto {
 
- int get id; String get flightNumber; String get airlineIataCode; String get airlineName; String get origin; String get destination; String get departureTime; String get arrivalTime; String get seatClass; double get price; int get availableCapacity;
+ int get id; String get flightNumber; String get airlineIataCode; String get airlineName; String get origin; String get destination; String get departureTime; String get arrivalTime; String get seatClass; double get price; int get availableCapacity; String get aircraftType; List<int> get seatLayout;
 /// Create a copy of FlightResponseDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,20 +30,20 @@ $FlightResponseDtoCopyWith<FlightResponseDto> get copyWith => _$FlightResponseDt
 @override
 bool operator ==(Object other) {
   final _this = this as FlightResponseDto;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FlightResponseDto&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.flightNumber, _this.flightNumber) || other.flightNumber == _this.flightNumber)&&(identical(other.airlineIataCode, _this.airlineIataCode) || other.airlineIataCode == _this.airlineIataCode)&&(identical(other.airlineName, _this.airlineName) || other.airlineName == _this.airlineName)&&(identical(other.origin, _this.origin) || other.origin == _this.origin)&&(identical(other.destination, _this.destination) || other.destination == _this.destination)&&(identical(other.departureTime, _this.departureTime) || other.departureTime == _this.departureTime)&&(identical(other.arrivalTime, _this.arrivalTime) || other.arrivalTime == _this.arrivalTime)&&(identical(other.seatClass, _this.seatClass) || other.seatClass == _this.seatClass)&&(identical(other.price, _this.price) || other.price == _this.price)&&(identical(other.availableCapacity, _this.availableCapacity) || other.availableCapacity == _this.availableCapacity));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FlightResponseDto&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.flightNumber, _this.flightNumber) || other.flightNumber == _this.flightNumber)&&(identical(other.airlineIataCode, _this.airlineIataCode) || other.airlineIataCode == _this.airlineIataCode)&&(identical(other.airlineName, _this.airlineName) || other.airlineName == _this.airlineName)&&(identical(other.origin, _this.origin) || other.origin == _this.origin)&&(identical(other.destination, _this.destination) || other.destination == _this.destination)&&(identical(other.departureTime, _this.departureTime) || other.departureTime == _this.departureTime)&&(identical(other.arrivalTime, _this.arrivalTime) || other.arrivalTime == _this.arrivalTime)&&(identical(other.seatClass, _this.seatClass) || other.seatClass == _this.seatClass)&&(identical(other.price, _this.price) || other.price == _this.price)&&(identical(other.availableCapacity, _this.availableCapacity) || other.availableCapacity == _this.availableCapacity)&&(identical(other.aircraftType, _this.aircraftType) || other.aircraftType == _this.aircraftType)&&const DeepCollectionEquality().equals(other.seatLayout, _this.seatLayout));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as FlightResponseDto;
-  return Object.hash(runtimeType,_this.id,_this.flightNumber,_this.airlineIataCode,_this.airlineName,_this.origin,_this.destination,_this.departureTime,_this.arrivalTime,_this.seatClass,_this.price,_this.availableCapacity);
+  return Object.hash(runtimeType,_this.id,_this.flightNumber,_this.airlineIataCode,_this.airlineName,_this.origin,_this.destination,_this.departureTime,_this.arrivalTime,_this.seatClass,_this.price,_this.availableCapacity,_this.aircraftType,const DeepCollectionEquality().hash(_this.seatLayout));
 }
 
 @override
 String toString() {
   final _this = this as FlightResponseDto;
-  return 'FlightResponseDto(id: ${_this.id}, flightNumber: ${_this.flightNumber}, airlineIataCode: ${_this.airlineIataCode}, airlineName: ${_this.airlineName}, origin: ${_this.origin}, destination: ${_this.destination}, departureTime: ${_this.departureTime}, arrivalTime: ${_this.arrivalTime}, seatClass: ${_this.seatClass}, price: ${_this.price}, availableCapacity: ${_this.availableCapacity})';
+  return 'FlightResponseDto(id: ${_this.id}, flightNumber: ${_this.flightNumber}, airlineIataCode: ${_this.airlineIataCode}, airlineName: ${_this.airlineName}, origin: ${_this.origin}, destination: ${_this.destination}, departureTime: ${_this.departureTime}, arrivalTime: ${_this.arrivalTime}, seatClass: ${_this.seatClass}, price: ${_this.price}, availableCapacity: ${_this.availableCapacity}, aircraftType: ${_this.aircraftType}, seatLayout: ${_this.seatLayout})';
 }
 
 
@@ -54,7 +54,7 @@ abstract mixin class $FlightResponseDtoCopyWith<$Res>  {
   factory $FlightResponseDtoCopyWith(FlightResponseDto value, $Res Function(FlightResponseDto) _then) = _$FlightResponseDtoCopyWithImpl;
 @useResult
 $Res call({
- int id, String flightNumber, String airlineIataCode, String airlineName, String origin, String destination, String departureTime, String arrivalTime, String seatClass, double price, int availableCapacity
+ int id, String flightNumber, String airlineIataCode, String airlineName, String origin, String destination, String departureTime, String arrivalTime, String seatClass, double price, int availableCapacity, String aircraftType, List<int> seatLayout
 });
 
 
@@ -71,7 +71,7 @@ class _$FlightResponseDtoCopyWithImpl<$Res>
 
 /// Create a copy of FlightResponseDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? flightNumber = null,Object? airlineIataCode = null,Object? airlineName = null,Object? origin = null,Object? destination = null,Object? departureTime = null,Object? arrivalTime = null,Object? seatClass = null,Object? price = null,Object? availableCapacity = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? flightNumber = null,Object? airlineIataCode = null,Object? airlineName = null,Object? origin = null,Object? destination = null,Object? departureTime = null,Object? arrivalTime = null,Object? seatClass = null,Object? price = null,Object? availableCapacity = null,Object? aircraftType = null,Object? seatLayout = null,}) {
   return _then(FlightResponseDto(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,flightNumber: null == flightNumber ? _self.flightNumber : flightNumber // ignore: cast_nullable_to_non_nullable
@@ -84,7 +84,9 @@ as String,arrivalTime: null == arrivalTime ? _self.arrivalTime : arrivalTime // 
 as String,seatClass: null == seatClass ? _self.seatClass : seatClass // ignore: cast_nullable_to_non_nullable
 as String,price: null == price ? _self.price : price // ignore: cast_nullable_to_non_nullable
 as double,availableCapacity: null == availableCapacity ? _self.availableCapacity : availableCapacity // ignore: cast_nullable_to_non_nullable
-as int,
+as int,aircraftType: null == aircraftType ? _self.aircraftType : aircraftType // ignore: cast_nullable_to_non_nullable
+as String,seatLayout: null == seatLayout ? _self.seatLayout : seatLayout // ignore: cast_nullable_to_non_nullable
+as List<int>,
   ));
 }
 
@@ -169,10 +171,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String flightNumber,  String airlineIataCode,  String airlineName,  String origin,  String destination,  String departureTime,  String arrivalTime,  String seatClass,  double price,  int availableCapacity)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String flightNumber,  String airlineIataCode,  String airlineName,  String origin,  String destination,  String departureTime,  String arrivalTime,  String seatClass,  double price,  int availableCapacity,  String aircraftType,  List<int> seatLayout)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FlightResponseDto() when $default != null:
-return $default(_that.id,_that.flightNumber,_that.airlineIataCode,_that.airlineName,_that.origin,_that.destination,_that.departureTime,_that.arrivalTime,_that.seatClass,_that.price,_that.availableCapacity);case _:
+return $default(_that.id,_that.flightNumber,_that.airlineIataCode,_that.airlineName,_that.origin,_that.destination,_that.departureTime,_that.arrivalTime,_that.seatClass,_that.price,_that.availableCapacity,_that.aircraftType,_that.seatLayout);case _:
   return orElse();
 
 }
@@ -190,10 +192,10 @@ return $default(_that.id,_that.flightNumber,_that.airlineIataCode,_that.airlineN
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String flightNumber,  String airlineIataCode,  String airlineName,  String origin,  String destination,  String departureTime,  String arrivalTime,  String seatClass,  double price,  int availableCapacity)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String flightNumber,  String airlineIataCode,  String airlineName,  String origin,  String destination,  String departureTime,  String arrivalTime,  String seatClass,  double price,  int availableCapacity,  String aircraftType,  List<int> seatLayout)  $default,) {final _that = this;
 switch (_that) {
 case _FlightResponseDto():
-return $default(_that.id,_that.flightNumber,_that.airlineIataCode,_that.airlineName,_that.origin,_that.destination,_that.departureTime,_that.arrivalTime,_that.seatClass,_that.price,_that.availableCapacity);case _:
+return $default(_that.id,_that.flightNumber,_that.airlineIataCode,_that.airlineName,_that.origin,_that.destination,_that.departureTime,_that.arrivalTime,_that.seatClass,_that.price,_that.availableCapacity,_that.aircraftType,_that.seatLayout);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -210,10 +212,10 @@ return $default(_that.id,_that.flightNumber,_that.airlineIataCode,_that.airlineN
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String flightNumber,  String airlineIataCode,  String airlineName,  String origin,  String destination,  String departureTime,  String arrivalTime,  String seatClass,  double price,  int availableCapacity)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String flightNumber,  String airlineIataCode,  String airlineName,  String origin,  String destination,  String departureTime,  String arrivalTime,  String seatClass,  double price,  int availableCapacity,  String aircraftType,  List<int> seatLayout)?  $default,) {final _that = this;
 switch (_that) {
 case _FlightResponseDto() when $default != null:
-return $default(_that.id,_that.flightNumber,_that.airlineIataCode,_that.airlineName,_that.origin,_that.destination,_that.departureTime,_that.arrivalTime,_that.seatClass,_that.price,_that.availableCapacity);case _:
+return $default(_that.id,_that.flightNumber,_that.airlineIataCode,_that.airlineName,_that.origin,_that.destination,_that.departureTime,_that.arrivalTime,_that.seatClass,_that.price,_that.availableCapacity,_that.aircraftType,_that.seatLayout);case _:
   return null;
 
 }
@@ -225,7 +227,7 @@ return $default(_that.id,_that.flightNumber,_that.airlineIataCode,_that.airlineN
 @JsonSerializable()
 
 class _FlightResponseDto extends FlightResponseDto {
-  const _FlightResponseDto({required this.id, required this.flightNumber, required this.airlineIataCode, required this.airlineName, required this.origin, required this.destination, required this.departureTime, required this.arrivalTime, required this.seatClass, required this.price, required this.availableCapacity}): super._();
+  const _FlightResponseDto({required this.id, required this.flightNumber, required this.airlineIataCode, required this.airlineName, required this.origin, required this.destination, required this.departureTime, required this.arrivalTime, required this.seatClass, required this.price, required this.availableCapacity, required this.aircraftType, required  List<int> seatLayout}): _seatLayout = seatLayout,super._();
   factory _FlightResponseDto.fromJson(Map<String, dynamic> json) => _$FlightResponseDtoFromJson(json);
 
 @override final  int id;
@@ -239,6 +241,14 @@ class _FlightResponseDto extends FlightResponseDto {
 @override final  String seatClass;
 @override final  double price;
 @override final  int availableCapacity;
+@override final  String aircraftType;
+ final  List<int> _seatLayout;
+@override List<int> get seatLayout {
+  if (_seatLayout is EqualUnmodifiableListView) return _seatLayout;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_seatLayout);
+}
+
 
 /// Create a copy of FlightResponseDto
 /// with the given fields replaced by the non-null parameter values.
@@ -253,18 +263,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _FlightResponseDto&&(identical(other.id, id) || other.id == id)&&(identical(other.flightNumber, flightNumber) || other.flightNumber == flightNumber)&&(identical(other.airlineIataCode, airlineIataCode) || other.airlineIataCode == airlineIataCode)&&(identical(other.airlineName, airlineName) || other.airlineName == airlineName)&&(identical(other.origin, origin) || other.origin == origin)&&(identical(other.destination, destination) || other.destination == destination)&&(identical(other.departureTime, departureTime) || other.departureTime == departureTime)&&(identical(other.arrivalTime, arrivalTime) || other.arrivalTime == arrivalTime)&&(identical(other.seatClass, seatClass) || other.seatClass == seatClass)&&(identical(other.price, price) || other.price == price)&&(identical(other.availableCapacity, availableCapacity) || other.availableCapacity == availableCapacity));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _FlightResponseDto&&(identical(other.id, id) || other.id == id)&&(identical(other.flightNumber, flightNumber) || other.flightNumber == flightNumber)&&(identical(other.airlineIataCode, airlineIataCode) || other.airlineIataCode == airlineIataCode)&&(identical(other.airlineName, airlineName) || other.airlineName == airlineName)&&(identical(other.origin, origin) || other.origin == origin)&&(identical(other.destination, destination) || other.destination == destination)&&(identical(other.departureTime, departureTime) || other.departureTime == departureTime)&&(identical(other.arrivalTime, arrivalTime) || other.arrivalTime == arrivalTime)&&(identical(other.seatClass, seatClass) || other.seatClass == seatClass)&&(identical(other.price, price) || other.price == price)&&(identical(other.availableCapacity, availableCapacity) || other.availableCapacity == availableCapacity)&&(identical(other.aircraftType, aircraftType) || other.aircraftType == aircraftType)&&const DeepCollectionEquality().equals(other.seatLayout, _seatLayout));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,flightNumber,airlineIataCode,airlineName,origin,destination,departureTime,arrivalTime,seatClass,price,availableCapacity);
+    return Object.hash(runtimeType,id,flightNumber,airlineIataCode,airlineName,origin,destination,departureTime,arrivalTime,seatClass,price,availableCapacity,aircraftType,const DeepCollectionEquality().hash(_seatLayout));
 }
 
 @override
 String toString() {
-    return 'FlightResponseDto(id: $id, flightNumber: $flightNumber, airlineIataCode: $airlineIataCode, airlineName: $airlineName, origin: $origin, destination: $destination, departureTime: $departureTime, arrivalTime: $arrivalTime, seatClass: $seatClass, price: $price, availableCapacity: $availableCapacity)';
+    return 'FlightResponseDto(id: $id, flightNumber: $flightNumber, airlineIataCode: $airlineIataCode, airlineName: $airlineName, origin: $origin, destination: $destination, departureTime: $departureTime, arrivalTime: $arrivalTime, seatClass: $seatClass, price: $price, availableCapacity: $availableCapacity, aircraftType: $aircraftType, seatLayout: $seatLayout)';
 }
 
 
@@ -275,7 +285,7 @@ abstract mixin class _$FlightResponseDtoCopyWith<$Res> implements $FlightRespons
   factory _$FlightResponseDtoCopyWith(_FlightResponseDto value, $Res Function(_FlightResponseDto) _then) = __$FlightResponseDtoCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String flightNumber, String airlineIataCode, String airlineName, String origin, String destination, String departureTime, String arrivalTime, String seatClass, double price, int availableCapacity
+ int id, String flightNumber, String airlineIataCode, String airlineName, String origin, String destination, String departureTime, String arrivalTime, String seatClass, double price, int availableCapacity, String aircraftType, List<int> seatLayout
 });
 
 
@@ -292,7 +302,7 @@ class __$FlightResponseDtoCopyWithImpl<$Res>
 
 /// Create a copy of FlightResponseDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? flightNumber = null,Object? airlineIataCode = null,Object? airlineName = null,Object? origin = null,Object? destination = null,Object? departureTime = null,Object? arrivalTime = null,Object? seatClass = null,Object? price = null,Object? availableCapacity = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? flightNumber = null,Object? airlineIataCode = null,Object? airlineName = null,Object? origin = null,Object? destination = null,Object? departureTime = null,Object? arrivalTime = null,Object? seatClass = null,Object? price = null,Object? availableCapacity = null,Object? aircraftType = null,Object? seatLayout = null,}) {
   return _then(_FlightResponseDto(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,flightNumber: null == flightNumber ? _self.flightNumber : flightNumber // ignore: cast_nullable_to_non_nullable
@@ -305,7 +315,9 @@ as String,arrivalTime: null == arrivalTime ? _self.arrivalTime : arrivalTime // 
 as String,seatClass: null == seatClass ? _self.seatClass : seatClass // ignore: cast_nullable_to_non_nullable
 as String,price: null == price ? _self.price : price // ignore: cast_nullable_to_non_nullable
 as double,availableCapacity: null == availableCapacity ? _self.availableCapacity : availableCapacity // ignore: cast_nullable_to_non_nullable
-as int,
+as int,aircraftType: null == aircraftType ? _self.aircraftType : aircraftType // ignore: cast_nullable_to_non_nullable
+as String,seatLayout: null == seatLayout ? _self._seatLayout : seatLayout // ignore: cast_nullable_to_non_nullable
+as List<int>,
   ));
 }
 

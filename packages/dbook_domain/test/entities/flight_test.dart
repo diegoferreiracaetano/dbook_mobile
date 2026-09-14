@@ -15,6 +15,8 @@ void main() {
       seatClass: SeatClass.economy,
       price: price,
       availableCapacity: 42,
+      aircraftType: 'Airbus A320',
+      seatLayout: const [3, 3],
     );
   }
 

@@ -22,5 +22,7 @@ abstract class Flight with _$Flight {
     required SeatClass seatClass,
     required double price,
     required int availableCapacity,
+    required String aircraftType,
+    required List<int> seatLayout,
   }) = _Flight;
 }

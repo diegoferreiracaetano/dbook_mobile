@@ -26,6 +26,8 @@ abstract class FlightResponseDto with _$FlightResponseDto {
     required String seatClass,
     required double price,
     required int availableCapacity,
+    required String aircraftType,
+    required List<int> seatLayout,
   }) = _FlightResponseDto;
 
   factory FlightResponseDto.fromJson(Map<String, dynamic> json) =>
@@ -44,6 +46,8 @@ abstract class FlightResponseDto with _$FlightResponseDto {
       seatClass: seatClassFromWire(seatClass),
       price: price,
       availableCapacity: availableCapacity,
+      aircraftType: aircraftType,
+      seatLayout: seatLayout,
     );
   }
 }

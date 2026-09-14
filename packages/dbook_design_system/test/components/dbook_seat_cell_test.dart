@@ -44,4 +44,34 @@ void main() {
     await tester.tap(find.byType(DbookSeatCell));
     expect(tapCount, 0);
   });
+
+  testWidgets('given a label when built then it is visible in the cell', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: DbookTheme.light,
+        home: const Scaffold(
+          body: DbookSeatCell(state: DbookSeatState.available, label: '12A'),
+        ),
+      ),
+    );
+
+    expect(find.text('12A'), findsOneWidget);
+  });
+
+  testWidgets('given no label when built then the cell renders with no text', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: DbookTheme.light,
+        home: const Scaffold(
+          body: DbookSeatCell(state: DbookSeatState.selected),
+        ),
+      ),
+    );
+
+    expect(find.byType(Text), findsNothing);
+  });
 }

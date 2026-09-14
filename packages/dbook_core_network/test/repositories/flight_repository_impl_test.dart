@@ -54,6 +54,8 @@ void main() {
             'seatClass': 'ECONOMY',
             'price': 450.0,
             'availableCapacity': 42,
+            'aircraftType': 'Airbus A320',
+            'seatLayout': [3, 3],
           },
         ],
       );

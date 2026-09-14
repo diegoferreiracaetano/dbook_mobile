@@ -21,7 +21,6 @@ class _FakeFlightRepository implements FlightRepository {
 
   @override
   Future<List<Seat>> getSeats(int bookableId) async => seats;
-
 }
 
 class _FakeBookingRepository implements BookingRepository {
@@ -70,7 +69,19 @@ Flight _flight() => Flight(
   seatClass: SeatClass.economy,
   price: 450,
   availableCapacity: 12,
+  aircraftType: 'Airbus A320',
+  seatLayout: const [3, 3],
 );
+
+List<Seat> _fullRow(int row, List<String> letters) => [
+  for (final letter in letters)
+    Seat(
+      id: row * 100 + letters.indexOf(letter),
+      bookableId: 1,
+      label: '$row$letter',
+      status: SeatStatus.available,
+    ),
+];
 
 Widget _wrap(
   Widget child, {
@@ -179,6 +190,59 @@ void main() {
 
       expect(find.text('Seat no longer available'), findsOneWidget);
       expect(find.byType(DbookSeatCell), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'given a 2+2 layout with a full row when the page settles then it '
+    'renders one block of 2 and another of 2, all 4 seats',
+    (tester) async {
+      final flight = _flight().copyWith(
+        aircraftType: 'Embraer E195',
+        seatLayout: const [2, 2],
+      );
+
+      await tester.pumpWidget(
+        _wrap(
+          SeatSelectionPage(flight: flight),
+          flightRepository: _FakeFlightRepository(
+            seats: _fullRow(1, ['A', 'B', 'C', 'D']),
+          ),
+          bookingRepository: _FakeBookingRepository(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(DbookSeatCell), findsNWidgets(4));
+      for (final label in ['1A', '1B', '1C', '1D']) {
+        expect(find.text(label), findsOneWidget);
+      }
+    },
+  );
+
+  testWidgets(
+    'given a 3+4+3 layout (widebody) with a full row when the page settles '
+    'then it renders all 10 seats across 3 blocks',
+    (tester) async {
+      final flight = _flight().copyWith(
+        aircraftType: 'Boeing 777',
+        seatLayout: const [3, 4, 3],
+      );
+      final letters = 'ABCDEFGHIJ'.split('');
+
+      await tester.pumpWidget(
+        _wrap(
+          SeatSelectionPage(flight: flight),
+          flightRepository: _FakeFlightRepository(seats: _fullRow(1, letters)),
+          bookingRepository: _FakeBookingRepository(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(DbookSeatCell), findsNWidgets(10));
+      for (final letter in letters) {
+        expect(find.text('1$letter'), findsOneWidget);
+      }
     },
   );
 }

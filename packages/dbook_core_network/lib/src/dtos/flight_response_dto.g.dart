@@ -19,6 +19,10 @@ _FlightResponseDto _$FlightResponseDtoFromJson(Map<String, dynamic> json) =>
       seatClass: json['seatClass'] as String,
       price: (json['price'] as num).toDouble(),
       availableCapacity: (json['availableCapacity'] as num).toInt(),
+      aircraftType: json['aircraftType'] as String,
+      seatLayout: (json['seatLayout'] as List<dynamic>)
+          .map((e) => (e as num).toInt())
+          .toList(),
     );
 
 Map<String, dynamic> _$FlightResponseDtoToJson(_FlightResponseDto instance) =>
@@ -34,4 +38,6 @@ Map<String, dynamic> _$FlightResponseDtoToJson(_FlightResponseDto instance) =>
       'seatClass': instance.seatClass,
       'price': instance.price,
       'availableCapacity': instance.availableCapacity,
+      'aircraftType': instance.aircraftType,
+      'seatLayout': instance.seatLayout,
     };

@@ -23,7 +23,6 @@ class _FakeFlightRepository implements FlightRepository {
     if (error != null) throw error!;
     return seats;
   }
-
 }
 
 class _FakeBookingRepository implements BookingRepository {
@@ -67,6 +66,8 @@ Flight _flight() => Flight(
   seatClass: SeatClass.economy,
   price: 450,
   availableCapacity: 12,
+  aircraftType: 'Airbus A320',
+  seatLayout: const [3, 3],
 );
 
 const _seat = Seat(

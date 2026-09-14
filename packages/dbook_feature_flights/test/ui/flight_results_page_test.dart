@@ -24,7 +24,6 @@ class _FakeFlightRepository implements FlightRepository {
 
   @override
   Future<List<Seat>> getSeats(int bookableId) async => [];
-
 }
 
 /// Returns different flights per day of month — used to exercise the date
@@ -43,7 +42,6 @@ class _DateAwareFlightRepository implements FlightRepository {
 
   @override
   Future<List<Seat>> getSeats(int bookableId) async => [];
-
 }
 
 Flight _flightOnDay(
@@ -63,6 +61,8 @@ Flight _flightOnDay(
   seatClass: seatClass,
   price: price,
   availableCapacity: 12,
+  aircraftType: 'Airbus A320',
+  seatLayout: const [3, 3],
 );
 
 const _origin = Destination(
@@ -100,6 +100,8 @@ Flight _flight() => Flight(
   seatClass: SeatClass.economy,
   price: 450,
   availableCapacity: 12,
+  aircraftType: 'Airbus A320',
+  seatLayout: const [3, 3],
 );
 
 Widget _wrap(Widget child, {required FlightRepository repository}) {

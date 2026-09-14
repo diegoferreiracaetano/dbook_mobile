@@ -15,6 +15,8 @@ void main() {
     'seatClass': 'ECONOMY',
     'price': 450.0,
     'availableCapacity': 42,
+    'aircraftType': 'Airbus A320',
+    'seatLayout': [3, 3],
   };
 
   test('given the API JSON when parsed then every field maps correctly', () {
@@ -24,6 +26,8 @@ void main() {
     expect(dto.origin, 'GRU');
     expect(dto.seatClass, 'ECONOMY');
     expect(dto.price, 450.0);
+    expect(dto.aircraftType, 'Airbus A320');
+    expect(dto.seatLayout, [3, 3]);
   });
 
   test('given a parsed DTO when converted to domain then IATA codes and enum '

@@ -20,6 +20,8 @@ void main() {
       seatClass: SeatClass.business,
       price: 1250,
       availableCapacity: 4,
+      aircraftType: 'Airbus A320',
+      seatLayout: const [3, 3],
     );
 
     await tester.pumpWidget(
@@ -56,6 +58,8 @@ void main() {
         seatClass: SeatClass.business,
         price: 1250,
         availableCapacity: 4,
+        aircraftType: 'Airbus A320',
+        seatLayout: const [3, 3],
       );
 
       await tester.pumpWidget(
@@ -90,6 +94,8 @@ void main() {
         seatClass: SeatClass.business,
         price: 1250,
         availableCapacity: 4,
+        aircraftType: 'Airbus A320',
+        seatLayout: const [3, 3],
       );
 
       await tester.pumpWidget(
