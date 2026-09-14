@@ -9,6 +9,7 @@ export 'src/dtos/booking_response_dto.dart';
 export 'src/dtos/destination_response_dto.dart';
 export 'src/dtos/flight_response_dto.dart';
 export 'src/dtos/login_request_dto.dart';
+export 'src/dtos/my_booking_response_dto.dart';
 export 'src/dtos/refresh_request_dto.dart';
 export 'src/dtos/register_booking_request_dto.dart';
 export 'src/dtos/register_user_request_dto.dart';

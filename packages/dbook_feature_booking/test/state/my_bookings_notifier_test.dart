@@ -5,9 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _FakeBookingRepository implements BookingRepository {
-  _FakeBookingRepository({this.error});
+  _FakeBookingRepository({List<MyBooking> initial = const [], this.cancelError})
+    : _bookings = {for (final booking in initial) booking.id: booking};
 
-  final DbookNetworkException? error;
+  final DbookNetworkException? cancelError;
+  final Map<int, MyBooking> _bookings;
+  var listMineCallCount = 0;
   var cancelCallCount = 0;
 
   @override
@@ -18,14 +21,22 @@ class _FakeBookingRepository implements BookingRepository {
   @override
   Future<Booking> cancel(int bookingId) async {
     cancelCallCount++;
-    if (error != null) throw error!;
+    if (cancelError != null) throw cancelError!;
+    final current = _bookings[bookingId]!;
+    _bookings[bookingId] = current.copyWith(status: BookingStatus.cancelled);
     return Booking(
       id: bookingId,
-      bookableId: 1,
-      seatId: 1,
+      bookableId: current.flight.id,
+      seatId: current.seat.id,
       customerId: 7,
       status: BookingStatus.cancelled,
     );
+  }
+
+  @override
+  Future<List<MyBooking>> listMine() async {
+    listMineCallCount++;
+    return _bookings.values.toList();
   }
 }
 
@@ -52,76 +63,77 @@ Flight _flight() => Flight(
   seatLayout: const [3, 3],
 );
 
-BookingRecord _record({BookingStatus status = BookingStatus.pending}) =>
-    BookingRecord(
-      booking: Booking(
-        id: 99,
-        bookableId: 1,
-        seatId: 1,
-        customerId: 7,
-        status: status,
-      ),
-      flight: _flight(),
-      seat: _seat,
-    );
+MyBooking _myBooking({
+  int id = 99,
+  BookingStatus status = BookingStatus.pending,
+}) => MyBooking(id: id, status: status, flight: _flight(), seat: _seat);
 
 void main() {
-  test('given fresh state when built then starts empty', () {
-    final container = ProviderContainer();
-    addTearDown(container.dispose);
+  test(
+    'given no bookings on the backend when built then starts empty',
+    () async {
+      final container = ProviderContainer(
+        overrides: [
+          bookingRepositoryProvider.overrideWithValue(_FakeBookingRepository()),
+        ],
+      );
+      addTearDown(container.dispose);
 
-    expect(container.read(myBookingsNotifierProvider), isEmpty);
-  });
+      final bookings = await container.read(myBookingsNotifierProvider.future);
 
-  test('given a record when added then it shows up in the list', () {
-    final container = ProviderContainer();
-    addTearDown(container.dispose);
-    final record = _record();
+      expect(bookings, isEmpty);
+    },
+  );
 
-    container.read(myBookingsNotifierProvider.notifier).add(record);
-
-    expect(container.read(myBookingsNotifierProvider), [record]);
-  });
-
-  test('given a pending booking when cancelled then its status updates in '
-      'place', () async {
-    final repository = _FakeBookingRepository();
+  test('given bookings on the backend when built then lists them', () async {
+    final repository = _FakeBookingRepository(initial: [_myBooking()]);
     final container = ProviderContainer(
       overrides: [bookingRepositoryProvider.overrideWithValue(repository)],
     );
     addTearDown(container.dispose);
-    final record = _record();
-    container.read(myBookingsNotifierProvider.notifier).add(record);
 
-    await container.read(myBookingsNotifierProvider.notifier).cancel(record);
+    final bookings = await container.read(myBookingsNotifierProvider.future);
+
+    expect(bookings, [_myBooking()]);
+    expect(repository.listMineCallCount, 1);
+  });
+
+  test('given a pending booking when cancelled then the refetched list shows '
+      'it cancelled', () async {
+    final repository = _FakeBookingRepository(initial: [_myBooking()]);
+    final container = ProviderContainer(
+      overrides: [bookingRepositoryProvider.overrideWithValue(repository)],
+    );
+    addTearDown(container.dispose);
+    await container.read(myBookingsNotifierProvider.future);
+
+    await container.read(myBookingsNotifierProvider.notifier).cancel(99);
 
     expect(repository.cancelCallCount, 1);
-    expect(
-      container.read(myBookingsNotifierProvider).single.booking.status,
-      BookingStatus.cancelled,
-    );
+    expect(repository.listMineCallCount, 2);
+    final bookings = container.read(myBookingsNotifierProvider).requireValue;
+    expect(bookings.single.status, BookingStatus.cancelled);
   });
 
   test('given the backend rejects the cancellation then the exception '
       'propagates and the list stays unchanged', () async {
     final repository = _FakeBookingRepository(
-      error: const DbookForbiddenException('Not your booking'),
+      initial: [_myBooking()],
+      cancelError: const DbookForbiddenException('Not your booking'),
     );
     final container = ProviderContainer(
       overrides: [bookingRepositoryProvider.overrideWithValue(repository)],
     );
     addTearDown(container.dispose);
-    final record = _record();
-    container.read(myBookingsNotifierProvider.notifier).add(record);
+    await container.read(myBookingsNotifierProvider.future);
 
     await expectLater(
-      container.read(myBookingsNotifierProvider.notifier).cancel(record),
+      container.read(myBookingsNotifierProvider.notifier).cancel(99),
       throwsA(isA<DbookForbiddenException>()),
     );
 
-    expect(
-      container.read(myBookingsNotifierProvider).single.booking.status,
-      BookingStatus.pending,
-    );
+    expect(repository.listMineCallCount, 1);
+    final bookings = container.read(myBookingsNotifierProvider).requireValue;
+    expect(bookings.single.status, BookingStatus.pending);
   });
 }

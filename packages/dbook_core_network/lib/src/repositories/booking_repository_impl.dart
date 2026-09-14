@@ -2,6 +2,7 @@ import 'package:dbook_domain/dbook_domain.dart';
 import 'package:dio/dio.dart';
 
 import '../dtos/booking_response_dto.dart';
+import '../dtos/my_booking_response_dto.dart';
 import '../dtos/register_booking_request_dto.dart';
 import '../exceptions/dbook_network_exception.dart';
 
@@ -35,6 +36,19 @@ class BookingRepositoryImpl implements BookingRepository {
       );
 
       return BookingResponseDto.fromJson(response.data!).toDomain();
+    } on DioException catch (error) {
+      throw mapDioException(error);
+    }
+  }
+
+  @override
+  Future<List<MyBooking>> listMine() async {
+    try {
+      final response = await _dio.get<List<dynamic>>('/bookings');
+      return response.data!
+          .cast<Map<String, dynamic>>()
+          .map((json) => MyBookingResponseDto.fromJson(json).toDomain())
+          .toList();
     } on DioException catch (error) {
       throw mapDioException(error);
     }

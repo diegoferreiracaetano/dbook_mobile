@@ -1,8 +1,6 @@
 import 'package:dbook_domain/dbook_domain.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'booking_record.dart';
-
 part 'seat_selection_state.freezed.dart';
 
 @freezed
@@ -23,6 +21,9 @@ sealed class SeatSelectionState with _$SeatSelectionState {
     String? bookingError,
   }) = SeatSelectionReady;
 
-  const factory SeatSelectionState.booked(BookingRecord record) =
-      SeatSelectionBooked;
+  const factory SeatSelectionState.booked({
+    required Booking booking,
+    required Flight flight,
+    required Seat seat,
+  }) = SeatSelectionBooked;
 }

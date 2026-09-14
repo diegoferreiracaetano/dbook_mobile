@@ -3,7 +3,6 @@ import 'package:dbook_domain/dbook_domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'booking_providers.dart';
-import 'booking_record.dart';
 import 'seat_selection_state.dart';
 
 class SeatSelectionNotifier extends Notifier<SeatSelectionState> {
@@ -40,13 +39,16 @@ class SeatSelectionNotifier extends Notifier<SeatSelectionState> {
       final booking = await ref
           .read(bookingRepositoryProvider)
           .create(bookableId: flight.id, seatId: seat.id);
-      final record = BookingRecord(
+      // "Minhas Viagens" agora vem sempre do backend (GET /bookings) —
+      // invalida pra refletir a reserva nova na próxima vez que a lista for
+      // lida, sem esperar por isso aqui (a tela de sucesso não depende
+      // dela).
+      ref.invalidate(myBookingsNotifierProvider);
+      state = SeatSelectionState.booked(
         booking: booking,
         flight: flight,
         seat: seat,
       );
-      ref.read(myBookingsNotifierProvider.notifier).add(record);
-      state = SeatSelectionState.booked(record);
     } on DbookNetworkException catch (error) {
       state = current.copyWith(isBooking: false, bookingError: error.message);
     }

@@ -313,6 +313,12 @@ class _AppShellState extends ConsumerState<_AppShell> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
     final isLoggedIn = authState is AuthLoggedIn;
+    // Mesma lista já carregada pela Home/Explore — repassada pra
+    // `MyBookingsPage` cruzar a foto do destino sem um fetch novo (as
+    // duas features não podem importar uma à outra, então essa ponte só
+    // pode acontecer aqui, que já importa as duas).
+    final destinations =
+        ref.watch(featuredDestinationsProvider).value ?? const [];
 
     final tabs = [
       FlightsHomePage(
@@ -332,7 +338,7 @@ class _AppShellState extends ConsumerState<_AppShell> {
       ),
       ExplorePage(onSelectDestination: _selectExploreDestination),
       isLoggedIn
-          ? const MyBookingsPage()
+          ? MyBookingsPage(destinations: destinations)
           : _guestGate(
               context,
               title: 'Trips',

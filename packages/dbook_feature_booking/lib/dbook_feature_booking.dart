@@ -3,7 +3,6 @@
 library;
 
 export 'src/state/booking_providers.dart' hide flightRepositoryProvider;
-export 'src/state/booking_record.dart';
 export 'src/state/my_bookings_notifier.dart';
 export 'src/state/seat_selection_notifier.dart';
 export 'src/state/seat_selection_state.dart';

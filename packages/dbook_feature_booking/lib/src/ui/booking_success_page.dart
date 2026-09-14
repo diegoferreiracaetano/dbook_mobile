@@ -1,7 +1,7 @@
 import 'package:dbook_design_system/dbook_design_system.dart';
+import 'package:dbook_domain/dbook_domain.dart';
 import 'package:flutter/material.dart';
 
-import '../state/booking_record.dart';
 import 'my_bookings_page.dart';
 
 /// Tela cheia de sucesso — mostra depois de reservar. "Ver Minhas Reservas"
@@ -9,12 +9,16 @@ import 'my_bookings_page.dart';
 class BookingSuccessPage extends StatelessWidget {
   const BookingSuccessPage({
     super.key,
-    required this.record,
+    required this.booking,
+    required this.flight,
+    required this.seat,
     this.nextLegLabel,
     this.onNextLeg,
   });
 
-  final BookingRecord record;
+  final Booking booking;
+  final Flight flight;
+  final Seat seat;
 
   /// Quando informados (jornada Multi-city — M9-9.x), a ação primária vira
   /// "buscar o próximo trecho" em vez de "ver minhas reservas": cada trecho
@@ -31,19 +35,17 @@ class BookingSuccessPage extends StatelessWidget {
     return Scaffold(
       body: DbookSuccessScreen(
         title: 'Booking Confirmed!',
-        message:
-            'Seat ${record.seat.label} on ${record.flight.flightNumber} is '
-            'yours.',
+        message: 'Seat ${seat.label} on ${flight.flightNumber} is yours.',
         referenceLabel: 'Booking reference',
-        referenceValue: '#${record.booking.id}',
+        referenceValue: '#${booking.id}',
         primaryActionLabel: hasNextLeg
             ? 'Search Next Flight: $nextLegLabel'
             : 'View My Bookings',
         onPrimaryAction: hasNextLeg
             ? onNextLeg
-            : () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const MyBookingsPage()),
-              ),
+            : () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const MyBookingsPage())),
         secondaryActionLabel: 'Done',
         onSecondaryAction: () => Navigator.of(context).pop(),
       ),

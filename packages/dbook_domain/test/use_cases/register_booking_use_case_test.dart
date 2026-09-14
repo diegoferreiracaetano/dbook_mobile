@@ -30,6 +30,9 @@ class _FakeBookingRepository implements BookingRepository {
       status: BookingStatus.cancelled,
     );
   }
+
+  @override
+  Future<List<MyBooking>> listMine() async => [];
 }
 
 void main() {

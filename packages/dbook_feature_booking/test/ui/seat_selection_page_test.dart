@@ -42,6 +42,9 @@ class _FakeBookingRepository implements BookingRepository {
 
   @override
   Future<Booking> cancel(int bookingId) async => throw UnimplementedError();
+
+  @override
+  Future<List<MyBooking>> listMine() async => [];
 }
 
 const _availableSeat = Seat(

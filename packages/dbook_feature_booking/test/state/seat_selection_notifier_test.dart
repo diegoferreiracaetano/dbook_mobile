@@ -52,6 +52,14 @@ class _FakeBookingRepository implements BookingRepository {
   Future<Booking> cancel(int bookingId) async {
     throw UnimplementedError();
   }
+
+  var listMineCallCount = 0;
+
+  @override
+  Future<List<MyBooking>> listMine() async {
+    listMineCallCount++;
+    return const [];
+  }
 }
 
 Flight _flight() => Flight(
@@ -157,13 +165,18 @@ void main() {
     },
   );
 
-  test('given a selected seat when confirming then books, records it and ends '
-      'up in booked', () async {
+  test('given a selected seat when confirming then books, ends up in booked '
+      'and invalidates the bookings list', () async {
     final bookingRepository = _FakeBookingRepository();
     final container = _buildContainer(
       flightRepository: _FakeFlightRepository(seats: const [_seat]),
       bookingRepository: bookingRepository,
     );
+    // Primeira leitura, popula o cache — pra provar depois que o
+    // confirmBooking() de fato invalida (não só reaproveita o cache).
+    await container.read(myBookingsNotifierProvider.future);
+    expect(bookingRepository.listMineCallCount, 1);
+
     final notifier = container.read(seatSelectionNotifierProvider.notifier);
     final flight = _flight();
     await notifier.loadSeats(flight);
@@ -176,8 +189,13 @@ void main() {
     expect(bookingRepository.capturedSeatId, _seat.id);
     final state = container.read(seatSelectionNotifierProvider);
     expect(state, isA<SeatSelectionBooked>());
-    expect(container.read(myBookingsNotifierProvider), hasLength(1));
-    expect(container.read(myBookingsNotifierProvider).single.seat, _seat);
+    final booked = state as SeatSelectionBooked;
+    expect(booked.seat, _seat);
+    expect(booked.flight, flight);
+    expect(booked.booking.id, 99);
+
+    await container.read(myBookingsNotifierProvider.future);
+    expect(bookingRepository.listMineCallCount, 2);
   });
 
   test('given no seat selected when confirming then does nothing', () async {
@@ -197,11 +215,12 @@ void main() {
 
   test('given the backend rejects the booking then keeps the seat map and '
       'surfaces the error', () async {
+    final bookingRepository = _FakeBookingRepository(
+      error: const DbookConflictException('Seat no longer available'),
+    );
     final container = _buildContainer(
       flightRepository: _FakeFlightRepository(seats: const [_seat]),
-      bookingRepository: _FakeBookingRepository(
-        error: const DbookConflictException('Seat no longer available'),
-      ),
+      bookingRepository: bookingRepository,
     );
     final notifier = container.read(seatSelectionNotifierProvider.notifier);
     final flight = _flight();
@@ -217,6 +236,10 @@ void main() {
     expect(ready.selected, _seat);
     expect(ready.isBooking, isFalse);
     expect(ready.bookingError, 'Seat no longer available');
-    expect(container.read(myBookingsNotifierProvider), isEmpty);
+    expect(
+      bookingRepository.listMineCallCount,
+      0,
+      reason: 'a falha não deve invalidar/re-buscar a lista de reservas',
+    );
   });
 }

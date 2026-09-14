@@ -3,7 +3,6 @@ import 'package:dbook_core_session/dbook_core_session.dart';
 import 'package:dbook_domain/dbook_domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'booking_record.dart';
 import 'my_bookings_notifier.dart';
 import 'seat_selection_notifier.dart';
 import 'seat_selection_state.dart';
@@ -24,7 +23,7 @@ final bookingRepositoryProvider = Provider<BookingRepository>(
 );
 
 final myBookingsNotifierProvider =
-    NotifierProvider<MyBookingsNotifier, List<BookingRecord>>(
+    AsyncNotifierProvider<MyBookingsNotifier, List<MyBooking>>(
       MyBookingsNotifier.new,
     );
 

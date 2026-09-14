@@ -1,4 +1,5 @@
 import '../entities/booking.dart';
+import '../entities/my_booking.dart';
 
 /// Porta pro ciclo de vida de uma reserva.
 abstract interface class BookingRepository {
@@ -9,4 +10,8 @@ abstract interface class BookingRepository {
   /// `POST /bookings/{id}/cancel` — só o dono ou um ADMIN pode cancelar
   /// (o backend retorna 403 caso contrário).
   Future<Booking> cancel(int bookingId);
+
+  /// `GET /bookings` — todas as reservas do usuário autenticado
+  /// ("minhas viagens"), cada uma já com o `Flight`/`Seat` completos.
+  Future<List<MyBooking>> listMine();
 }

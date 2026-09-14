@@ -521,6 +521,31 @@ de tratar a lista de assentos como um grid genérico.
 - [x] README atualizado
 - [x] Cobertura mínima — combinado: **82.12%** (2668/3249 linhas), acima do mínimo de 80% do gate de CI (`very_good_coverage`)
 
+## M15 — Minhas Viagens persistidas, Próximas/Anteriores ✅
+
+Decisão (2026-09-14): "Minhas Viagens" era só memória de sessão
+(`BookingRecord`, populado por `MyBookingsNotifier.add()` a cada reserva
+feita no app) — sumia ao reabrir o app, e não distinguia passado de
+futuro. O usuário escolheu o escopo maior: persistir de verdade no
+backend (`GET /bookings`, M17 do `dbook`) em vez de só guardar
+localmente.
+
+- [x] 15.1 `dbook_domain`: `MyBooking` (novo) — `id`, `status`, `flight: Flight`, `seat: Seat`, espelhando `MyBookingResponse` do backend; diferente de `Booking` (resposta de `POST /bookings`/`cancel`, só com ids) — a listagem já vem composta, a entidade reflete isso em vez de reaproveitar `Booking` pela metade. `BookingRepository` ganha `listMine(): Future<List<MyBooking>>`
+- [x] 15.2 `dbook_core_network`: `MyBookingResponseDto` (novo, aninha `FlightResponseDto`/`SeatResponseDto` já existentes — só compõe); `BookingRepositoryImpl.listMine()` → `GET /bookings`
+- [x] 15.3 `MyBookingsNotifier` deixou de ser `Notifier` só-aditivo (`add()`) e virou `AsyncNotifier<List<MyBooking>>` — `build()` busca `listMine()` de verdade; `cancel(id)` chama o backend e só re-busca a lista se der certo (erro propaga pra UI tratar, lista não muda). `SeatSelectionNotifier.confirmBooking` não monta mais um `BookingRecord` local: reserva, invalida `myBookingsNotifierProvider` (próxima leitura re-busca do backend) e segue pra tela de sucesso só com `booking`/`flight`/`seat` (sem depender da lista). `BookingRecord` (redundante com `MyBooking` agora que existe endpoint de verdade) foi removida — front burro: uma estrutura a menos duplicando o que o backend já compõe
+- [x] 15.4 `MyBookingsPage` reescrita: `DbookChipRow` (Próximas/Anteriores, já existia no design system desde o M12) filtra client-side por `flight.departureTime` vs. `DateTime.now()`; cada card ganha foto do destino (cruza `flight.destinationIataCode` com a MESMA lista de `featuredDestinationsProvider` — repassada por `main.dart`, que já importa as duas features; sem fetch novo, gradiente de fallback quando o destino não está no catálogo ou quando a página é aberta de dentro da própria feature sem essa lista), selo colorido de companhia + `flight.aircraftType` real (do M16 do backend); pull-to-refresh (`RefreshIndicator`); estados de loading/erro/vazio tratados
+- [x] 15.5 Testes: `my_bookings_notifier_test.dart` reescrito (lista vazia, lista com reservas, cancelar re-busca com o status certo, cancelamento rejeitado propaga e não re-busca); `seat_selection_notifier_test.dart` ajustado (confirmar invalida a lista, sem popular nada localmente); `my_bookings_page_test.dart` reescrito com `testWidgetsWithMockImages` (novo helper `test/support/mock_network_image.dart`, mesmo padrão de `dbook_feature_flights`) — vazio, pendente com cancelar, confirmada sem cancelar, split Upcoming/Past (reserva passada só aparece em Anteriores), cancelar com sucesso re-busca e mostra cancelada, cancelar rejeitado mostra snackbar e mantém pendente, foto real do destino quando presente no catálogo
+- [x] 15.6 `melos exec -- flutter analyze` + `dart format --set-exit-if-changed .` + `melos run test` (Flutter) + `dart test` (Dart puro) limpos em todo o workspace
+
+**Checklist de fechamento do M15:**
+- [x] Itens 15.1-15.6 revisados
+- [x] Clean Code
+- [x] Arquitetura (sem estrutura paralela — `MyBooking` é a única representação de "minhas reservas"; nenhuma lógica de negócio nova no front, `Upcoming`/`Past` é só um filtro de data client-side sobre o que o backend já manda; foto do destino reaproveita a lista que a Home/Explore já carregaram, sem fetch duplicado)
+- [x] `melos exec -- flutter analyze` + `melos run test` + `dart test` limpos em todo o workspace
+- [x] Testado ponta a ponta: registrar → reservar um voo real → Minhas Viagens (aba Trips, com foto real do destino cruzada) mostra a reserva em "Próximas" com companhia+modelo do avião corretos → cancelar e reabrir a lista (via `GET /bookings` direto, equivalente a reabrir o app) confirma o status `CANCELLED` persistido de verdade no backend, não só em memória (a etapa final do cancelamento *dentro* do Browser pane foi interrompida por uma instabilidade do próprio painel ficar oculto — verificação completada via chamada direta à API com o mesmíssimo fluxo, mais a suíte de testes automatizados que já cobre esse caminho)
+- [x] README atualizado
+- [x] Cobertura mínima — combinado: **81.69%** (2744/3359 linhas), acima do mínimo de 80% do gate de CI (`very_good_coverage`)
+
 ## Ideias futuras (fora da numeração)
 
 - Golden tests (regressão visual) pros componentes do `dbook_design_system`

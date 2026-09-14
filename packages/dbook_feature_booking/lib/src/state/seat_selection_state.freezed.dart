@@ -129,14 +129,14 @@ return booked(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  idle,TResult Function()?  loadingSeats,TResult Function( String message)?  seatsError,TResult Function( List<Seat> seats,  Seat? selected,  bool isBooking,  String? bookingError)?  ready,TResult Function( BookingRecord record)?  booked,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  idle,TResult Function()?  loadingSeats,TResult Function( String message)?  seatsError,TResult Function( List<Seat> seats,  Seat? selected,  bool isBooking,  String? bookingError)?  ready,TResult Function( Booking booking,  Flight flight,  Seat seat)?  booked,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case SeatSelectionIdle() when idle != null:
 return idle();case SeatSelectionLoadingSeats() when loadingSeats != null:
 return loadingSeats();case SeatSelectionSeatsError() when seatsError != null:
 return seatsError(_that.message);case SeatSelectionReady() when ready != null:
 return ready(_that.seats,_that.selected,_that.isBooking,_that.bookingError);case SeatSelectionBooked() when booked != null:
-return booked(_that.record);case _:
+return booked(_that.booking,_that.flight,_that.seat);case _:
   return orElse();
 
 }
@@ -154,14 +154,14 @@ return booked(_that.record);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  idle,required TResult Function()  loadingSeats,required TResult Function( String message)  seatsError,required TResult Function( List<Seat> seats,  Seat? selected,  bool isBooking,  String? bookingError)  ready,required TResult Function( BookingRecord record)  booked,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  idle,required TResult Function()  loadingSeats,required TResult Function( String message)  seatsError,required TResult Function( List<Seat> seats,  Seat? selected,  bool isBooking,  String? bookingError)  ready,required TResult Function( Booking booking,  Flight flight,  Seat seat)  booked,}) {final _that = this;
 switch (_that) {
 case SeatSelectionIdle():
 return idle();case SeatSelectionLoadingSeats():
 return loadingSeats();case SeatSelectionSeatsError():
 return seatsError(_that.message);case SeatSelectionReady():
 return ready(_that.seats,_that.selected,_that.isBooking,_that.bookingError);case SeatSelectionBooked():
-return booked(_that.record);}
+return booked(_that.booking,_that.flight,_that.seat);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -175,14 +175,14 @@ return booked(_that.record);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  idle,TResult? Function()?  loadingSeats,TResult? Function( String message)?  seatsError,TResult? Function( List<Seat> seats,  Seat? selected,  bool isBooking,  String? bookingError)?  ready,TResult? Function( BookingRecord record)?  booked,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  idle,TResult? Function()?  loadingSeats,TResult? Function( String message)?  seatsError,TResult? Function( List<Seat> seats,  Seat? selected,  bool isBooking,  String? bookingError)?  ready,TResult? Function( Booking booking,  Flight flight,  Seat seat)?  booked,}) {final _that = this;
 switch (_that) {
 case SeatSelectionIdle() when idle != null:
 return idle();case SeatSelectionLoadingSeats() when loadingSeats != null:
 return loadingSeats();case SeatSelectionSeatsError() when seatsError != null:
 return seatsError(_that.message);case SeatSelectionReady() when ready != null:
 return ready(_that.seats,_that.selected,_that.isBooking,_that.bookingError);case SeatSelectionBooked() when booked != null:
-return booked(_that.record);case _:
+return booked(_that.booking,_that.flight,_that.seat);case _:
   return null;
 
 }
@@ -418,10 +418,12 @@ $SeatCopyWith<$Res>? get selected {
 
 
 class SeatSelectionBooked implements SeatSelectionState {
-  const SeatSelectionBooked(this.record);
+  const SeatSelectionBooked({required this.booking, required this.flight, required this.seat});
   
 
- final  BookingRecord record;
+ final  Booking booking;
+ final  Flight flight;
+ final  Seat seat;
 
 /// Create a copy of SeatSelectionState
 /// with the given fields replaced by the non-null parameter values.
@@ -433,18 +435,18 @@ $SeatSelectionBookedCopyWith<SeatSelectionBooked> get copyWith => _$SeatSelectio
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is SeatSelectionBooked&&(identical(other.record, record) || other.record == record));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is SeatSelectionBooked&&(identical(other.booking, booking) || other.booking == booking)&&(identical(other.flight, flight) || other.flight == flight)&&(identical(other.seat, seat) || other.seat == seat));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,record);
+    return Object.hash(runtimeType,booking,flight,seat);
 }
 
 @override
 String toString() {
-    return 'SeatSelectionState.booked(record: $record)';
+    return 'SeatSelectionState.booked(booking: $booking, flight: $flight, seat: $seat)';
 }
 
 
@@ -455,11 +457,11 @@ abstract mixin class $SeatSelectionBookedCopyWith<$Res> implements $SeatSelectio
   factory $SeatSelectionBookedCopyWith(SeatSelectionBooked value, $Res Function(SeatSelectionBooked) _then) = _$SeatSelectionBookedCopyWithImpl;
 @useResult
 $Res call({
- BookingRecord record
+ Booking booking, Flight flight, Seat seat
 });
 
 
-$BookingRecordCopyWith<$Res> get record;
+$BookingCopyWith<$Res> get booking;$FlightCopyWith<$Res> get flight;$SeatCopyWith<$Res> get seat;
 
 }
 /// @nodoc
@@ -472,10 +474,12 @@ class _$SeatSelectionBookedCopyWithImpl<$Res>
 
 /// Create a copy of SeatSelectionState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? record = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? booking = null,Object? flight = null,Object? seat = null,}) {
   return _then(SeatSelectionBooked(
-null == record ? _self.record : record // ignore: cast_nullable_to_non_nullable
-as BookingRecord,
+booking: null == booking ? _self.booking : booking // ignore: cast_nullable_to_non_nullable
+as Booking,flight: null == flight ? _self.flight : flight // ignore: cast_nullable_to_non_nullable
+as Flight,seat: null == seat ? _self.seat : seat // ignore: cast_nullable_to_non_nullable
+as Seat,
   ));
 }
 
@@ -483,10 +487,28 @@ as BookingRecord,
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$BookingRecordCopyWith<$Res> get record {
+$BookingCopyWith<$Res> get booking {
   
-  return $BookingRecordCopyWith<$Res>(_self.record, (value) {
-    return _then(_self.copyWith(record: value));
+  return $BookingCopyWith<$Res>(_self.booking, (value) {
+    return _then(_self.copyWith(booking: value));
+  });
+}/// Create a copy of SeatSelectionState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$FlightCopyWith<$Res> get flight {
+  
+  return $FlightCopyWith<$Res>(_self.flight, (value) {
+    return _then(_self.copyWith(flight: value));
+  });
+}/// Create a copy of SeatSelectionState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$SeatCopyWith<$Res> get seat {
+  
+  return $SeatCopyWith<$Res>(_self.seat, (value) {
+    return _then(_self.copyWith(seat: value));
   });
 }
 }

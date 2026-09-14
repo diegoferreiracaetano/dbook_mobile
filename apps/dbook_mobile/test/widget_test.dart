@@ -2,6 +2,7 @@ import 'package:dbook_core_session/dbook_core_session.dart';
 import 'package:dbook_core_storage/dbook_core_storage.dart';
 import 'package:dbook_domain/dbook_domain.dart';
 import 'package:dbook_feature_auth/dbook_feature_auth.dart';
+import 'package:dbook_feature_booking/dbook_feature_booking.dart';
 import 'package:dbook_feature_flights/dbook_feature_flights.dart';
 import 'package:dbook_mobile/main.dart';
 import 'package:flutter/material.dart';
@@ -122,6 +123,25 @@ class _FakeAuthRepository implements AuthRepository {
       User(id: 1, email: 'diego@dbook.com', name: name, role: Role.client);
 }
 
+/// Sem reservas nem de dono nem de rede real — só pra `MyBookingsPage`/
+/// `SeatSelectionPage` não baterem em `localhost:8080` de verdade durante
+/// o teste (mesmo espírito de `_FakeFlightRepository`/`_FakeAuthRepository`
+/// acima).
+class _FakeBookingRepository implements BookingRepository {
+  @override
+  Future<Booking> create({required int bookableId, required int seatId}) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Booking> cancel(int bookingId) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<MyBooking>> listMine() async => [];
+}
+
 Flight _sampleFlight() => Flight(
   id: 1,
   flightNumber: 'IB 6821',
@@ -153,6 +173,7 @@ Widget _app({
       destinationRepositoryProvider.overrideWithValue(
         _FakeDestinationRepository(),
       ),
+      bookingRepositoryProvider.overrideWithValue(_FakeBookingRepository()),
       if (authRepository != null)
         authRepositoryProvider.overrideWithValue(authRepository),
       if (loggedIn)

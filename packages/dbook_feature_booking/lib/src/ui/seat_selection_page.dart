@@ -62,7 +62,9 @@ class _SeatSelectionPageState extends ConsumerState<SeatSelectionPage> {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (_) => BookingSuccessPage(
-              record: next.record,
+              booking: next.booking,
+              flight: next.flight,
+              seat: next.seat,
               nextLegLabel: widget.nextLegLabel,
               onNextLeg: widget.onNextLeg,
             ),
