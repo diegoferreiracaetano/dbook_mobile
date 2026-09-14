@@ -15,9 +15,10 @@ class _FakeAuthRepository implements AuthRepository {
   Future<User> register({
     required String email,
     required String password,
+    required String name,
   }) async {
     registerCallCount++;
-    return User(id: 1, email: email, role: Role.client);
+    return User(id: 1, email: email, name: name, role: Role.client);
   }
 
   @override
@@ -33,6 +34,18 @@ class _FakeAuthRepository implements AuthRepository {
   Future<AuthTokens> refresh(String refreshToken) {
     throw UnimplementedError();
   }
+
+  @override
+  Future<User> getMe() async => const User(
+    id: 1,
+    email: 'diego@dbook.com',
+    name: 'Diego',
+    role: Role.client,
+  );
+
+  @override
+  Future<User> updateName(String name) async =>
+      User(id: 1, email: 'diego@dbook.com', name: name, role: Role.client);
 }
 
 class _FakeTokenStorage implements TokenStorage {
@@ -97,6 +110,10 @@ void main() {
       ),
     );
 
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Nome'),
+      'Diego Ferreira',
+    );
     await tester.enterText(
       find.widgetWithText(TextFormField, 'E-mail'),
       'diego@dbook.com',

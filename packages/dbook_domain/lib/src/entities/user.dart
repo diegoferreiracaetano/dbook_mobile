@@ -11,6 +11,7 @@ abstract class User with _$User {
   const factory User({
     required int? id,
     required String email,
+    required String name,
     required Role role,
   }) = _User;
 }

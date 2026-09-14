@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$UserResponseDto {
 
- int? get id; String get email; String get role;
+ int? get id; String get email; String get name; String get role;
 /// Create a copy of UserResponseDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,20 +30,20 @@ $UserResponseDtoCopyWith<UserResponseDto> get copyWith => _$UserResponseDtoCopyW
 @override
 bool operator ==(Object other) {
   final _this = this as UserResponseDto;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserResponseDto&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.role, _this.role) || other.role == _this.role));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserResponseDto&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.role, _this.role) || other.role == _this.role));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as UserResponseDto;
-  return Object.hash(runtimeType,_this.id,_this.email,_this.role);
+  return Object.hash(runtimeType,_this.id,_this.email,_this.name,_this.role);
 }
 
 @override
 String toString() {
   final _this = this as UserResponseDto;
-  return 'UserResponseDto(id: ${_this.id}, email: ${_this.email}, role: ${_this.role})';
+  return 'UserResponseDto(id: ${_this.id}, email: ${_this.email}, name: ${_this.name}, role: ${_this.role})';
 }
 
 
@@ -54,7 +54,7 @@ abstract mixin class $UserResponseDtoCopyWith<$Res>  {
   factory $UserResponseDtoCopyWith(UserResponseDto value, $Res Function(UserResponseDto) _then) = _$UserResponseDtoCopyWithImpl;
 @useResult
 $Res call({
- int? id, String email, String role
+ int? id, String email, String name, String role
 });
 
 
@@ -71,10 +71,11 @@ class _$UserResponseDtoCopyWithImpl<$Res>
 
 /// Create a copy of UserResponseDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? email = null,Object? role = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? email = null,Object? name = null,Object? role = null,}) {
   return _then(UserResponseDto(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
 as String,
   ));
@@ -161,10 +162,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String email,  String role)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String email,  String name,  String role)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UserResponseDto() when $default != null:
-return $default(_that.id,_that.email,_that.role);case _:
+return $default(_that.id,_that.email,_that.name,_that.role);case _:
   return orElse();
 
 }
@@ -182,10 +183,10 @@ return $default(_that.id,_that.email,_that.role);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String email,  String role)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String email,  String name,  String role)  $default,) {final _that = this;
 switch (_that) {
 case _UserResponseDto():
-return $default(_that.id,_that.email,_that.role);case _:
+return $default(_that.id,_that.email,_that.name,_that.role);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -202,10 +203,10 @@ return $default(_that.id,_that.email,_that.role);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String email,  String role)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String email,  String name,  String role)?  $default,) {final _that = this;
 switch (_that) {
 case _UserResponseDto() when $default != null:
-return $default(_that.id,_that.email,_that.role);case _:
+return $default(_that.id,_that.email,_that.name,_that.role);case _:
   return null;
 
 }
@@ -217,11 +218,12 @@ return $default(_that.id,_that.email,_that.role);case _:
 @JsonSerializable()
 
 class _UserResponseDto extends UserResponseDto {
-  const _UserResponseDto({required this.id, required this.email, required this.role}): super._();
+  const _UserResponseDto({required this.id, required this.email, required this.name, required this.role}): super._();
   factory _UserResponseDto.fromJson(Map<String, dynamic> json) => _$UserResponseDtoFromJson(json);
 
 @override final  int? id;
 @override final  String email;
+@override final  String name;
 @override final  String role;
 
 /// Create a copy of UserResponseDto
@@ -237,18 +239,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserResponseDto&&(identical(other.id, id) || other.id == id)&&(identical(other.email, email) || other.email == email)&&(identical(other.role, role) || other.role == role));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserResponseDto&&(identical(other.id, id) || other.id == id)&&(identical(other.email, email) || other.email == email)&&(identical(other.name, name) || other.name == name)&&(identical(other.role, role) || other.role == role));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,email,role);
+    return Object.hash(runtimeType,id,email,name,role);
 }
 
 @override
 String toString() {
-    return 'UserResponseDto(id: $id, email: $email, role: $role)';
+    return 'UserResponseDto(id: $id, email: $email, name: $name, role: $role)';
 }
 
 
@@ -259,7 +261,7 @@ abstract mixin class _$UserResponseDtoCopyWith<$Res> implements $UserResponseDto
   factory _$UserResponseDtoCopyWith(_UserResponseDto value, $Res Function(_UserResponseDto) _then) = __$UserResponseDtoCopyWithImpl;
 @override @useResult
 $Res call({
- int? id, String email, String role
+ int? id, String email, String name, String role
 });
 
 
@@ -276,10 +278,11 @@ class __$UserResponseDtoCopyWithImpl<$Res>
 
 /// Create a copy of UserResponseDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? email = null,Object? role = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? email = null,Object? name = null,Object? role = null,}) {
   return _then(_UserResponseDto(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
 as String,
   ));

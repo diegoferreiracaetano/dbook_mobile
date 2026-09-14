@@ -13,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'profile_page.dart';
+
 /// Backend rodando localmente na máquina host: emulador Android enxerga o
 /// host via `10.0.2.2`; todo o resto (iOS simulator, web, desktop) enxerga
 /// via `localhost` normalmente.
@@ -311,7 +313,6 @@ class _AppShellState extends ConsumerState<_AppShell> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
     final isLoggedIn = authState is AuthLoggedIn;
-    final email = authState is AuthLoggedIn ? authState.email : null;
 
     final tabs = [
       FlightsHomePage(
@@ -338,7 +339,7 @@ class _AppShellState extends ConsumerState<_AppShell> {
               message: 'Faça login para ver suas reservas.',
             ),
       isLoggedIn
-          ? _ProfilePage(email: email)
+          ? const ProfilePage()
           : _guestGate(
               context,
               title: 'Profile',
@@ -371,74 +372,6 @@ class _AppShellState extends ConsumerState<_AppShell> {
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person),
             label: 'Profile',
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Perfil — só o que já existe em memória da sessão (sem `GET /users/me`
-/// no backend pra buscar mais nada além disso).
-class _ProfilePage extends ConsumerWidget {
-  const _ProfilePage({required this.email});
-
-  final String? email;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return Scaffold(
-      body: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          // Mesmo bloco na cor de marca do header da Home — sem
-          // avatar/stats fake, não temos foto nem esse dado de sessão.
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(
-              DbookSpacing.lg,
-              DbookSpacing.xl,
-              DbookSpacing.lg,
-              DbookSpacing.xl,
-            ),
-            color: colorScheme.primary,
-            child: SafeArea(
-              bottom: false,
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 32,
-                    backgroundColor: colorScheme.onPrimary.withValues(
-                      alpha: 0.2,
-                    ),
-                    child: Icon(
-                      Icons.person,
-                      color: colorScheme.onPrimary,
-                      size: 32,
-                    ),
-                  ),
-                  const SizedBox(height: DbookSpacing.sm),
-                  Text(
-                    email ?? 'Sessão sem e-mail salvo',
-                    style: textTheme.titleMedium?.copyWith(
-                      color: colorScheme.onPrimary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(DbookSpacing.lg),
-            child: DbookButton(
-              label: 'Sair',
-              variant: DbookButtonVariant.text,
-              onPressed: () =>
-                  ref.read(authNotifierProvider.notifier).logout(),
-            ),
           ),
         ],
       ),

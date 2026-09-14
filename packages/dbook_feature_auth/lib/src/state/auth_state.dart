@@ -9,13 +9,16 @@ part 'auth_state.freezed.dart';
 sealed class AuthState with _$AuthState {
   const factory AuthState.loggedOut() = AuthLoggedOut;
   const factory AuthState.loading() = AuthLoading;
-  /// [email] é o que o usuário digitou no login/registro — só existe em
-  /// memória (não há `GET /users/me` no backend pra confirmar depois),
-  /// perdido ao reabrir o app; o bootstrap (refresh de token salvo) não
-  /// tem como preenchê-lo, então fica `null` nesse caso.
+
+  /// [email]/[name] começam com o que o usuário digitou (ou `null`, no
+  /// bootstrap) e são enriquecidos logo em seguida com os dados reais via
+  /// `GET /users/me` (ver `AuthNotifier._syncProfile`) — por isso ambos
+  /// continuam nullable: o enriquecimento pode falhar (rede), e a sessão
+  /// não deve cair por causa disso.
   const factory AuthState.loggedIn({
     required AuthTokens tokens,
     String? email,
+    String? name,
   }) = AuthLoggedIn;
   const factory AuthState.error(String message) = AuthError;
 }

@@ -7,20 +7,28 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _FakeAuthRepository implements AuthRepository {
-  _FakeAuthRepository({this.loginError, this.refreshShouldFail = false});
+  _FakeAuthRepository({
+    this.loginError,
+    this.refreshShouldFail = false,
+    this.getMeShouldFail = false,
+  });
 
   final DbookNetworkException? loginError;
   final bool refreshShouldFail;
+  final bool getMeShouldFail;
   var registerCallCount = 0;
   var loginCallCount = 0;
+  var getMeCallCount = 0;
+  var updateNameCallCount = 0;
 
   @override
   Future<User> register({
     required String email,
     required String password,
+    required String name,
   }) async {
     registerCallCount++;
-    return User(id: 1, email: email, role: Role.client);
+    return User(id: 1, email: email, name: name, role: Role.client);
   }
 
   @override
@@ -41,6 +49,31 @@ class _FakeAuthRepository implements AuthRepository {
     return const AuthTokens(
       accessToken: 'refreshed-access',
       refreshToken: 'refreshed-refresh',
+    );
+  }
+
+  @override
+  Future<User> getMe() async {
+    getMeCallCount++;
+    if (getMeShouldFail) {
+      throw const DbookUnknownNetworkException('Network error');
+    }
+    return const User(
+      id: 1,
+      email: 'server@dbook.com',
+      name: 'Server Name',
+      role: Role.client,
+    );
+  }
+
+  @override
+  Future<User> updateName(String name) async {
+    updateNameCallCount++;
+    return User(
+      id: 1,
+      email: 'server@dbook.com',
+      name: name,
+      role: Role.client,
     );
   }
 }
@@ -102,6 +135,38 @@ void main() {
     },
   );
 
+  test('given a successful login when it completes then the real profile '
+      'from getMe() overrides what was typed', () async {
+    final container = _buildContainer(
+      authRepository: _FakeAuthRepository(),
+      tokenStorage: _FakeTokenStorage(),
+    );
+
+    await container
+        .read(authNotifierProvider.notifier)
+        .login(email: 'diego@dbook.com', password: 'hunter2');
+
+    final state = container.read(authNotifierProvider) as AuthLoggedIn;
+    expect(state.email, 'server@dbook.com');
+    expect(state.name, 'Server Name');
+  });
+
+  test('given getMe() failing after login then the session stays loggedIn '
+      'with what was already known', () async {
+    final container = _buildContainer(
+      authRepository: _FakeAuthRepository(getMeShouldFail: true),
+      tokenStorage: _FakeTokenStorage(),
+    );
+
+    await container
+        .read(authNotifierProvider.notifier)
+        .login(email: 'diego@dbook.com', password: 'hunter2');
+
+    final state = container.read(authNotifierProvider) as AuthLoggedIn;
+    expect(state.email, 'diego@dbook.com');
+    expect(state.name, isNull);
+  });
+
   test('given invalid credentials when logging in then ends up in error with '
       'the backend message', () async {
     final container = _buildContainer(
@@ -130,7 +195,7 @@ void main() {
 
     await container
         .read(authNotifierProvider.notifier)
-        .register(email: 'diego@dbook.com', password: 'hunter2');
+        .register(email: 'diego@dbook.com', password: 'hunter2', name: 'Diego');
 
     expect(authRepository.registerCallCount, 1);
     expect(authRepository.loginCallCount, 1);
@@ -152,6 +217,10 @@ void main() {
     final state = container.read(authNotifierProvider);
     expect(state, isA<AuthLoggedIn>());
     expect((state as AuthLoggedIn).tokens.accessToken, 'refreshed-access');
+    // bootstrap() não recupera e-mail/nome sozinho (refresh não os devolve)
+    // — é o getMe() disparado em seguida que preenche os dois.
+    expect(state.email, 'server@dbook.com');
+    expect(state.name, 'Server Name');
   });
 
   test(
@@ -198,5 +267,23 @@ void main() {
 
     expect(container.read(authNotifierProvider), const AuthState.loggedOut());
     expect(await storage.readTokens(), isNull);
+  });
+
+  test('given a loggedIn session when updating the name then the state '
+      'reflects the new name', () async {
+    final authRepository = _FakeAuthRepository();
+    final container = _buildContainer(
+      authRepository: authRepository,
+      tokenStorage: _FakeTokenStorage(),
+    );
+    await container
+        .read(authNotifierProvider.notifier)
+        .login(email: 'diego@dbook.com', password: 'hunter2');
+
+    await container.read(authNotifierProvider.notifier).updateName('New Name');
+
+    expect(authRepository.updateNameCallCount, 1);
+    final state = container.read(authNotifierProvider) as AuthLoggedIn;
+    expect(state.name, 'New Name');
   });
 }

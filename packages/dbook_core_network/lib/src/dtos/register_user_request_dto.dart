@@ -9,6 +9,7 @@ abstract class RegisterUserRequestDto with _$RegisterUserRequestDto {
   const factory RegisterUserRequestDto({
     required String email,
     required String password,
+    required String name,
   }) = _RegisterUserRequestDto;
 
   factory RegisterUserRequestDto.fromJson(Map<String, dynamic> json) =>

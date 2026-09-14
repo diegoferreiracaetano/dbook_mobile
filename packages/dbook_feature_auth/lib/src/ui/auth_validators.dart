@@ -6,6 +6,13 @@ import 'package:flutter/widgets.dart';
 abstract final class AuthValidators {
   static final _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
+  static String? name(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Digite seu nome';
+    }
+    return null;
+  }
+
   static String? email(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Digite seu e-mail';

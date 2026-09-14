@@ -457,6 +457,44 @@ nenhuma lógica duplicada entre as duas telas.
 - [x] README atualizado
 - [x] Cobertura mínima — combinado: **82.17%** (2516/3062 linhas), acima do mínimo de 80%
 
+## M13 — Perfil real ✅
+
+Decisão (2026-09-14): o usuário revisou a parte logada do app contra 5
+imagens de referência e apontou que o Perfil "não tem nada, não tem o
+nome, não tem uma outra informação, não tem quase nada" — mostrava só o
+e-mail digitado na sessão (nem sobrevivia a um F5, já que o bootstrap
+recupera token mas não e-mail). Plano aprovado (Perfil real / assento por
+modelo de avião / Minhas Viagens persistidas / resultados mais ricos —
+M13 deste plano): `User` ganha `name` de verdade (M15 do backend, já
+commitado), o app
+busca o perfil real via `GET /users/me` em vez de reaproveitar só o que
+o formulário digitou, e ganha "Editar Perfil" funcional
+(`PATCH /users/me`). Decisão explícita: o Perfil mostra **só o que é
+real** — avatar+nome+e-mail+Editar Perfil+Sair, sem os 7 itens
+decorativos da imagem de referência (Travel Documents, Payment Methods,
+Preferences, Notifications, Language, Currency, Help & Support) — nenhum
+deles tem tela ou dado real por trás, e adicionar a lista inteira só pra
+parecer a imagem violaria o mesmo princípio de "front burro" que guiou
+o resto do app.
+
+- [x] 13.1 `dbook_domain`: `User` ganha `name: String`; `AuthRepository` ganha `getMe()`/`updateName(String)` (mesma porta — mesmo agregado "sessão") e `register()` passa a exigir `name`
+- [x] 13.2 `dbook_core_network`: `UserResponseDto`/`RegisterUserRequestDto` ganham `name`; `UpdateUserNameRequestDto` novo (`PATCH /users/me`); `AuthRepositoryImpl` implementa `getMe()`/`updateName()`
+- [x] 13.3 `PersistingAuthRepository` passa a receber **dois** repositórios de rede — `networkRepository` (Dio sem token, login/registro/refresh) e `authenticatedRepository` (Dio com token, `getMe()`/`updateName()`) — descoberta na implementação: `/users/me` exige sessão ativa, então não dava pra reaproveitar o mesmo Dio "cru" que login/registro usam; `authRepositoryProvider` monta os dois (`authOnlyDioProvider` e `dioProvider` de `dbook_core_session`, respectivamente)
+- [x] 13.4 `AuthState.loggedIn` ganha `name: String?`; `AuthNotifier` ganha `_syncProfile()` — chamado depois de `login()`/`register()`/`bootstrap()`, busca `GET /users/me` e substitui o que foi digitado pelos dados reais do servidor (também corrige o gap de `bootstrap()` não recuperar e-mail depois de reabrir o app); falha de rede no sync não derruba a sessão (token já é válido, só mantém o que já tinha); `updateName()` novo, chama `PATCH /users/me` e atualiza o estado
+- [x] 13.5 `RegisterPage` ganha o campo "Nome" (validação simples de não-vazio, `AuthValidators.name`)
+- [x] 13.6 `ProfilePage` (novo, `apps/dbook_mobile/lib/profile_page.dart`, extraído do `_ProfilePage` inline que vivia em `main.dart`) — `DbookAvatar` com iniciais do nome, nome (title) + e-mail (subtitle) reais, "Editar Perfil" (diálogo com `TextFormField`, chama `AuthNotifier.updateName`, mostra erro inline em caso de falha de rede), Sair — sem os itens decorativos da referência
+- [x] 13.7 Testes: `auth_use_cases_test.dart` (`RegisterUseCase` com `name`), `persisting_auth_repository_test.dart` (login/registro/refresh continuam roteados pro repositório "cru"; `getMe()`/`updateName()` roteados pro autenticado — prova a decisão do item 13.3), `auth_notifier_test.dart` (sync de perfil após login/bootstrap, sync falho mantém sessão, `updateName` atualiza o estado), `register_page_test.dart` (campo Nome), `profile_page_test.dart` (novo — nome real exibido, fallback decente quando `name` vier vazio, editar funciona e atualiza o header, erro de rede mostrado inline sem fechar o diálogo)
+- [x] 13.8 `melos exec -- flutter analyze` + `melos exec -- dart format --set-exit-if-changed .` + `melos run test` limpos em todo o workspace
+
+**Checklist de fechamento do M13:**
+- [x] Itens 13.1-13.8 revisados
+- [x] Clean Code
+- [x] Arquitetura (perfil continua no mesmo agregado "sessão" via `AuthRepository`/`AuthNotifier`, sem uma porta nova só pra 2 métodos; `getMe()`/`updateName()` nunca passam pelo Dio sem token)
+- [x] `melos exec -- flutter analyze` + `melos run test` limpos em todo o workspace
+- [x] Testado manualmente no Browser pane: cadastro com nome → Perfil mostra avatar com iniciais + "Diego Ferreira" + e-mail reais → Editar Perfil → novo nome salvo, header atualiza na hora → reload da página (bootstrap) → nome/e-mail continuam lá, vindos do `GET /users/me` de verdade (persistência real, não sessão)
+- [x] README atualizado
+- [x] Cobertura mínima — combinado: **81.79%** (2596/3174 linhas), acima do mínimo de 80% do gate de CI (`very_good_coverage`)
+
 ## Ideias futuras (fora da numeração)
 
 - Golden tests (regressão visual) pros componentes do `dbook_design_system`

@@ -33,6 +33,7 @@ class AuthNotifier extends Notifier<AuthState> {
           .read(authRepositoryProvider)
           .refresh(stored.refreshToken);
       state = AuthState.loggedIn(tokens: refreshed);
+      await _syncProfile();
     } on DbookNetworkException {
       await tokenStorage.clear();
       state = const AuthState.loggedOut();
@@ -46,6 +47,7 @@ class AuthNotifier extends Notifier<AuthState> {
           .read(authRepositoryProvider)
           .login(email: email, password: password);
       state = AuthState.loggedIn(tokens: tokens, email: email);
+      await _syncProfile();
     } on DbookNetworkException catch (error) {
       state = AuthState.error(error.message);
     }
@@ -57,16 +59,43 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<void> register({
     required String email,
     required String password,
+    required String name,
   }) async {
     state = const AuthState.loading();
     try {
       final repository = ref.read(authRepositoryProvider);
-      await repository.register(email: email, password: password);
+      await repository.register(email: email, password: password, name: name);
       final tokens = await repository.login(email: email, password: password);
-      state = AuthState.loggedIn(tokens: tokens, email: email);
+      state = AuthState.loggedIn(tokens: tokens, email: email, name: name);
+      await _syncProfile();
     } on DbookNetworkException catch (error) {
       state = AuthState.error(error.message);
     }
+  }
+
+  /// Busca o perfil real (`GET /users/me`) e substitui o que o formulário
+  /// digitou pelo que o backend tem — também é o único jeito de recuperar
+  /// e-mail/nome depois do bootstrap (refresh de token não devolve nenhum
+  /// dos dois). Falha de rede aqui não derruba a sessão: o token já é
+  /// válido, então só mantém o que já tinha (mesmo que incompleto).
+  Future<void> _syncProfile() async {
+    final current = state;
+    if (current is! AuthLoggedIn) return;
+    try {
+      final user = await ref.read(authRepositoryProvider).getMe();
+      state = current.copyWith(email: user.email, name: user.name);
+    } on DbookNetworkException {
+      // mantém o estado como estava — ver comentário acima.
+    }
+  }
+
+  /// `PATCH /users/me`. Deixa a exceção de rede propagar: quem chama (a
+  /// tela de edição de perfil) decide como mostrar o erro.
+  Future<void> updateName(String name) async {
+    final current = state;
+    if (current is! AuthLoggedIn) return;
+    final updated = await ref.read(authRepositoryProvider).updateName(name);
+    state = current.copyWith(email: updated.email, name: updated.name);
   }
 
   Future<void> logout() async {

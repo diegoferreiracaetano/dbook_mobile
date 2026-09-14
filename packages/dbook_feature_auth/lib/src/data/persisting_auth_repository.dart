@@ -8,19 +8,35 @@ import 'package:dbook_domain/dbook_domain.dart';
 /// Decora o `AuthRepository` de rede (`dbook_core_network`) salvando o par
 /// de tokens no storage seguro sempre que um login/refresh der certo. O
 /// registro não salva nada — `/auth/register` não devolve tokens.
+///
+/// `getMe()`/`updateName()` exigem sessão ativa (`/users/me` não está no
+/// `permitAll()` do backend), então são delegados a [_authenticatedRepository]
+/// — construído com o Dio que já anexa o token — e não a [_networkRepository],
+/// que é o Dio "cru" usado só pra login/registro/refresh (sem sessão ainda).
 class PersistingAuthRepository implements AuthRepository {
   const PersistingAuthRepository({
     required AuthRepository networkRepository,
+    required AuthRepository authenticatedRepository,
     required TokenStorage tokenStorage,
   }) : _networkRepository = networkRepository,
+       _authenticatedRepository = authenticatedRepository,
        _tokenStorage = tokenStorage;
 
   final AuthRepository _networkRepository;
+  final AuthRepository _authenticatedRepository;
   final TokenStorage _tokenStorage;
 
   @override
-  Future<User> register({required String email, required String password}) {
-    return _networkRepository.register(email: email, password: password);
+  Future<User> register({
+    required String email,
+    required String password,
+    required String name,
+  }) {
+    return _networkRepository.register(
+      email: email,
+      password: password,
+      name: name,
+    );
   }
 
   @override
@@ -42,4 +58,11 @@ class PersistingAuthRepository implements AuthRepository {
     await _tokenStorage.saveTokens(tokens);
     return tokens;
   }
+
+  @override
+  Future<User> getMe() => _authenticatedRepository.getMe();
+
+  @override
+  Future<User> updateName(String name) =>
+      _authenticatedRepository.updateName(name);
 }

@@ -14,6 +14,7 @@ abstract class UserResponseDto with _$UserResponseDto {
   const factory UserResponseDto({
     required int? id,
     required String email,
+    required String name,
     required String role,
   }) = _UserResponseDto;
 
@@ -21,6 +22,6 @@ abstract class UserResponseDto with _$UserResponseDto {
       _$UserResponseDtoFromJson(json);
 
   User toDomain() {
-    return User(id: id, email: email, role: roleFromWire(role));
+    return User(id: id, email: email, name: name, role: roleFromWire(role));
   }
 }

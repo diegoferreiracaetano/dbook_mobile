@@ -16,6 +16,7 @@ export 'src/dtos/seat_response_dto.dart';
 export 'src/dtos/suggest_flights_request_dto.dart';
 export 'src/dtos/suggest_flights_response_dto.dart';
 export 'src/dtos/token_response_dto.dart';
+export 'src/dtos/update_user_name_request_dto.dart';
 export 'src/dtos/user_response_dto.dart';
 export 'src/exceptions/dbook_network_exception.dart';
 export 'src/repositories/ai_suggestion_repository_impl.dart';

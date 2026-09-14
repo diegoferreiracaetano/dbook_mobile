@@ -23,12 +23,26 @@ class _FakeAuthRepository implements AuthRepository {
   var refreshCallCount = 0;
 
   @override
-  Future<User> register({required String email, required String password}) {
+  Future<User> register({
+    required String email,
+    required String password,
+    required String name,
+  }) {
     throw UnimplementedError();
   }
 
   @override
   Future<AuthTokens> login({required String email, required String password}) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<User> getMe() {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<User> updateName(String name) {
     throw UnimplementedError();
   }
 

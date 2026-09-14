@@ -7,17 +7,20 @@ void main() {
     final user = UserResponseDto.fromJson({
       'id': 1,
       'email': 'diego@dbook.com',
+      'name': 'Diego Ferreira',
       'role': 'CLIENT',
     }).toDomain();
 
     expect(user.role, Role.client);
     expect(user.email, 'diego@dbook.com');
+    expect(user.name, 'Diego Ferreira');
   });
 
   test('given an ADMIN role JSON when mapped then role decodes to admin', () {
     final user = UserResponseDto.fromJson({
       'id': 1,
       'email': 'admin@dbook.com',
+      'name': 'Admin',
       'role': 'ADMIN',
     }).toDomain();
 

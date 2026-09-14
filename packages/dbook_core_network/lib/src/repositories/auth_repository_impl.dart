@@ -5,6 +5,7 @@ import '../dtos/login_request_dto.dart';
 import '../dtos/refresh_request_dto.dart';
 import '../dtos/register_user_request_dto.dart';
 import '../dtos/token_response_dto.dart';
+import '../dtos/update_user_name_request_dto.dart';
 import '../dtos/user_response_dto.dart';
 import '../exceptions/dbook_network_exception.dart';
 
@@ -17,13 +18,41 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<User> register({
     required String email,
     required String password,
+    required String name,
   }) async {
     try {
       final response = await _dio.post<Map<String, dynamic>>(
         '/auth/register',
-        data: RegisterUserRequestDto(email: email, password: password).toJson(),
+        data: RegisterUserRequestDto(
+          email: email,
+          password: password,
+          name: name,
+        ).toJson(),
       );
 
+      return UserResponseDto.fromJson(response.data!).toDomain();
+    } on DioException catch (error) {
+      throw mapDioException(error);
+    }
+  }
+
+  @override
+  Future<User> getMe() async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>('/users/me');
+      return UserResponseDto.fromJson(response.data!).toDomain();
+    } on DioException catch (error) {
+      throw mapDioException(error);
+    }
+  }
+
+  @override
+  Future<User> updateName(String name) async {
+    try {
+      final response = await _dio.patch<Map<String, dynamic>>(
+        '/users/me',
+        data: UpdateUserNameRequestDto(name: name).toJson(),
+      );
       return UserResponseDto.fromJson(response.data!).toDomain();
     } on DioException catch (error) {
       throw mapDioException(error);

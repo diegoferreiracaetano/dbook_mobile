@@ -17,7 +17,11 @@ class _FakeAuthRepository implements AuthRepository {
   String? capturedPassword;
 
   @override
-  Future<User> register({required String email, required String password}) {
+  Future<User> register({
+    required String email,
+    required String password,
+    required String name,
+  }) {
     throw UnimplementedError();
   }
 
@@ -35,6 +39,19 @@ class _FakeAuthRepository implements AuthRepository {
 
   @override
   Future<AuthTokens> refresh(String refreshToken) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<User> getMe() async => User(
+    id: 1,
+    email: capturedEmail ?? '',
+    name: 'Test User',
+    role: Role.client,
+  );
+
+  @override
+  Future<User> updateName(String name) {
     throw UnimplementedError();
   }
 }

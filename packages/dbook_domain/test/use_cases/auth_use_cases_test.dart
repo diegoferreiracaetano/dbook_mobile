@@ -4,16 +4,19 @@ import 'package:test/test.dart';
 class _FakeAuthRepository implements AuthRepository {
   String? capturedEmail;
   String? capturedPassword;
+  String? capturedName;
   String? capturedRefreshToken;
 
   @override
   Future<User> register({
     required String email,
     required String password,
+    required String name,
   }) async {
     capturedEmail = email;
     capturedPassword = password;
-    return User(id: 1, email: email, role: Role.client);
+    capturedName = name;
+    return User(id: 1, email: email, name: name, role: Role.client);
   }
 
   @override
@@ -34,6 +37,25 @@ class _FakeAuthRepository implements AuthRepository {
       refreshToken: 'new-refresh',
     );
   }
+
+  @override
+  Future<User> getMe() async => User(
+    id: 1,
+    email: capturedEmail ?? '',
+    name: capturedName ?? '',
+    role: Role.client,
+  );
+
+  @override
+  Future<User> updateName(String name) async {
+    capturedName = name;
+    return User(
+      id: 1,
+      email: capturedEmail ?? '',
+      name: name,
+      role: Role.client,
+    );
+  }
 }
 
 void main() {
@@ -42,10 +64,15 @@ void main() {
     final repository = _FakeAuthRepository();
     final useCase = RegisterUseCase(repository);
 
-    final user = await useCase(email: 'diego@dbook.com', password: 'hunter2');
+    final user = await useCase(
+      email: 'diego@dbook.com',
+      password: 'hunter2',
+      name: 'Diego',
+    );
 
     expect(repository.capturedEmail, 'diego@dbook.com');
     expect(repository.capturedPassword, 'hunter2');
+    expect(repository.capturedName, 'Diego');
     expect(user.email, 'diego@dbook.com');
   });
 

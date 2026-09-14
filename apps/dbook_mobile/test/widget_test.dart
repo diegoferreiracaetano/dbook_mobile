@@ -36,7 +36,6 @@ class _FakeFlightRepository implements FlightRepository {
 
   @override
   Future<List<Seat>> getSeats(int bookableId) async => [];
-
 }
 
 const _destinations = [
@@ -88,7 +87,11 @@ class _FakeAuthRepository implements AuthRepository {
   var loginCallCount = 0;
 
   @override
-  Future<User> register({required String email, required String password}) {
+  Future<User> register({
+    required String email,
+    required String password,
+    required String name,
+  }) {
     throw UnimplementedError();
   }
 
@@ -105,6 +108,18 @@ class _FakeAuthRepository implements AuthRepository {
   Future<AuthTokens> refresh(String refreshToken) {
     throw UnimplementedError();
   }
+
+  @override
+  Future<User> getMe() async => const User(
+    id: 1,
+    email: 'diego@dbook.com',
+    name: 'Diego',
+    role: Role.client,
+  );
+
+  @override
+  Future<User> updateName(String name) async =>
+      User(id: 1, email: 'diego@dbook.com', name: name, role: Role.client);
 }
 
 Flight _sampleFlight() => Flight(
@@ -325,42 +340,45 @@ void main() {
       },
     );
 
-    testWidgetsWithMockImages('given a guest who logs in through the Auth Gate then lands '
-        'directly on seat selection for the flight they picked — never '
-        'back on Home', (tester) async {
-      _skipOnboarding();
-      final authRepository = _FakeAuthRepository();
+    testWidgetsWithMockImages(
+      'given a guest who logs in through the Auth Gate then lands '
+      'directly on seat selection for the flight they picked — never '
+      'back on Home',
+      (tester) async {
+        _skipOnboarding();
+        final authRepository = _FakeAuthRepository();
 
-      await tester.pumpWidget(
-        _app(flights: [_sampleFlight()], authRepository: authRepository),
-      );
-      await tester.pumpAndSettle();
-      await _searchAndOpenFlightDetail(tester);
-      await tester.tap(find.text('Book This Flight'));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          _app(flights: [_sampleFlight()], authRepository: authRepository),
+        );
+        await tester.pumpAndSettle();
+        await _searchAndOpenFlightDetail(tester);
+        await tester.tap(find.text('Book This Flight'));
+        await tester.pumpAndSettle();
 
-      await tester.enterText(
-        find.widgetWithText(TextFormField, 'E-mail'),
-        'diego@dbook.com',
-      );
-      await tester.enterText(
-        find.widgetWithText(TextFormField, 'Senha'),
-        'hunter2',
-      );
-      await tester.tap(find.text('Sign In'));
-      await tester.pumpAndSettle();
+        await tester.enterText(
+          find.widgetWithText(TextFormField, 'E-mail'),
+          'diego@dbook.com',
+        );
+        await tester.enterText(
+          find.widgetWithText(TextFormField, 'Senha'),
+          'hunter2',
+        );
+        await tester.tap(find.text('Sign In'));
+        await tester.pumpAndSettle();
 
-      expect(authRepository.loginCallCount, 1);
-      expect(find.text('Select a Seat'), findsOneWidget);
-      expect(find.text('Welcome Back'), findsNothing);
+        expect(authRepository.loginCallCount, 1);
+        expect(find.text('Select a Seat'), findsOneWidget);
+        expect(find.text('Welcome Back'), findsNothing);
 
-      // Voltar da tela de assento cai no detalhe do voo (a origem do
-      // gate), nunca na Home nem no login — back-stack coerente.
-      await tester.pageBack();
-      await tester.pumpAndSettle();
+        // Voltar da tela de assento cai no detalhe do voo (a origem do
+        // gate), nunca na Home nem no login — back-stack coerente.
+        await tester.pageBack();
+        await tester.pumpAndSettle();
 
-      expect(find.text('Book This Flight'), findsOneWidget);
-    });
+        expect(find.text('Book This Flight'), findsOneWidget);
+      },
+    );
 
     testWidgetsWithMockImages(
       'given a logged in session when Book This Flight is tapped then '
@@ -503,7 +521,9 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(
-          tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
+          tester
+              .widget<NavigationBar>(find.byType(NavigationBar))
+              .selectedIndex,
           1,
         );
         // O chip "América do Norte" já vem selecionado no filtro
@@ -531,15 +551,18 @@ void main() {
     );
   });
 
-  testWidgetsWithMockImages('given a flight when the detail page opens then shows the live '
-      'availability indicator instead of the static count', (tester) async {
-    _skipOnboarding();
+  testWidgetsWithMockImages(
+    'given a flight when the detail page opens then shows the live '
+    'availability indicator instead of the static count',
+    (tester) async {
+      _skipOnboarding();
 
-    await tester.pumpWidget(_app(loggedIn: true, flights: [_sampleFlight()]));
-    await tester.pumpAndSettle();
-    await _searchAndOpenFlightDetail(tester);
+      await tester.pumpWidget(_app(loggedIn: true, flights: [_sampleFlight()]));
+      await tester.pumpAndSettle();
+      await _searchAndOpenFlightDetail(tester);
 
-    expect(find.text('Seats available'), findsOneWidget);
-    expect(find.text('Conectando...'), findsOneWidget);
-  });
+      expect(find.text('Seats available'), findsOneWidget);
+      expect(find.text('Conectando...'), findsOneWidget);
+    },
+  );
 }
