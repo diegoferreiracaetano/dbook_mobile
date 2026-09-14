@@ -85,4 +85,52 @@ void main() {
       expect(find.text('IB'), findsOneWidget);
     },
   );
+
+  testWidgets(
+    'given an aircraftType when built then it renders as an extra line',
+    (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: DbookTheme.light,
+          home: const Scaffold(
+            body: DbookFlightResultTile(
+              airlineName: 'Iberia',
+              departureTime: '10:30',
+              departureAirport: 'GRU',
+              arrivalTime: '06:45',
+              arrivalAirport: 'MAD',
+              durationLabel: '2h 15m',
+              price: '\$450',
+              aircraftType: 'Boeing 777',
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Boeing 777'), findsOneWidget);
+    },
+  );
+
+  testWidgets('given no aircraftType when built then no extra line renders', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: DbookTheme.light,
+        home: const Scaffold(
+          body: DbookFlightResultTile(
+            airlineName: 'Iberia',
+            departureTime: '10:30',
+            departureAirport: 'GRU',
+            arrivalTime: '06:45',
+            arrivalAirport: 'MAD',
+            durationLabel: '2h 15m',
+            price: '\$450',
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Boeing 777'), findsNothing);
+  });
 }

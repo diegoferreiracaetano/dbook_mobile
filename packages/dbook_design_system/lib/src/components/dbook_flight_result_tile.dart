@@ -21,12 +21,18 @@ class DbookFlightResultTile extends StatelessWidget {
     this.airlineIcon = Icons.flight,
     this.flightNumber,
     this.stopsLabel = 'Nonstop',
+    this.aircraftType,
     this.selected = false,
     this.onTap,
   });
 
   final String airlineName;
   final String? flightNumber;
+
+  /// Modelo real da aeronave (ex. "Boeing 777") — quando informado, some
+  /// numa linha extra abaixo dos horários; nunca inventado pelo front, só
+  /// exibido quando o dado já vier resolvido do backend.
+  final String? aircraftType;
 
   /// Quando informado (com [airlineColor]), o selo vira um quadrado colorido
   /// com o código IATA da companhia (ex.: referência visual real de apps de
@@ -133,6 +139,10 @@ class DbookFlightResultTile extends StatelessWidget {
                         ),
                       ],
                     ),
+                    if (aircraftType != null) ...[
+                      const SizedBox(height: DbookSpacing.xs),
+                      Text(aircraftType!, style: subtitleStyle),
+                    ],
                   ],
                 ),
               ),
@@ -162,7 +172,11 @@ class DbookFlightResultTile extends StatelessWidget {
 }
 
 class _AirlineBadge extends StatelessWidget {
-  const _AirlineBadge({required this.iataCode, required this.color, required this.icon});
+  const _AirlineBadge({
+    required this.iataCode,
+    required this.color,
+    required this.icon,
+  });
 
   final String? iataCode;
   final Color? color;
@@ -194,9 +208,8 @@ class _AirlineBadge extends StatelessWidget {
       ),
       child: Text(
         iataCode!,
-        style: Theme.of(
-          context,
-        ).textTheme.labelMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+        style: Theme.of(context).textTheme.labelMedium
+            ?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
       ),
     );
   }

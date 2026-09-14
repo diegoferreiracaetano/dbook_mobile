@@ -546,6 +546,30 @@ localmente.
 - [x] README atualizado
 - [x] Cobertura mínima — combinado: **81.69%** (2744/3359 linhas), acima do mínimo de 80% do gate de CI (`very_good_coverage`)
 
+## M16 — Resultados de busca mais ricos ✅
+
+Decisão (2026-09-14): último marco do plano aprovado — o usuário achou os
+resultados de busca "muito pobre na questão de massa", pedindo mais
+volume/detalhe. A tela já tinha tudo que precisava de dado real
+(companhia, horário, duração, preço, vagas); faltava só mostrar o
+`aircraftType` real (M16 do backend) e ajustar a densidade dos dados de
+seed.
+
+- [x] 16.1 `DbookFlightResultTile` (design system) ganha `aircraftType` opcional — quando informado, uma linha extra abaixo dos horários (nunca inventado pelo front, só exibe o que já vier resolvido do backend)
+- [x] 16.2 `flight_results_page.dart` repassa `flight.aircraftType` real pro tile
+- [x] 16.3 `scripts/seed-flights.sh` (backend `dbook`) — janela de `days_ahead` reduzida de 1-60 pra 1-21 dias (mesma quantidade de voos, quase triplica a densidade por rota+data); addendum registrado no `CHECKLIST.md` do backend (M16, item 16.9)
+- [x] 16.4 Testes: `dbook_flight_result_tile_test.dart` ganha os casos com/sem `aircraftType`
+- [x] 16.5 `melos exec -- flutter analyze` + `dart format --set-exit-if-changed .` + `melos run test` limpos nos pacotes tocados
+
+**Checklist de fechamento do M16:**
+- [x] Itens 16.1-16.5 revisados
+- [x] Clean Code
+- [x] Arquitetura (front continua só exibindo o que o backend resolve — nenhuma tabela de avião→modelo nova no mobile)
+- [x] `melos exec -- flutter analyze` + `melos run test` + `dart test` limpos em todo o workspace
+- [x] Testado manualmente no Browser pane: reseed (+300 voos na janela de 21 dias) e busca GRU→GIG mostrando "Airbus A320" como linha extra em cada card de resultado, densidade de voos por data visivelmente maior
+- [x] README atualizado
+- [x] Cobertura mínima — combinado: **81.69%** (2748/3364 linhas), acima do mínimo de 80% do gate de CI (`very_good_coverage`)
+
 ## Ideias futuras (fora da numeração)
 
 - Golden tests (regressão visual) pros componentes do `dbook_design_system`

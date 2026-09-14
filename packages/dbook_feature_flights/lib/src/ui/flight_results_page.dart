@@ -240,7 +240,8 @@ class _DateStrip extends StatelessWidget {
                 vertical: DbookSpacing.sm,
               ),
               itemCount: list.length,
-              separatorBuilder: (_, _) => const SizedBox(width: DbookSpacing.sm),
+              separatorBuilder: (_, _) =>
+                  const SizedBox(width: DbookSpacing.sm),
               itemBuilder: (context, index) {
                 final option = list[index];
                 return _DateChip(
@@ -404,12 +405,14 @@ class _FlightResults extends StatelessWidget {
     final filtered = classFilter == null
         ? flights
         : flights.where((flight) => flight.seatClass == classFilter).toList();
-    final sorted = [...filtered]..sort(switch (sortOrder) {
-      _SortOrder.priceAsc => (a, b) => a.price.compareTo(b.price),
-      _SortOrder.durationAsc => (a, b) => a.arrivalTime
-          .difference(a.departureTime)
-          .compareTo(b.arrivalTime.difference(b.departureTime)),
-    });
+    final sorted = [...filtered]
+      ..sort(switch (sortOrder) {
+        _SortOrder.priceAsc => (a, b) => a.price.compareTo(b.price),
+        _SortOrder.durationAsc =>
+          (a, b) => a.arrivalTime
+              .difference(a.departureTime)
+              .compareTo(b.arrivalTime.difference(b.departureTime)),
+      });
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -440,7 +443,8 @@ class _FlightResults extends StatelessWidget {
           Expanded(
             child: ListView.separated(
               itemCount: sorted.length,
-              separatorBuilder: (_, _) => const SizedBox(height: DbookSpacing.sm),
+              separatorBuilder: (_, _) =>
+                  const SizedBox(height: DbookSpacing.sm),
               itemBuilder: (context, index) {
                 final flight = sorted[index];
                 return DbookFlightResultTile(
@@ -456,6 +460,7 @@ class _FlightResults extends StatelessWidget {
                     flight.arrivalTime.difference(flight.departureTime),
                   ),
                   stopsLabel: _seatClassLabel(flight.seatClass),
+                  aircraftType: flight.aircraftType,
                   price: _priceFormat.format(flight.price),
                   onTap: () => onSelectFlight(flight),
                 );
@@ -495,7 +500,10 @@ class _BestPriceBadge extends StatelessWidget {
 }
 
 class _FilterSheet extends StatefulWidget {
-  const _FilterSheet({required this.initialSort, required this.initialClassFilter});
+  const _FilterSheet({
+    required this.initialSort,
+    required this.initialClassFilter,
+  });
 
   final _SortOrder initialSort;
   final SeatClass? initialClassFilter;
