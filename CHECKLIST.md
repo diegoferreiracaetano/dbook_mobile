@@ -570,6 +570,37 @@ seed.
 - [x] README atualizado
 - [x] Cobertura mínima — combinado: **81.69%** (2748/3364 linhas), acima do mínimo de 80% do gate de CI (`very_good_coverage`)
 
+## M17 — Round Trip real + Anteriores por status ✅
+
+Decisão (2026-09-14): revisão pós-plano, duas correções apontadas pelo
+usuário testando o app:
+
+1. "round trip seria ida e volta" — o campo "Return" de Round Trip era
+   só cosmético: `_search()` sempre devolvia 1 trecho só, a volta nunca
+   era buscada nem reservada. A infraestrutura de "encadear o próximo
+   trecho depois de reservar" já existia pro Multi-city (M9);
+   simplesmente nunca tinha sido ligada ao Round Trip.
+2. "voos passados, cancelados, diferente de pendentes vão para a sessão
+   anteriores" — Minhas Viagens (M15) separava Próximas/Anteriores só
+   pela data do voo; uma reserva cancelada de um voo ainda no futuro
+   ficava presa em "Próximas", mesmo não sendo mais uma viagem de
+   verdade a caminho.
+
+- [x] 17.1 `_search()` (`flight_search_page.dart`) — Round Trip agora sempre devolve 2 `FlightSearchQuery`: ida (como já era) + volta (destino→origem, na `_returnDate`); reaproveita a MESMA fila de "próximo trecho" (`onQueueLegs`/`_pendingLegs`/`SeatSelectionPage.onNextLeg`) que o Multi-city já usa — nenhuma lógica de encadeamento nova, só o Round Trip passou a alimentar a fila que já existia
+- [x] 17.2 Bug real encontrado testando: `DbookSuccessScreen` estourava a altura da tela (`RenderFlex overflow`) com o rótulo de ação primária mais longo da volta ("Search Next Flight: Rio de Janeiro (GIG) → São Paulo (GRU)") — o `Column` central não tinha como rolar. Corrigido com `LayoutBuilder` + `SingleChildScrollView` + `ConstrainedBox(minHeight: ...)`: conteúdo continua centralizado quando cabe, rola em vez de vazar quando não cabe
+- [x] 17.3 `my_bookings_page.dart` — nova `_isUpcoming(booking, now)`: "Próximas" exige voo no futuro **e** reserva não cancelada; uma reserva cancelada cai em "Anteriores" mesmo com `departureTime` futuro
+- [x] 17.4 Testes: `flight_search_page_test.dart` (Round Trip padrão reporta 2 trechos, ida/volta com origem-destino invertidos e datas diferentes); `dbook_success_screen_test.dart` (rótulo longo numa tela pequena não lança exceção — regressão do overflow); `my_bookings_page_test.dart` (reserva cancelada com data futura só aparece em Anteriores; teste de cancelar reescrito pra refletir que a reserva muda de aba depois de cancelada)
+- [x] 17.5 `melos exec -- flutter analyze` + `dart format --set-exit-if-changed .` + `melos run test` limpos em todo o workspace
+
+**Checklist de fechamento do M17:**
+- [x] Itens 17.1-17.5 revisados
+- [x] Clean Code
+- [x] Arquitetura (Round Trip não ganhou lógica de encadeamento própria — reaproveita a mesma fila do Multi-city; `DbookSuccessScreen` continua um componente burro, só ficou robusto a texto mais longo)
+- [x] `melos exec -- flutter analyze` + `melos run test` + `dart test` limpos em todo o workspace
+- [x] Testado ponta a ponta no Browser pane: busca Round Trip padrão → reserva a ida (GRU→GIG) → tela de sucesso mostra "Search Next Flight: Rio de Janeiro (GIG) → São Paulo (GRU)" sem overflow, rolável → toca, busca a volta de verdade (GIG→GRU, data da volta) → reserva a volta → Minhas Viagens mostra as duas reservas reais e independentes em Próximas
+- [x] README atualizado
+- [x] Cobertura mínima — combinado: **81.78%** (2760/3375 linhas), acima do mínimo de 80% do gate de CI (`very_good_coverage`)
+
 ## Ideias futuras (fora da numeração)
 
 - Golden tests (regressão visual) pros componentes do `dbook_design_system`

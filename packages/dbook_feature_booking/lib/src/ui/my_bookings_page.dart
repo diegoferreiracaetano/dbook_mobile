@@ -52,6 +52,14 @@ Destination? _destinationFor(String iataCode, List<Destination> destinations) {
   return null;
 }
 
+/// "Próximas" exige as duas coisas: o voo ainda não partiu E a reserva
+/// segue ativa — uma reserva cancelada vai pra "Anteriores" mesmo se o
+/// voo original ainda estiver no futuro, já que não é mais uma viagem de
+/// verdade a caminho.
+bool _isUpcoming(MyBooking booking, DateTime now) =>
+    booking.status != BookingStatus.cancelled &&
+    booking.flight.departureTime.isAfter(now);
+
 /// Minhas Viagens — busca via `GET /bookings` (`MyBookingsNotifier`, agora
 /// persistido de verdade, não só memória de sessão), separadas em Próximas
 /// e Anteriores. [destinations] é a MESMA lista já carregada por
@@ -150,16 +158,14 @@ class _BookingsBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final upcoming =
-        bookings.where((b) => b.flight.departureTime.isAfter(now)).toList()
-          ..sort(
-            (a, b) => a.flight.departureTime.compareTo(b.flight.departureTime),
-          );
-    final past =
-        bookings.where((b) => !b.flight.departureTime.isAfter(now)).toList()
-          ..sort(
-            (a, b) => b.flight.departureTime.compareTo(a.flight.departureTime),
-          );
+    final upcoming = bookings.where((b) => _isUpcoming(b, now)).toList()
+      ..sort(
+        (a, b) => a.flight.departureTime.compareTo(b.flight.departureTime),
+      );
+    final past = bookings.where((b) => !_isUpcoming(b, now)).toList()
+      ..sort(
+        (a, b) => b.flight.departureTime.compareTo(a.flight.departureTime),
+      );
     final shown = tabIndex == 0 ? upcoming : past;
 
     if (bookings.isEmpty) {

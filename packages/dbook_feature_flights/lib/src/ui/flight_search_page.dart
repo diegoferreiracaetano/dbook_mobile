@@ -26,10 +26,11 @@ class FlightSearchQuery {
 /// Tipo de viagem — Round Trip mostra o campo "Return"; Multi-city mostra
 /// a lista de trechos extras abaixo do card principal. O backend não
 /// modela nada disso: `POST /bookings` é sempre 1 voo por vez, sem
-/// conceito de ida-e-volta nem reserva multi-trecho. Por isso Multi-city
-/// não é decorativo — é N compras reais e independentes encadeadas na
-/// mesma jornada (busca→detalhe→assento→confirmação, repetido por
-/// trecho), não um trecho de verdade com o resto fingido. Ver
+/// conceito de ida-e-volta nem reserva multi-trecho. Por isso nem Round
+/// Trip nem Multi-city são decorativos — os dois geram N compras reais e
+/// independentes encadeadas na mesma jornada (busca→detalhe→assento→
+/// confirmação, repetido por trecho): Round Trip sempre 2 (ida + volta,
+/// campo "Return" de verdade), Multi-city 1+N. Ver
 /// `_FlightSearchPageState._search`.
 enum _TripType {
   roundTrip('Round Trip'),
@@ -225,6 +226,18 @@ class _FlightSearchPageState extends ConsumerState<FlightSearchPage> {
 
     final queries = [
       FlightSearchQuery(origin: origin, destination: destination, date: _date),
+      // Round Trip é "ida e volta" de verdade — o campo "Return" não é só
+      // cosmético, gera um 2º trecho real (destino→origem), encadeado pela
+      // MESMA infraestrutura de "próximo trecho" já usada pelo Multi-city
+      // (ver o comentário no `_TripType` e `_AppShellState._bookFlight` no
+      // app): reserva o trecho de ida, a tela de sucesso oferece buscar a
+      // volta.
+      if (_tripType == _TripType.roundTrip)
+        FlightSearchQuery(
+          origin: destination,
+          destination: origin,
+          date: _returnDate,
+        ),
       if (_tripType == _TripType.multiCity)
         for (final leg in _extraLegs)
           FlightSearchQuery(

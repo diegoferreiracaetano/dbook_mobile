@@ -54,74 +54,96 @@ class DbookSuccessScreen extends StatelessWidget {
               horizontal: DbookSpacing.xl,
               vertical: DbookSpacing.xxxl,
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 88,
-                  height: 88,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.fromBorderSide(
-                      BorderSide(color: Colors.white, width: 2.5),
-                    ),
-                  ),
-                  child: const Icon(Icons.check, color: Colors.white, size: 40),
-                ),
-                const SizedBox(height: DbookSpacing.xl),
-                Text(
-                  title,
-                  style: textTheme.headlineSmall?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: DbookSpacing.sm),
-                Text(
-                  message,
-                  style: textTheme.bodyMedium?.copyWith(color: Colors.white70),
-                  textAlign: TextAlign.center,
-                ),
-                if (referenceLabel != null && referenceValue != null) ...[
-                  const SizedBox(height: DbookSpacing.xl),
-                  _ReferenceCard(
-                    label: referenceLabel!,
-                    value: referenceValue!,
-                    onCopy: onCopyReference,
-                  ),
-                ],
-                if (primaryActionLabel != null && onPrimaryAction != null) ...[
-                  const SizedBox(height: DbookSpacing.xl),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: onPrimaryAction,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: DbookPalette.primary,
+            // `primaryActionLabel` pode ser bem mais longo que "View My
+            // Bookings" (ex. "Search Next Flight: Rio de Janeiro (GIG) →
+            // São Paulo (GRU)" da jornada ida-e-volta/Multi-city) — sem
+            // scroll, um título+mensagem+botão longos o bastante juntos
+            // estouram a altura da tela (RenderFlex overflow). O
+            // `LayoutBuilder`+`ConstrainedBox` mantém o conteúdo
+            // centralizado quando cabe (caso comum) e deixa rolar quando
+            // não cabe, em vez de vazar.
+            child: LayoutBuilder(
+              builder: (context, constraints) => SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 88,
+                        height: 88,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.fromBorderSide(
+                            BorderSide(color: Colors.white, width: 2.5),
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 40,
+                        ),
                       ),
-                      child: Text(primaryActionLabel!),
-                    ),
-                  ),
-                ],
-                if (secondaryActionLabel != null &&
-                    onSecondaryAction != null) ...[
-                  const SizedBox(height: DbookSpacing.sm),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: onSecondaryAction,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        side: const BorderSide(color: Colors.white),
+                      const SizedBox(height: DbookSpacing.xl),
+                      Text(
+                        title,
+                        style: textTheme.headlineSmall?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      child: Text(secondaryActionLabel!),
-                    ),
+                      const SizedBox(height: DbookSpacing.sm),
+                      Text(
+                        message,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: Colors.white70,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      if (referenceLabel != null && referenceValue != null) ...[
+                        const SizedBox(height: DbookSpacing.xl),
+                        _ReferenceCard(
+                          label: referenceLabel!,
+                          value: referenceValue!,
+                          onCopy: onCopyReference,
+                        ),
+                      ],
+                      if (primaryActionLabel != null &&
+                          onPrimaryAction != null) ...[
+                        const SizedBox(height: DbookSpacing.xl),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: onPrimaryAction,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: DbookPalette.primary,
+                            ),
+                            child: Text(primaryActionLabel!),
+                          ),
+                        ),
+                      ],
+                      if (secondaryActionLabel != null &&
+                          onSecondaryAction != null) ...[
+                        const SizedBox(height: DbookSpacing.sm),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton(
+                            onPressed: onSecondaryAction,
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              side: const BorderSide(color: Colors.white),
+                            ),
+                            child: Text(secondaryActionLabel!),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                ],
-              ],
+                ),
+              ),
             ),
           ),
         ],

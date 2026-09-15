@@ -81,8 +81,8 @@ void main() {
   // NetworkImage — sem isso, o teste bateria numa requisição de rede de
   // verdade e falharia com NetworkImageLoadException.
   testWidgetsWithMockImages(
-    'given default selections when Search Flights is tapped then reports '
-    'a single-item list with the default origin/destination',
+    'given default selections (Round Trip) when Search Flights is tapped '
+    'then reports the outbound leg and a real return leg, swapped',
     (tester) async {
       List<FlightSearchQuery>? reported;
 
@@ -97,9 +97,13 @@ void main() {
       await tester.tap(find.text('Search Flights'));
       await tester.pumpAndSettle();
 
-      expect(reported, hasLength(1));
-      expect(reported?.first.origin, _destinations[0]);
-      expect(reported?.first.destination, _destinations[1]);
+      expect(reported, hasLength(2));
+      expect(reported?[0].origin, _destinations[0]);
+      expect(reported?[0].destination, _destinations[1]);
+      // Volta: origem/destino invertidos, data diferente da ida.
+      expect(reported?[1].origin, _destinations[1]);
+      expect(reported?[1].destination, _destinations[0]);
+      expect(reported?[1].date, isNot(reported?[0].date));
     },
   );
 
@@ -154,10 +158,7 @@ void main() {
       // fica em aberto.
       final leg2 = find.byKey(const Key('extra_leg_0'));
       expect(
-        find.descendant(
-          of: leg2,
-          matching: find.text(_destinations[1].label),
-        ),
+        find.descendant(of: leg2, matching: find.text(_destinations[1].label)),
         findsOneWidget,
       );
       expect(
@@ -195,9 +196,7 @@ void main() {
       // card principal nem com o valor já visível atrás dele.
       final leg2 = find.byKey(const Key('extra_leg_0'));
       await scrollTo(find.text('Flight 2'));
-      await tester.tap(
-        find.descendant(of: leg2, matching: find.text('To')),
-      );
+      await tester.tap(find.descendant(of: leg2, matching: find.text('To')));
       await tester.pumpAndSettle();
       await tester.tap(
         find.descendant(

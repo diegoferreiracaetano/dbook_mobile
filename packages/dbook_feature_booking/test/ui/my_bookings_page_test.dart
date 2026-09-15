@@ -160,8 +160,37 @@ void main() {
   );
 
   testWidgetsWithMockImages(
-    'given cancel confirmed when tapped then re-fetches and shows it '
-    'cancelled',
+    'given a cancelled booking with a future departure when built then it '
+    'shows under Anteriores, not Próximas',
+    (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          _FakeBookingRepository(
+            initial: [
+              _myBooking(
+                departureTime: _future,
+                status: BookingStatus.cancelled,
+              ),
+            ],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Nenhuma viagem futura'), findsOneWidget);
+      expect(find.text('GRU → MAD'), findsNothing);
+
+      await tester.tap(find.text('Anteriores'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('GRU → MAD'), findsOneWidget);
+      expect(find.text('Cancelada'), findsOneWidget);
+    },
+  );
+
+  testWidgetsWithMockImages(
+    'given cancel confirmed when tapped then re-fetches, moves the booking '
+    'to Anteriores and shows it cancelled',
     (tester) async {
       await tester.pumpWidget(
         _wrap(_FakeBookingRepository(initial: [_myBooking()])),
@@ -171,6 +200,14 @@ void main() {
       await tester.tap(find.text('Cancel Booking'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Cancel Booking').last);
+      await tester.pumpAndSettle();
+
+      // Uma reserva cancelada não é mais uma viagem "a caminho" — some de
+      // Próximas mesmo com data futura, só aparece em Anteriores.
+      expect(find.text('Nenhuma viagem futura'), findsOneWidget);
+      expect(find.text('Cancelada'), findsNothing);
+
+      await tester.tap(find.text('Anteriores'));
       await tester.pumpAndSettle();
 
       expect(find.text('Cancelada'), findsOneWidget);

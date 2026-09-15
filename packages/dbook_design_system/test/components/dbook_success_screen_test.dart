@@ -64,4 +64,36 @@ void main() {
       expect(secondaryCount, 1);
     },
   );
+
+  testWidgets(
+    'given a small screen with a long primary action label (ex. round-trip '
+    "'search next flight') then it scrolls instead of overflowing",
+    (tester) async {
+      tester.view.physicalSize = const Size(360, 640);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: DbookSuccessScreen(
+              title: 'Booking Confirmed!',
+              message: 'Seat 1B on DBS00141 is yours.',
+              referenceLabel: 'Booking reference',
+              referenceValue: '#8',
+              primaryActionLabel:
+                  'Search Next Flight: Rio de Janeiro (GIG) → '
+                  'São Paulo (GRU)',
+              onPrimaryAction: () {},
+              secondaryActionLabel: 'Done',
+              onSecondaryAction: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+    },
+  );
 }
