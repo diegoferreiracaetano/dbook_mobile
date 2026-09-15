@@ -87,7 +87,10 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
               TextFormField(
                 controller: _cardholderNameController,
                 autofillHints: const [AutofillHints.creditCardName],
-                decoration: const InputDecoration(labelText: 'Cardholder name'),
+                decoration: const InputDecoration(
+                  labelText: 'Cardholder name',
+                  hintText: 'Jane Doe',
+                ),
                 validator: _PaymentValidators.cardholderName,
               ),
               const SizedBox(height: DbookSpacing.md),
@@ -95,7 +98,15 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
                 controller: _cardNumberController,
                 keyboardType: TextInputType.number,
                 autofillHints: const [AutofillHints.creditCardNumber],
-                decoration: const InputDecoration(labelText: 'Card number'),
+                // Sem gateway de pagamento real por trás — este número
+                // nunca é enviado inteiro pro backend (só os 4 últimos
+                // dígitos, ver `_submit`), então sugerir um número de
+                // teste aqui é só uma conveniência pra quem for testar o
+                // fluxo, não uma promessa de cobrança de verdade.
+                decoration: const InputDecoration(
+                  labelText: 'Card number',
+                  hintText: '4242 4242 4242 4242',
+                ),
                 validator: _PaymentValidators.cardNumber,
               ),
               const SizedBox(height: DbookSpacing.md),
@@ -105,7 +116,10 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
                     child: TextFormField(
                       controller: _expiryController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: 'MM/YY'),
+                      decoration: const InputDecoration(
+                        labelText: 'MM/YY',
+                        hintText: '12/29',
+                      ),
                       validator: _PaymentValidators.expiry,
                     ),
                   ),
@@ -115,7 +129,10 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
                       controller: _cvvController,
                       keyboardType: TextInputType.number,
                       obscureText: true,
-                      decoration: const InputDecoration(labelText: 'CVV'),
+                      decoration: const InputDecoration(
+                        labelText: 'CVV',
+                        hintText: '123',
+                      ),
                       validator: _PaymentValidators.cvv,
                     ),
                   ),

@@ -641,6 +641,17 @@ checkbox de salvar cartão.
 - [x] 18.8 Testes: `seat_selection_page_test.dart` (chama `onBooked` em vez de navegar sozinha), `payment_notifier_test.dart` (idle→submitting→paid/erro, envia só `cardLast4`/`cardholderName`, invalida Minhas Viagens), `payment_page_test.dart` (mostra os trechos certos e o total certo, sem taxa/checkbox fictícios, valida cartão, envia só o necessário), `payment_success_page_test.dart` (mostra os trechos pagos e o total)
 - [x] 18.9 `melos exec -- flutter analyze` + `melos run test` + `dart test` limpos em todo o workspace
 
+Addendum (2026-09-15) — feedback do usuário testando o app: "o detalhe
+poderia ser mais rico... imagem de fundo... ícone da companhia aérea...
+placeholder de cartão de crédito para testes".
+
+- [x] 18.10 `FlightDetailPage` (`dbook_feature_flights`) ganhou cabeçalho em foto cheia do destino de chegada — cruza `flight.destinationIataCode` com a mesma lista já carregada por `featuredDestinationsProvider` (sem fetch novo, mesmo padrão do `_DestinationThumbnail` de `MyBookingsPage`), com degradê + cidade/país/data sobrepostos; sem foto no catálogo, cai num degradê pela cor da companhia em vez de deixar vazio. Virou `ConsumerWidget` pra isso
+- [x] 18.11 Card do detalhe ganhou uma linha com o selo da companhia (código IATA sobre a cor fixa dela, mesmo visual do badge de `DbookFlightResultTile`) + nome da companhia + número do voo, e uma linha nova "Aircraft" (`flight.aircraftType`, dado real já existente na entidade, não mostrado antes nesta tela)
+- [x] 18.12 Lógica de cor-por-companhia (`_airlineColor`/`_knownAirlineColors`/`_airlinePalette`), até então privada e duplicada dentro do próprio arquivo de resultados, extraída pra `airline_colors.dart` (pública dentro da feature, não exportada no barrel) — compartilhada entre `flight_results_page.dart` e `flight_detail_page.dart` sem duplicar
+- [x] 18.13 `PaymentPage`: os 4 campos do cartão ganharam `hintText` com um número/nome de teste (`4242 4242 4242 4242`, `Jane Doe`, `12/29`, `123`) — não é dado fabricado nem promessa de cobrança real (não há gateway por trás, o número nunca é enviado inteiro), só uma conveniência pra quem for testar o fluxo
+- [x] 18.14 Testes: `flight_detail_page_test.dart` reescrito com `ProviderScope`/`_FakeDestinationRepository` (a página virou `ConsumerWidget`) — cobre foto real exibida quando o destino está no catálogo, fallback sem foto quando não está, e os campos novos (companhia, aeronave)
+- [x] 18.15 `melos exec -- flutter analyze` + `melos run test` limpos em todo o workspace; testado manualmente no Browser pane — detalhe do voo mostra a foto real do Rio de Janeiro (Cristo Redentor) e de São Paulo (ponte estaiada) conforme o destino, badge "UA"/"United Airlines" real, e o placeholder do cartão aparece ao focar o campo
+
 **Checklist de fechamento do M18:**
 - [x] Itens 18.1-18.9 revisados
 - [x] Clean Code
