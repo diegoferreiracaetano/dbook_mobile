@@ -260,32 +260,52 @@ class _AppShellState extends ConsumerState<_AppShell> {
     );
   }
 
-  /// Seleção de assento do voo `flights[index]`, encadeada pro próximo
-  /// (se houver) — a tela de sucesso (`BookingSuccessPage`) oferece
-  /// "Choose Seat" pro próximo voo JÁ ESCOLHIDO (sem buscar de novo,
-  /// diferente do encadeamento de [_buildResultsPage]); só o último voo
-  /// da lista mostra "View My Bookings".
+  /// Seleção de assento do voo `flights[index]`, encadeada pro próximo em
+  /// SILÊNCIO — sem tela de sucesso por trecho, já que o assento agora é
+  /// só um detalhe dentro da revisão final ([PaymentPage]), não uma
+  /// confirmação própria. [bookedLegs] acumula cada trecho já reservado
+  /// (voo+assento+booking); quando o último é reservado, troca pela
+  /// revisão + pagamento cobrindo todos de uma vez.
   static Widget _buildSeatSelectionFor(
     BuildContext context,
     List<Flight> flights,
-    int index,
-  ) {
+    int index, {
+    List<BookedLeg> bookedLegs = const [],
+  }) {
     final flight = flights[index];
-    final nextFlight = index + 1 < flights.length ? flights[index + 1] : null;
 
     return SeatSelectionPage(
       flight: flight,
-      nextLegLabel: nextFlight == null
-          ? null
-          : '${nextFlight.originIataCode} → ${nextFlight.destinationIataCode}',
-      onNextLeg: nextFlight == null
-          ? null
-          : () => Navigator.of(context, rootNavigator: true).push(
-              MaterialPageRoute<void>(
-                builder: (_) =>
-                    _buildSeatSelectionFor(context, flights, index + 1),
-              ),
-            ),
+      onBooked: (booking, bookedFlight, seat) {
+        final updatedLegs = [
+          ...bookedLegs,
+          (booking: booking, flight: bookedFlight, seat: seat),
+        ];
+        final nextIndex = index + 1;
+        final next = nextIndex < flights.length
+            ? _buildSeatSelectionFor(
+                context,
+                flights,
+                nextIndex,
+                bookedLegs: updatedLegs,
+              )
+            : PaymentPage(
+                bookedLegs: updatedLegs,
+                onPaid: (paid) =>
+                    Navigator.of(context, rootNavigator: true).pushReplacement(
+                      MaterialPageRoute<void>(
+                        builder: (_) => PaymentSuccessPage(
+                          payment: paid.payment,
+                          bookedLegs: updatedLegs,
+                        ),
+                      ),
+                    ),
+              );
+        Navigator.of(
+          context,
+          rootNavigator: true,
+        ).pushReplacement(MaterialPageRoute<void>(builder: (_) => next));
+      },
     );
   }
 

@@ -611,6 +611,45 @@ voos escolhidos antes de QUALQUER assento.
 - [x] README atualizado
 - [x] Cobertura mínima — combinado: **82.18%** (2780/3383 linhas), acima do mínimo de 80% do gate de CI (`very_good_coverage`)
 
+## M18 — Assento vira detalhe, revisão + pagamento no final ✅
+
+Decisão (2026-09-15): o usuário mandou 3 imagens de referência (barra de
+ação de pagamento, tela de pagamento completa, detalhe de voo rico) e
+pediu "a seleção poderia ser um detalhe e vamos adicionar uma tela de
+pagamento". Perguntei o escopo por `AskUserQuestion` e o usuário fechou
+em duas decisões: **suporte real no backend** (não só UI) e **uma
+revisão/pagamento só no final**, cobrindo os dois trechos de uma Round
+Trip de uma vez — não uma tela de pagamento por trecho.
+
+`Booking.confirm()` (backend) já existia mas era código morto — nenhuma
+reserva saía de PENDING pra CONFIRMED. Pagar é o gatilho que faltava.
+
+**Decisão de escopo (front burro):** as imagens de referência mostram
+uma linha "Taxes & Fees" e um checkbox "Save card for future
+purchases". Nenhum dos dois tem dado ou função real por trás — não
+existe cálculo de taxa no backend, nem cofre de cartão. Por isso o
+Resumo do Pedido mostra só o preço real de cada voo + total, sem
+checkbox de salvar cartão.
+
+- [x] 18.1 Backend `dbook` (M18, repositório irmão): `Payment` real, migration `V20__create_payment.sql` (tabela `payment` + `booking.payment_id`), `Booking.confirm(paymentId)` deixa de ser código morto, `RegisterPaymentUseCase` (soma `booking.bookable.price` de cada reserva, confirma todas numa `@Transactional`), `POST /payments` — ver `CHECKLIST.md` do backend
+- [x] 18.2 `dbook_domain`: `Payment` (mirror do `PaymentResponse`) + porta `PaymentRepository.pay()` — porta própria em vez de reaproveitar `BookingRepository`, mesmo padrão de "um port por controller" já usado (`AuthRepository`↔`AuthController`)
+- [x] 18.3 `dbook_core_network`: `PaymentResponseDto`/`RegisterPaymentRequestDto` + `PaymentRepositoryImpl.pay()` (`POST /payments`)
+- [x] 18.4 `SeatSelectionPage`: parou de se auto-navegar pra `BookingSuccessPage` no `ref.listen` — trocou `nextLegLabel`/`onNextLeg` (só faziam sentido com uma tela por trecho) por um único callback `onBooked(booking, flight, seat)`; quem decide o que acontece depois é sempre quem a montou
+- [x] 18.5 `main.dart`: `_buildSeatSelectionFor` acumula `List<BookedLeg>` (voo+assento+booking de cada trecho já reservado); no `onBooked`, se sobra trecho, encadeia **silenciosamente** (`pushReplacement` direto, sem tela intermediária) pra seleção de assento do próximo; no último, vai pra `PaymentPage` com todos os trechos acumulados
+- [x] 18.6 `PaymentPage` (nova, `dbook_feature_booking`): Resumo do Pedido (uma linha por trecho — rota + assento como detalhe + preço real — e o Total), formulário de cartão (nome, número, validade, CVV, só validação de formato — sem gateway real por trás) e botão "Pay $total"; deriva `cardLast4` dos 4 últimos dígitos digitados e nunca envia o número completo. `PaymentNotifier`/`PaymentState` (idle/submitting/error/paid) no mesmo formato de `SeatSelectionNotifier`/`SeatSelectionState`
+- [x] 18.7 `PaymentSuccessPage` (nova) substitui `BookingSuccessPage` (removida, junto com seu teste) — reusa `DbookSuccessScreen`, mostra "Payment Confirmed!", a lista de trechos pagos (rota + assento) e o total, botão único "View My Bookings"
+- [x] 18.8 Testes: `seat_selection_page_test.dart` (chama `onBooked` em vez de navegar sozinha), `payment_notifier_test.dart` (idle→submitting→paid/erro, envia só `cardLast4`/`cardholderName`, invalida Minhas Viagens), `payment_page_test.dart` (mostra os trechos certos e o total certo, sem taxa/checkbox fictícios, valida cartão, envia só o necessário), `payment_success_page_test.dart` (mostra os trechos pagos e o total)
+- [x] 18.9 `melos exec -- flutter analyze` + `melos run test` + `dart test` limpos em todo o workspace
+
+**Checklist de fechamento do M18:**
+- [x] Itens 18.1-18.9 revisados
+- [x] Clean Code
+- [x] Arquitetura (a reserva continua sendo criada — e o assento reservado — no momento da escolha do assento, não no pagamento, evitando uma corrida onde o assento seria perdido enquanto o usuário ainda preenche o cartão; pagar só confirma reservas já existentes; mesmo fluxo pra One Way e Round Trip, sem bifurcação de código — `_buildSeatSelectionFor` já era genérica pra 1 ou N voos)
+- [x] `melos exec -- flutter analyze` + `melos run test` + `dart test` limpos em todo o workspace
+- [x] Testado ponta a ponta no Browser pane (Round Trip): busca → escolhe voo de ida (GRU→GIG, LATAM Embraer E195, $366) → direto pros resultados da volta (sem assento ainda) → escolhe voo de volta (GIG→GRU, American A320, $1.632) → seleção de assento da ida (layout 2+2 real) → confirma assento 5C → SEM tela de sucesso intermediária, direto pra seleção de assento da volta (layout 3+3 real) → confirma assento 2B → cai direto em "Review & Pay" mostrando as DUAS linhas ("GRU → GIG · Seat 5C" $366,00 / "GIG → GRU · Seat 2B" $1.632,00) e o Total certo ($1.998,00, soma real, sem taxa fictícia); também validado via `curl` direto contra o backend rodando de verdade (Postgres real, não fake): registrar → logar → buscar → reservar 2 trechos → `POST /payments` com os dois `bookingIds` → resposta `amount: 2756.00` (soma exata dos dois preços) e `status: CONFIRMED` → `GET /bookings` confirma as duas reservas como `CONFIRMED`
+- [x] README atualizado
+- [x] Cobertura mínima — combinado: **82.01%** (2881/3513 linhas), acima do mínimo de 80% do gate de CI
+
 ## Ideias futuras (fora da numeração)
 
 - Golden tests (regressão visual) pros componentes do `dbook_design_system`

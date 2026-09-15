@@ -4,6 +4,8 @@ import 'package:dbook_domain/dbook_domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'my_bookings_notifier.dart';
+import 'payment_notifier.dart';
+import 'payment_state.dart';
 import 'seat_selection_notifier.dart';
 import 'seat_selection_state.dart';
 
@@ -22,6 +24,10 @@ final bookingRepositoryProvider = Provider<BookingRepository>(
   (ref) => BookingRepositoryImpl(ref.watch(dioProvider)),
 );
 
+final paymentRepositoryProvider = Provider<PaymentRepository>(
+  (ref) => PaymentRepositoryImpl(ref.watch(dioProvider)),
+);
+
 final myBookingsNotifierProvider =
     AsyncNotifierProvider<MyBookingsNotifier, List<MyBooking>>(
       MyBookingsNotifier.new,
@@ -31,3 +37,7 @@ final seatSelectionNotifierProvider =
     NotifierProvider<SeatSelectionNotifier, SeatSelectionState>(
       SeatSelectionNotifier.new,
     );
+
+final paymentNotifierProvider = NotifierProvider<PaymentNotifier, PaymentState>(
+  PaymentNotifier.new,
+);

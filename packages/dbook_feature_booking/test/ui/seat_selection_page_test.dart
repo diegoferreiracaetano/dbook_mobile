@@ -141,12 +141,22 @@ void main() {
   );
 
   testWidgets(
-    'given a seat selected when confirmed then books and shows the success '
-    'screen',
+    'given a seat selected when confirmed then books and calls onBooked '
+    'with the booking, flight and seat',
     (tester) async {
+      Booking? bookedBooking;
+      Seat? bookedSeat;
+      final flight = _flight();
+
       await tester.pumpWidget(
         _wrap(
-          SeatSelectionPage(flight: _flight()),
+          SeatSelectionPage(
+            flight: flight,
+            onBooked: (booking, _, seat) {
+              bookedBooking = booking;
+              bookedSeat = seat;
+            },
+          ),
           flightRepository: _FakeFlightRepository(
             seats: const [_availableSeat],
           ),
@@ -162,8 +172,8 @@ void main() {
       await tester.tap(find.text('Book'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Booking Confirmed!'), findsOneWidget);
-      expect(find.text('#99'), findsOneWidget);
+      expect(bookedBooking?.id, 99);
+      expect(bookedSeat?.label, '3A');
     },
   );
 

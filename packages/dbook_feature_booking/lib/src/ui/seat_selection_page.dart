@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 
 import '../state/booking_providers.dart';
 import '../state/seat_selection_state.dart';
-import 'booking_success_page.dart';
 
 final _priceFormat = NumberFormat.currency(symbol: r'$');
 
@@ -20,22 +19,14 @@ DbookSeatState _seatCellState(Seat seat, Seat? selected) {
 
 /// Mapa de assentos de um voo — carrega ao montar (`SeatSelectionNotifier`),
 /// deixa escolher um assento livre e confirma a reserva. Ao reservar com
-/// sucesso, troca (não empilha) pela tela de sucesso.
+/// sucesso, chama [onBooked] em vez de navegar sozinha — quem decide o que
+/// acontece depois (próximo trecho em silêncio, ou revisão + pagamento) é
+/// sempre quem montou esta página, nunca ela mesma.
 class SeatSelectionPage extends ConsumerStatefulWidget {
-  const SeatSelectionPage({
-    super.key,
-    required this.flight,
-    this.nextLegLabel,
-    this.onNextLeg,
-  });
+  const SeatSelectionPage({super.key, required this.flight, this.onBooked});
 
   final Flight flight;
-
-  /// Repassados pra `BookingSuccessPage` depois de reservar — usados só na
-  /// jornada Multi-city (M9-9.x), onde cada trecho é uma reserva real
-  /// independente e a tela de sucesso oferece seguir pro próximo.
-  final String? nextLegLabel;
-  final VoidCallback? onNextLeg;
+  final void Function(Booking booking, Flight flight, Seat seat)? onBooked;
 
   @override
   ConsumerState<SeatSelectionPage> createState() => _SeatSelectionPageState();
@@ -59,17 +50,7 @@ class _SeatSelectionPageState extends ConsumerState<SeatSelectionPage> {
       next,
     ) {
       if (next is SeatSelectionBooked) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => BookingSuccessPage(
-              booking: next.booking,
-              flight: next.flight,
-              seat: next.seat,
-              nextLegLabel: widget.nextLegLabel,
-              onNextLeg: widget.onNextLeg,
-            ),
-          ),
-        );
+        widget.onBooked?.call(next.booking, next.flight, next.seat);
       }
     });
 
