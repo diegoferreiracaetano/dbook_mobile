@@ -20,11 +20,13 @@ class BookingSuccessPage extends StatelessWidget {
   final Flight flight;
   final Seat seat;
 
-  /// Quando informados (jornada Multi-city — M9-9.x), a ação primária vira
-  /// "buscar o próximo trecho" em vez de "ver minhas reservas": cada trecho
-  /// é uma reserva de verdade e independente, então essa tela só oferece
-  /// continuar pra próxima em vez de fingir uma reserva multi-trecho que o
-  /// backend não modela.
+  /// Quando informados (jornada Round Trip/Multi-city), a ação primária
+  /// vira "escolher o assento do próximo voo" em vez de "ver minhas
+  /// reservas" — o voo do próximo trecho já foi escolhido ANTES da
+  /// seleção de assento começar (ver `_AppShellState._selectFlight` no
+  /// app), então não precisa buscar de novo aqui; cada trecho continua
+  /// sendo uma reserva de verdade e independente, já que o backend não
+  /// modela reserva multi-trecho.
   final String? nextLegLabel;
   final VoidCallback? onNextLeg;
 
@@ -39,7 +41,7 @@ class BookingSuccessPage extends StatelessWidget {
         referenceLabel: 'Booking reference',
         referenceValue: '#${booking.id}',
         primaryActionLabel: hasNextLeg
-            ? 'Search Next Flight: $nextLegLabel'
+            ? 'Choose Seat: $nextLegLabel'
             : 'View My Bookings',
         onPrimaryAction: hasNextLeg
             ? onNextLeg

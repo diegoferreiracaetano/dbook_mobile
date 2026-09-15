@@ -364,9 +364,8 @@ void main() {
     );
 
     testWidgetsWithMockImages(
-      'given a guest who logs in through the Auth Gate then lands '
-      'directly on seat selection for the flight they picked — never '
-      'back on Home',
+      'given a guest who logs in through the Auth Gate then lands on the '
+      'return leg\'s results (Round Trip é o padrão) — never back on Home',
       (tester) async {
         _skipOnboarding();
         final authRepository = _FakeAuthRepository();
@@ -391,11 +390,25 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(authRepository.loginCallCount, 1);
-        expect(find.text('Select a Seat'), findsOneWidget);
+        // Round Trip: o voo de ida já foi escolhido, mas a jornada ainda
+        // não passa pela seleção de assento — primeiro escolhe o voo da
+        // volta (mesmo voo fake, dado que o repositório de teste ignora
+        // a rota buscada).
         expect(find.text('Welcome Back'), findsNothing);
+        expect(find.text('Select a Seat'), findsNothing);
+        expect(find.text('Iberia · IB 6821'), findsOneWidget);
 
-        // Voltar da tela de assento cai no detalhe do voo (a origem do
-        // gate), nunca na Home nem no login — back-stack coerente.
+        await tester.tap(find.text('Iberia · IB 6821'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Book This Flight'));
+        await tester.pumpAndSettle();
+
+        // Voos de ida e volta escolhidos — agora sim, seleção de assento.
+        expect(find.text('Select a Seat'), findsOneWidget);
+
+        // Voltar da tela de assento cai no detalhe do voo de volta (a
+        // origem mais recente), nunca na Home nem no login —
+        // back-stack coerente.
         await tester.pageBack();
         await tester.pumpAndSettle();
 
@@ -404,8 +417,9 @@ void main() {
     );
 
     testWidgetsWithMockImages(
-      'given a logged in session when Book This Flight is tapped then '
-      'goes straight to seat selection, no Auth Gate',
+      'given a logged in session when Book This Flight is tapped for the '
+      'outbound then no Auth Gate opens, and the return leg is searched '
+      'before seat selection',
       (tester) async {
         _skipOnboarding();
 
@@ -414,6 +428,17 @@ void main() {
         );
         await tester.pumpAndSettle();
         await _searchAndOpenFlightDetail(tester);
+        await tester.tap(find.text('Book This Flight'));
+        await tester.pumpAndSettle();
+
+        // Sem Auth Gate (já logado) e sem seleção de assento ainda — a
+        // volta (Round Trip, padrão) precisa de um voo escolhido primeiro.
+        expect(find.text('Welcome Back'), findsNothing);
+        expect(find.text('Select a Seat'), findsNothing);
+        expect(find.text('Iberia · IB 6821'), findsOneWidget);
+
+        await tester.tap(find.text('Iberia · IB 6821'));
+        await tester.pumpAndSettle();
         await tester.tap(find.text('Book This Flight'));
         await tester.pumpAndSettle();
 

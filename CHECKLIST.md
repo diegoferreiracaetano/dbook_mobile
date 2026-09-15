@@ -592,14 +592,24 @@ usuário testando o app:
 - [x] 17.4 Testes: `flight_search_page_test.dart` (Round Trip padrão reporta 2 trechos, ida/volta com origem-destino invertidos e datas diferentes); `dbook_success_screen_test.dart` (rótulo longo numa tela pequena não lança exceção — regressão do overflow); `my_bookings_page_test.dart` (reserva cancelada com data futura só aparece em Anteriores; teste de cancelar reescrito pra refletir que a reserva muda de aba depois de cancelada)
 - [x] 17.5 `melos exec -- flutter analyze` + `dart format --set-exit-if-changed .` + `melos run test` limpos em todo o workspace
 
+Segunda rodada de feedback (mesmo dia): "consigo reservar só uma passagem,
+o ideal seria eu escolher o voo de ida, depois o voo de volta e depois
+os assentos de ida e de volta" — a ordem original (17.1) era voo→assento→
+confirma→"próximo voo" repetido por trecho; o usuário queria os DOIS
+voos escolhidos antes de QUALQUER assento.
+
+- [x] 17.6 `main.dart` reestruturado: `_bookFlight` virou `_selectFlight` — quando ainda falta escolher o voo de outro trecho, vai direto pros resultados do próximo trecho (`_buildResultsPage`, sem passar por assento); só quando o ÚLTIMO voo da jornada é escolhido é que a seleção de assento começa (`_buildSeatSelectionFor`), um trecho de cada vez, encadeada pelo mesmo `nextLegLabel`/`onNextLeg` do `SeatSelectionPage`/`BookingSuccessPage` (nenhum widget novo, só o que constrói a próxima página mudou de "buscar" pra "escolher assento de um voo já escolhido"). De quebra corrigiu um bug latente: `isLoggedIn` deixou de ser propagado com o valor "congelado" de antes do login (podia reabrir o Auth Gate à toa no trecho seguinte) — depois do primeiro gate, sempre `true`
+- [x] 17.7 `booking_success_page.dart`: rótulo do botão trocou de "Search Next Flight: X" pra "Choose Seat: X" — reflete que o próximo voo já foi escolhido, não precisa buscar de novo
+- [x] 17.8 Testes: `booking_success_page_test.dart` (novo — sem próximo trecho mostra "View My Bookings"; com próximo trecho mostra "Choose Seat: X" e dispara `onNextLeg`); `widget_test.dart` (as duas cenas de Auth Gate reescritas pra escolher os dois voos antes do assento aparecer)
+
 **Checklist de fechamento do M17:**
-- [x] Itens 17.1-17.5 revisados
+- [x] Itens 17.1-17.8 revisados
 - [x] Clean Code
-- [x] Arquitetura (Round Trip não ganhou lógica de encadeamento própria — reaproveita a mesma fila do Multi-city; `DbookSuccessScreen` continua um componente burro, só ficou robusto a texto mais longo)
+- [x] Arquitetura (Round Trip não ganhou lógica de encadeamento própria — reaproveita a mesma fila do Multi-city; `DbookSuccessScreen`/`SeatSelectionPage`/`BookingSuccessPage` continuam componentes burros, só o que os alimenta mudou)
 - [x] `melos exec -- flutter analyze` + `melos run test` + `dart test` limpos em todo o workspace
-- [x] Testado ponta a ponta no Browser pane: busca Round Trip padrão → reserva a ida (GRU→GIG) → tela de sucesso mostra "Search Next Flight: Rio de Janeiro (GIG) → São Paulo (GRU)" sem overflow, rolável → toca, busca a volta de verdade (GIG→GRU, data da volta) → reserva a volta → Minhas Viagens mostra as duas reservas reais e independentes em Próximas
+- [x] Testado ponta a ponta no Browser pane (fluxo final): busca Round Trip → escolhe o voo de ida (GRU→GIG) → vai direto pros resultados da volta (sem assento ainda) → escolhe o voo de volta (GIG→GRU) → SÓ AGORA seleção de assento da ida → confirma (assento 1D) → tela de sucesso mostra "Choose Seat: GIG → GRU" → toca, vai direto pra seleção de assento da volta (sem buscar de novo) → confirma (assento 1B) → "View My Bookings" → Minhas Viagens mostra as duas reservas reais e independentes
 - [x] README atualizado
-- [x] Cobertura mínima — combinado: **81.78%** (2760/3375 linhas), acima do mínimo de 80% do gate de CI (`very_good_coverage`)
+- [x] Cobertura mínima — combinado: **82.18%** (2780/3383 linhas), acima do mínimo de 80% do gate de CI (`very_good_coverage`)
 
 ## Ideias futuras (fora da numeração)
 

@@ -161,10 +161,11 @@ class _AppShell extends ConsumerStatefulWidget {
 class _AppShellState extends ConsumerState<_AppShell> {
   int _tabIndex = 0;
 
-  /// Trechos 2+ de uma busca Multi-city — populado quando a Home dispara
-  /// [FlightsHomePage.onQueueLegs] (1º trecho segue pelo fluxo normal via
-  /// `go_router` interno da Home). Consumido em [_bookFlight] pra saber
-  /// se, depois de reservar o trecho atual, tem mais um pra encadear.
+  /// Trechos 2+ de uma busca Round Trip/Multi-city — populado quando a
+  /// Home dispara [FlightsHomePage.onQueueLegs] (1º trecho segue pelo
+  /// fluxo normal via `go_router` interno da Home). Consumido em
+  /// [_selectFlight] pra saber se ainda falta escolher o voo de outro
+  /// trecho antes de ir pra seleção de assento.
   List<FlightSearchQuery> _pendingLegs = [];
 
   static void _openAiSuggestions(
@@ -181,82 +182,110 @@ class _AppShellState extends ConsumerState<_AppShell> {
     pushAuthGate(context, onAuthenticated: (_) => const AiSuggestionPage());
   }
 
-  /// Multi-city não é "1 trecho de verdade + resto decorativo": o backend
-  /// não tem conceito de reserva multi-trecho (`POST /bookings` é sempre 1
-  /// voo), então cada trecho vira uma compra real e independente,
-  /// encadeada nesta mesma jornada — busca→detalhe→assento→confirmação,
-  /// repetido pra cada trecho da lista. [remainingLegs] é o que falta
-  /// depois do trecho atual; a tela de sucesso (`BookingSuccessPage`)
-  /// oferece seguir pro próximo quando a lista não está vazia.
-  static void _bookFlight(
+  /// Nem Round Trip nem Multi-city são "1 trecho de verdade + resto
+  /// decorativo": o backend não tem conceito de reserva multi-trecho
+  /// (`POST /bookings` é sempre 1 voo), então cada trecho vira uma compra
+  /// real e independente. A ORDEM da jornada é: escolhe o voo de CADA
+  /// trecho primeiro (ida, depois volta/extras — sem passar por seleção
+  /// de assento ainda); só depois que o último voo é escolhido é que a
+  /// seleção de assento começa, um trecho de cada vez, encadeada por
+  /// [_buildSeatSelectionFor]. [chosenFlights] acumula os voos já
+  /// escolhidos, na ordem; [remainingLegs] é o que ainda falta escolher.
+  static void _selectFlight(
     BuildContext context,
     Flight flight, {
     required bool isLoggedIn,
+    List<Flight> chosenFlights = const [],
     List<FlightSearchQuery> remainingLegs = const [],
   }) {
-    Widget buildSeatSelection(BuildContext _) {
-      final nextLeg = remainingLegs.isEmpty ? null : remainingLegs.first;
-      return SeatSelectionPage(
-        flight: flight,
-        nextLegLabel: nextLeg == null
-            ? null
-            : '${nextLeg.origin.label} → ${nextLeg.destination.label}',
-        onNextLeg: nextLeg == null
-            ? null
-            : () => _searchNextLeg(
-                context,
-                nextLeg,
-                remainingLegs.skip(1).toList(),
-                isLoggedIn: isLoggedIn,
-              ),
-      );
+    final updatedChosen = [...chosenFlights, flight];
+
+    Widget buildNext(BuildContext _) {
+      if (remainingLegs.isNotEmpty) {
+        return _buildResultsPage(
+          context,
+          remainingLegs.first,
+          remainingLegs.skip(1).toList(),
+          chosenFlights: updatedChosen,
+        );
+      }
+      return _buildSeatSelectionFor(context, updatedChosen, 0);
     }
 
     if (isLoggedIn) {
       Navigator.of(
         context,
         rootNavigator: true,
-      ).push(MaterialPageRoute<void>(builder: buildSeatSelection));
+      ).push(MaterialPageRoute<void>(builder: buildNext));
       return;
     }
-    pushAuthGate(context, onAuthenticated: buildSeatSelection);
+    pushAuthGate(context, onAuthenticated: buildNext);
   }
 
-  /// Busca o próximo trecho da fila — direto no root navigator (fora do
-  /// `go_router` interno da `FlightsHomePage`, que só existe dentro da aba
-  /// Home), reaproveitando `FlightResultsPage`/`FlightDetailPage` com
-  /// `Navigator.push` comum, mesmo padrão que `pushAuthGate`/`_bookFlight`
-  /// já usam.
-  static void _searchNextLeg(
+  /// Resultados do próximo trecho ainda sem voo escolhido — direto no root
+  /// navigator (fora do `go_router` interno da `FlightsHomePage`, que só
+  /// existe dentro da aba Home), reaproveitando `FlightResultsPage`/
+  /// `FlightDetailPage` com `Navigator.push` comum. `isLoggedIn: true` na
+  /// chamada seguinte de [_selectFlight] é seguro aqui: só se chega neste
+  /// ponto depois de já ter passado pelo gate de autenticação na 1ª
+  /// escolha (`_selectFlight` só entra nesta função via [buildNext], que
+  /// só roda logado ou já autenticado).
+  static Widget _buildResultsPage(
     BuildContext context,
     FlightSearchQuery query,
     List<FlightSearchQuery> remainingAfter, {
-    required bool isLoggedIn,
+    required List<Flight> chosenFlights,
   }) {
     final navigator = Navigator.of(context, rootNavigator: true);
-    navigator.push(
-      MaterialPageRoute<void>(
-        builder: (_) => FlightResultsPage(
-          query: query,
-          onSelectFlight: (flight) => navigator.push(
-            MaterialPageRoute<void>(
-              builder: (_) => FlightDetailPage(
-                flight: flight,
-                onBook: (selected) => _bookFlight(
-                  context,
-                  selected,
-                  isLoggedIn: isLoggedIn,
-                  remainingLegs: remainingAfter,
-                ),
-                liveAvailability: DbookLiveAvailability(
-                  bookableId: flight.id,
-                  fallbackCapacity: flight.availableCapacity,
-                ),
-              ),
+    return FlightResultsPage(
+      query: query,
+      onSelectFlight: (flight) => navigator.push(
+        MaterialPageRoute<void>(
+          builder: (_) => FlightDetailPage(
+            flight: flight,
+            onBook: (selected) => _selectFlight(
+              context,
+              selected,
+              isLoggedIn: true,
+              chosenFlights: chosenFlights,
+              remainingLegs: remainingAfter,
+            ),
+            liveAvailability: DbookLiveAvailability(
+              bookableId: flight.id,
+              fallbackCapacity: flight.availableCapacity,
             ),
           ),
         ),
       ),
+    );
+  }
+
+  /// Seleção de assento do voo `flights[index]`, encadeada pro próximo
+  /// (se houver) — a tela de sucesso (`BookingSuccessPage`) oferece
+  /// "Choose Seat" pro próximo voo JÁ ESCOLHIDO (sem buscar de novo,
+  /// diferente do encadeamento de [_buildResultsPage]); só o último voo
+  /// da lista mostra "View My Bookings".
+  static Widget _buildSeatSelectionFor(
+    BuildContext context,
+    List<Flight> flights,
+    int index,
+  ) {
+    final flight = flights[index];
+    final nextFlight = index + 1 < flights.length ? flights[index + 1] : null;
+
+    return SeatSelectionPage(
+      flight: flight,
+      nextLegLabel: nextFlight == null
+          ? null
+          : '${nextFlight.originIataCode} → ${nextFlight.destinationIataCode}',
+      onNextLeg: nextFlight == null
+          ? null
+          : () => Navigator.of(context, rootNavigator: true).push(
+              MaterialPageRoute<void>(
+                builder: (_) =>
+                    _buildSeatSelectionFor(context, flights, index + 1),
+              ),
+            ),
     );
   }
 
@@ -324,7 +353,7 @@ class _AppShellState extends ConsumerState<_AppShell> {
       FlightsHomePage(
         actions: _homeActions(context, isLoggedIn: isLoggedIn),
         onQueueLegs: (legs) => setState(() => _pendingLegs = legs),
-        onBookFlight: (flight) => _bookFlight(
+        onBookFlight: (flight) => _selectFlight(
           context,
           flight,
           isLoggedIn: isLoggedIn,
