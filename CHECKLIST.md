@@ -661,6 +661,56 @@ placeholder de cartão de crédito para testes".
 - [x] README atualizado
 - [x] Cobertura mínima — combinado: **82.01%** (2881/3513 linhas), acima do mínimo de 80% do gate de CI
 
+## M19 — Tocar num destino ou região leva a voos/listagem de verdade (Home + Explore) ✅
+
+Decisão (2026-09-23): feedback do usuário testando o app — três problemas de
+navegação de destino/região:
+1. Home → "Destinos em destaque": tocar um card só preenchia o campo do
+   formulário, sem buscar nem navegar — parecia quebrado.
+2. Explore → destino: tocar um card voltava pra Home com o campo
+   preenchido, mas sem buscar — usuário ainda precisava apertar "Search
+   Flights" na mão.
+3. Home → "Explore por região" (carrossel): tocar uma região pulava pra
+   aba Explore e selecionava o chip daquela região — exatamente o filtro
+   que já existe dentro do próprio Explore. Duas UIs pra mesma coisa.
+
+Pesquisei como Google Flights ("Explore") e Skyscanner ("Explore
+Everywhere") resolvem isso antes de desenhar a mudança — [Going: Google
+Flights
+Explore](https://www.going.com/guides/google-flights-explore),
+[Skyscanner: Explore
+Everywhere](https://skyscanner.com/tips-and-inspiration/where-should-i-go-us/choose-your-next-adventure-skyscanner-everywhere-search).
+Os dois sempre partem de uma origem fixa e mostram destino + menor preço
+real a partir dela; nenhum busca "voos de uma região inteira" (não existe
+essa query — voo é sempre origem→destino→data). Confirma: **tocar um
+destino** — em qualquer aba — deveria levar direto a resultados reais.
+
+Primeira tentativa removeu o carrossel "Explore por região" da Home por
+redundância com o filtro por região já existente no Explore. Dono do
+produto corrigiu: o carrossel **não** deveria sumir — tocar numa região
+deveria abrir uma **listagem real dos destinos daquela região** (não uma
+busca de voos, já que região não tem origem/destino único), em vez de só
+trocar de aba. Carrossel restaurado; toque nele agora abre
+`RegionDestinationsPage`.
+
+- [x] 19.1 `packages/dbook_feature_flights/lib/src/state/flight_providers.dart` — novo `searchOriginProvider` (`SearchOriginNotifier`, guarda só `{origin, date}` como record) — a única ponte de estado real entre Home e Explore (volta/tipo de viagem continuam só da Home). `PrefillRegionNotifier`/`prefillRegionProvider` removidos; `prefillDestinationProvider` rebaixado a fallback defensivo (origem ainda não carregada — não dá pra fabricar, front burro)
+- [x] 19.2 `flight_search_page.dart` — `_selectDestination` (toque em "Destinos em destaque") agora chama `_search()` também, reaproveitando a mesma validação/lógica de Round Trip do botão "Search Flights"; `_syncSearchOrigin()` mantém `searchOriginProvider` em dia a cada troca de origem/data
+- [x] 19.3 `apps/dbook_mobile/lib/main.dart` — novo `_openExploreDestination`: toque num destino na Explore lê `searchOriginProvider` e empurra `FlightResultsPage`/`FlightDetailPage` no root navigator, reaproveitando `_buildResultsPage` (mesma infra já usada pela jornada de reserva) — sem duplicar lógica de busca/navegação. `_buildResultsPage` ganhou `required bool isLoggedIn` (era hardcoded `true`) pra funcionar também com convidado
+- [x] 19.4 `RegionCarousel` mantido na Home (não removido); novo `RegionDestinationsPage` (`packages/dbook_feature_flights/lib/src/ui/region_destinations_page.dart`) — listagem real dos destinos de uma região, reaproveitando a mesma lista já carregada por `featuredDestinationsProvider` (sem fetch novo), só filtrada por `region`. Novo `_openRegionDestinations` em `main.dart` empurra essa página no root navigator; tocar um destino ali dentro reaproveita `_openExploreDestination` — mesmo comportamento de "resultados reais na hora" de qualquer outro card de destino do app
+- [x] 19.5 Testes: `flight_search_page_test.dart` (toque em destino em destaque reporta a query de busca certa, respeitando Round Trip); `region_carousel_test.dart` mantido; `widget_test.dart` — reescrito o teste de destino tocado no Explore (cai em resultados reais, não mais só preenche campo), novo teste de regressão do Auth Gate (convidado navega livre, mas `Book This Flight` continua exigindo login), novo teste do toque em destino na Home, novos testes de toque numa região na Home (abre `RegionDestinationsPage` só com os destinos daquela região) e de toque num destino dentro dessa listagem (cai em resultados reais)
+- [x] 19.6 `melos exec -- flutter analyze` + `melos run test` + `melos run test:dart` limpos em todo o workspace
+
+**Checklist de fechamento do M19:**
+- [x] Itens 19.1-19.6 revisados
+- [x] Clean Code
+- [x] Arquitetura (Home continua dona do formulário completo — volta, tipo de viagem, passageiros; Explore nunca precisa saber disso, só origem+data via `searchOriginProvider`; composição entre as duas features continua só em `main.dart`, nenhuma passou a importar a outra)
+- [x] `melos exec -- flutter analyze` + `melos run test` + `melos run test:dart` limpos em todo o workspace
+- [x] Testado ponta a ponta no Browser pane: tocar "New York" em "Destinos em destaque" na Home cai direto em "São Paulo → New York" com 8 voos e preços reais, sem apertar "Search Flights"; na aba Explore, filtrar por "América do Norte" e tocar um destino (Miami) cai direto em "São Paulo → Miami" com 5 voos reais, sem voltar pra Home; na Home, tocar "América do Sul" no carrossel "Explore por região" abre listagem real (São Paulo, Rio de Janeiro, Buenos Aires) com preços reais; tocar "América do Norte" mostra só New York e Miami; tocar um destino dentro dessa listagem (New York) cai em "São Paulo → New York" com 8 voos reais
+- [x] README atualizado
+- [x] Cobertura mínima — combinado: **82.19%** (2954/3594 linhas), acima do mínimo de 80% do gate de CI
+
+**Bug pré-existente encontrado durante a verificação manual (não corrigido neste marco):** tocar num destino cuja cidade coincide com a origem selecionada (ex.: origem São Paulo, tocar o card "São Paulo" dentro de "Principais destinos" ou da listagem de "América do Sul") gera uma busca São Paulo→São Paulo, que sempre retorna "Nenhum voo encontrado" — a lista de destinos retornada pelo backend inclui a própria cidade de origem. Não é causado por este marco (já acontecia na grade do Explore antes dele), só ficou mais visível agora que tocar leva direto a resultados reais. Sinalizado para correção à parte.
+
 ## Ideias futuras (fora da numeração)
 
 - Golden tests (regressão visual) pros componentes do `dbook_design_system`

@@ -492,19 +492,20 @@ void main() {
     );
 
     testWidgetsWithMockImages(
-      'given a destination tapped on the Explore tab then the Home tab '
-      'shows it pre-filled as the destination',
+      'given a destination tapped on the Explore tab then it shows real '
+      'flight results for that route — no manual search step needed',
       (tester) async {
         _skipOnboarding();
 
-        await tester.pumpWidget(_app());
+        await tester.pumpWidget(_app(flights: [_sampleFlight()]));
         await tester.pumpAndSettle();
         await _goToTab(tester, 'Explore');
 
         // `New York` é popular, então aparece 2x na página (em "Principais
-        // destinos" e de novo em "Destinos por região") — `.first` porque
-        // tocar qualquer uma das duas cópias visuais é equivalente, dispara
-        // o mesmo callback com o mesmo destino.
+        // destinos" e de novo em "Destinos por região", que mostra todos
+        // os destinos por padrão) — `.first` porque tocar qualquer uma das
+        // duas cópias visuais é equivalente, dispara o mesmo callback com
+        // o mesmo destino.
         final destination = find
             .descendant(
               of: find.byType(ExplorePage),
@@ -531,73 +532,145 @@ void main() {
         await tester.tap(destination);
         await tester.pumpAndSettle();
 
-        expect(find.text(_destinations[2].label), findsOneWidget);
+        // Caiu direto em resultados de verdade — nem voltou pra Home nem
+        // precisou apertar "Search Flights" na mão.
+        expect(find.text('Iberia · IB 6821'), findsOneWidget);
+        expect(find.text('Search Flights'), findsNothing);
       },
     );
 
     testWidgetsWithMockImages(
-      'given a region card tapped on the Home carousel then the Explore '
-      'tab shows only that region, pre-selected',
+      'given a guest who taps a destination on Explore then Book This '
+      'Flight still opens the Auth Gate — browsing stays public, buying '
+      'does not',
       (tester) async {
         _skipOnboarding();
 
-        await tester.pumpWidget(_app());
+        await tester.pumpWidget(_app(flights: [_sampleFlight()]));
         await tester.pumpAndSettle();
+        await _goToTab(tester, 'Explore');
 
-        // Escopado à FlightSearchPage (Home) porque a Explore também tem
-        // um card/chip "América do Norte" na própria árvore (montada por
-        // baixo, via IndexedStack) — sem escopo, `.first` podia acabar
-        // pegando o `Scrollable`/texto errado.
-        final homeScrollable = find
+        final destination = find
             .descendant(
-              of: find.byType(FlightSearchPage),
+              of: find.byType(ExplorePage),
+              matching: find.text(_destinations[2].city),
+            )
+            .first;
+        final exploreScrollable = find
+            .descendant(
+              of: find.byType(ExplorePage),
               matching: find.byType(Scrollable),
             )
             .first;
-        final regionCard = find
-            .descendant(
-              of: find.byType(FlightSearchPage),
-              matching: find.text('América do Norte'),
-            )
-            .first;
         await tester.scrollUntilVisible(
-          regionCard,
+          destination,
           200,
-          scrollable: homeScrollable,
+          scrollable: exploreScrollable,
         );
-        await tester.tap(regionCard);
+        await tester.ensureVisible(destination);
+        await tester.pumpAndSettle();
+        await tester.tap(destination);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Iberia · IB 6821'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Book This Flight'));
         await tester.pumpAndSettle();
 
-        expect(
-          tester
-              .widget<NavigationBar>(find.byType(NavigationBar))
-              .selectedIndex,
-          1,
-        );
-        // O chip "América do Norte" já vem selecionado no filtro
-        // "Destinos por região" — só o destino daquela região aparece
-        // ali. Escopado a `DestinationsByRegion` (não a `ExplorePage`
-        // inteira): "São Paulo" continua legitimamente visível em
-        // "Principais destinos" (é popular, não passa pelo filtro de
-        // região) — e a Home também continua montada por baixo
-        // (IndexedStack) com o próprio "São Paulo" no grid de destaque.
-        expect(
-          find.descendant(
-            of: find.byType(DestinationsByRegion),
-            matching: find.text('New York'),
-          ),
-          findsOneWidget,
-        );
-        expect(
-          find.descendant(
-            of: find.byType(DestinationsByRegion),
-            matching: find.text('São Paulo'),
-          ),
-          findsNothing,
-        );
+        expect(find.text('Welcome Back'), findsOneWidget);
       },
     );
   });
+
+  testWidgetsWithMockImages(
+    'given a featured destination tapped on Home then it shows real '
+    'flight results, with no "Search Flights" tap needed',
+    (tester) async {
+      _skipOnboarding();
+
+      await tester.pumpWidget(_app(flights: [_sampleFlight()]));
+      await tester.pumpAndSettle();
+
+      final destination = find.descendant(
+        of: find.byType(FlightSearchPage),
+        matching: find.text(_destinations[2].city),
+      );
+      final homeScrollable = find
+          .descendant(
+            of: find.byType(FlightSearchPage),
+            matching: find.byType(Scrollable),
+          )
+          .first;
+      await tester.scrollUntilVisible(
+        destination,
+        200,
+        scrollable: homeScrollable,
+      );
+      await tester.tap(destination);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Iberia · IB 6821'), findsOneWidget);
+    },
+  );
+
+  testWidgetsWithMockImages(
+    'given a region card tapped on Home then it opens a real listing of '
+    'that region\'s destinations only — no fetch, same list Home already '
+    'has loaded',
+    (tester) async {
+      _skipOnboarding();
+
+      await tester.pumpWidget(_app(flights: [_sampleFlight()]));
+      await tester.pumpAndSettle();
+
+      final region = find.descendant(
+        of: find.byType(FlightSearchPage),
+        matching: find.text('América do Sul'),
+      );
+      final homeScrollable = find
+          .descendant(
+            of: find.byType(FlightSearchPage),
+            matching: find.byType(Scrollable),
+          )
+          .first;
+      await tester.scrollUntilVisible(region, 200, scrollable: homeScrollable);
+      await tester.tap(region);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(RegionDestinationsPage), findsOneWidget);
+      expect(find.text(_destinations[0].city), findsOneWidget); // São Paulo
+      expect(find.text(_destinations[1].city), findsOneWidget); // Rio
+      expect(find.text(_destinations[2].city), findsNothing); // New York
+    },
+  );
+
+  testWidgetsWithMockImages(
+    'given a destination tapped inside the region listing then it shows '
+    'real flight results, same as tapping it anywhere else in the app',
+    (tester) async {
+      _skipOnboarding();
+
+      await tester.pumpWidget(_app(flights: [_sampleFlight()]));
+      await tester.pumpAndSettle();
+
+      final region = find.descendant(
+        of: find.byType(FlightSearchPage),
+        matching: find.text('América do Sul'),
+      );
+      final homeScrollable = find
+          .descendant(
+            of: find.byType(FlightSearchPage),
+            matching: find.byType(Scrollable),
+          )
+          .first;
+      await tester.scrollUntilVisible(region, 200, scrollable: homeScrollable);
+      await tester.tap(region);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(_destinations[0].city)); // São Paulo
+      await tester.pumpAndSettle();
+
+      expect(find.text('Iberia · IB 6821'), findsOneWidget);
+    },
+  );
 
   testWidgetsWithMockImages(
     'given a flight when the detail page opens then shows the live '

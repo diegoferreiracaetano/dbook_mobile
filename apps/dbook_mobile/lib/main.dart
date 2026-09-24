@@ -207,6 +207,7 @@ class _AppShellState extends ConsumerState<_AppShell> {
           remainingLegs.first,
           remainingLegs.skip(1).toList(),
           chosenFlights: updatedChosen,
+          isLoggedIn: true,
         );
       }
       return _buildSeatSelectionFor(context, updatedChosen, 0);
@@ -225,16 +226,17 @@ class _AppShellState extends ConsumerState<_AppShell> {
   /// Resultados do próximo trecho ainda sem voo escolhido — direto no root
   /// navigator (fora do `go_router` interno da `FlightsHomePage`, que só
   /// existe dentro da aba Home), reaproveitando `FlightResultsPage`/
-  /// `FlightDetailPage` com `Navigator.push` comum. `isLoggedIn: true` na
-  /// chamada seguinte de [_selectFlight] é seguro aqui: só se chega neste
-  /// ponto depois de já ter passado pelo gate de autenticação na 1ª
-  /// escolha (`_selectFlight` só entra nesta função via [buildNext], que
-  /// só roda logado ou já autenticado).
+  /// `FlightDetailPage` com `Navigator.push` comum. [isLoggedIn] vem de
+  /// quem chama: `true` na jornada normal (só se chega aqui depois do
+  /// gate de autenticação na 1ª escolha) e o valor real da sessão quando
+  /// reaproveitada por [_openExploreDestination] (convidado pode tocar um
+  /// destino no Explore sem estar logado).
   static Widget _buildResultsPage(
     BuildContext context,
     FlightSearchQuery query,
     List<FlightSearchQuery> remainingAfter, {
     required List<Flight> chosenFlights,
+    required bool isLoggedIn,
   }) {
     final navigator = Navigator.of(context, rootNavigator: true);
     return FlightResultsPage(
@@ -246,7 +248,7 @@ class _AppShellState extends ConsumerState<_AppShell> {
             onBook: (selected) => _selectFlight(
               context,
               selected,
-              isLoggedIn: true,
+              isLoggedIn: isLoggedIn,
               chosenFlights: chosenFlights,
               remainingLegs: remainingAfter,
             ),
@@ -309,14 +311,71 @@ class _AppShellState extends ConsumerState<_AppShell> {
     );
   }
 
-  void _selectExploreDestination(Destination destination) {
-    ref.read(prefillDestinationProvider.notifier).set(destination);
-    setState(() => _tabIndex = 0);
+  /// Tocar um destino na aba Explore leva direto pros resultados reais
+  /// daquela rota (origem+data já escolhidas na Home, via
+  /// [searchOriginProvider] — Google Flights "Explore" e Skyscanner
+  /// "Explore Everywhere" fazem o mesmo: nunca existe uma busca de "voos
+  /// de uma região inteira", é sempre origem→destino→data). Reaproveita
+  /// [_buildResultsPage], a mesma infra já usada pela jornada de reserva,
+  /// em vez de duplicar lógica de navegação/busca.
+  void _openExploreDestination(
+    BuildContext context,
+    Destination destination, {
+    required bool isLoggedIn,
+  }) {
+    final current = ref.read(searchOriginProvider);
+    if (current == null) {
+      // Origem ainda não carregou (GET /destinations em voo) — não dá pra
+      // fabricar uma (front burro): cai no fallback antigo de só
+      // pré-preencher o destino e deixar o usuário buscar na Home.
+      ref.read(prefillDestinationProvider.notifier).set(destination);
+      setState(() => _tabIndex = 0);
+      return;
+    }
+
+    Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute<void>(
+        builder: (_) => _buildResultsPage(
+          context,
+          FlightSearchQuery(
+            origin: current.origin,
+            destination: destination,
+            date: current.date,
+          ),
+          const [],
+          chosenFlights: const [],
+          isLoggedIn: isLoggedIn,
+        ),
+      ),
+    );
   }
 
-  void _selectHomeRegion(String region) {
-    ref.read(prefillRegionProvider.notifier).set(region);
-    setState(() => _tabIndex = 1);
+  /// Tocar uma região no carrossel da Home abre a listagem real de
+  /// destinos daquela região — mesma lista já carregada por
+  /// `featuredDestinationsProvider` (sem fetch novo), só filtrada. Tocar
+  /// um destino ali dentro reaproveita [_openExploreDestination] — mesmo
+  /// comportamento de "resultados reais na hora" de qualquer outro card
+  /// de destino do app.
+  void _openRegionDestinations(
+    BuildContext context,
+    String region, {
+    required bool isLoggedIn,
+  }) {
+    final destinations =
+        ref.read(featuredDestinationsProvider).value ?? const [];
+    Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute<void>(
+        builder: (_) => RegionDestinationsPage(
+          region: region,
+          destinations: destinations.where((d) => d.region == region).toList(),
+          onSelectDestination: (destination) => _openExploreDestination(
+            context,
+            destination,
+            isLoggedIn: isLoggedIn,
+          ),
+        ),
+      ),
+    );
   }
 
   List<Widget> _homeActions(BuildContext context, {required bool isLoggedIn}) {
@@ -383,9 +442,16 @@ class _AppShellState extends ConsumerState<_AppShell> {
           bookableId: flight.id,
           fallbackCapacity: flight.availableCapacity,
         ),
-        onSelectRegion: _selectHomeRegion,
+        onSelectRegion: (region) =>
+            _openRegionDestinations(context, region, isLoggedIn: isLoggedIn),
       ),
-      ExplorePage(onSelectDestination: _selectExploreDestination),
+      ExplorePage(
+        onSelectDestination: (destination) => _openExploreDestination(
+          context,
+          destination,
+          isLoggedIn: isLoggedIn,
+        ),
+      ),
       isLoggedIn
           ? MyBookingsPage(destinations: destinations)
           : _guestGate(

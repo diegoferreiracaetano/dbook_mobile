@@ -68,9 +68,9 @@ class FlightSearchPage extends ConsumerStatefulWidget {
   /// [_TripType]).
   final ValueChanged<List<FlightSearchQuery>> onSearch;
 
-  /// Tocar um card do carrossel de regiões chama isto — quem monta esta
-  /// página decide o que fazer (levar pra aba Explore já filtrada
-  /// naquela região, no caso do app).
+  /// Tocar um card do carrossel de regiões chama isto com o nome da
+  /// região — quem monta esta página decide o que fazer (abrir a
+  /// listagem real de destinos daquela região, no caso do app).
   final ValueChanged<String>? onSelectRegion;
   final List<Widget>? actions;
 
@@ -93,8 +93,21 @@ class _FlightSearchPageState extends ConsumerState<FlightSearchPage> {
 
   static final _dateFormat = DateFormat('EEE, MMM d, yyyy');
 
+  /// Tocar um card de "Destinos em destaque" preenche o destino E já busca
+  /// — reaproveita [_search] (mesma validação/mesma lógica de Round Trip
+  /// que o botão "Search Flights" usa), em vez de só preencher o campo e
+  /// deixar o usuário apertar buscar na mão.
   void _selectDestination(Destination destination) {
     setState(() => _destination = destination);
+    _search();
+  }
+
+  /// Mantém [searchOriginProvider] em dia — é a única ponte de estado real
+  /// entre esta tela e a aba Explore (ver `main.dart._openExploreDestination`).
+  void _syncSearchOrigin() {
+    final origin = _origin;
+    if (origin == null) return;
+    ref.read(searchOriginProvider.notifier).set(origin, _date);
   }
 
   /// Google Flights (referência que o usuário confirmou) começa Multi-city
@@ -167,6 +180,7 @@ class _FlightSearchPageState extends ConsumerState<FlightSearchPage> {
   Future<void> _pickOrigin() async {
     final picked = await showAirportPickerSheet(context, _destinations);
     if (picked != null) setState(() => _origin = picked);
+    _syncSearchOrigin();
   }
 
   Future<void> _pickDestination() async {
@@ -180,6 +194,7 @@ class _FlightSearchPageState extends ConsumerState<FlightSearchPage> {
       _origin = _destination;
       _destination = origin;
     });
+    _syncSearchOrigin();
   }
 
   Future<void> _pickDate() async {
@@ -197,6 +212,7 @@ class _FlightSearchPageState extends ConsumerState<FlightSearchPage> {
         _returnDate = _date.add(const Duration(days: 1));
       }
     });
+    _syncSearchOrigin();
   }
 
   Future<void> _pickReturnDate() async {
@@ -295,6 +311,7 @@ class _FlightSearchPageState extends ConsumerState<FlightSearchPage> {
             ? destinations[1]
             : destinations.first;
       });
+      _syncSearchOrigin();
     });
 
     final destinationsAsync = ref.watch(featuredDestinationsProvider);

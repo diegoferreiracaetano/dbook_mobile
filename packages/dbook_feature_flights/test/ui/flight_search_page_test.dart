@@ -278,25 +278,23 @@ void main() {
 
   testWidgetsWithMockImages(
     'given a featured destination tapped when built then it fills the '
-    'destination field',
+    'destination field AND already searches — no manual "Search Flights" '
+    'step needed',
     (tester) async {
-      await tester.pumpWidget(_app(FlightSearchPage(onSearch: (_) {})));
+      List<FlightSearchQuery>? reported;
+
+      await tester.pumpWidget(
+        _app(FlightSearchPage(onSearch: (queries) => reported = queries)),
+      );
       await tester.pumpAndSettle();
 
-      // New York é popular, então aparece 2x na página — uma vez em
-      // "Destinos em destaque" e de novo em "Destinos por região"
-      // ("América do Norte") — `.first` porque tocar qualquer uma das
-      // duas cópias visuais dispara o mesmo callback, com o mesmo
-      // destino. Há 2 `Scrollable`s na árvore (o `SingleChildScrollView`
-      // da página e o `GridView` em si, mesmo com
-      // `NeverScrollableScrollPhysics`) — o primeiro é o da página, o
-      // que precisa rolar aqui.
-      final destination = find
-          .descendant(
-            of: find.byType(DestinationCard),
-            matching: find.text(_destinations[2].city),
-          )
-          .first;
+      // Há 2 `Scrollable`s na árvore (o `SingleChildScrollView` da página
+      // e o `GridView` em si, mesmo com `NeverScrollableScrollPhysics`) —
+      // o primeiro é o da página, o que precisa rolar aqui.
+      final destination = find.descendant(
+        of: find.byType(DestinationCard),
+        matching: find.text(_destinations[2].city),
+      );
       await tester.scrollUntilVisible(
         destination,
         200,
@@ -306,6 +304,13 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text(_destinations[2].label), findsOneWidget);
+      // Round Trip (padrão) — respeita a mesma lógica de "Search Flights",
+      // ida (origem atual → destino tocado) + volta invertida.
+      expect(reported, hasLength(2));
+      expect(reported?[0].origin, _destinations[0]);
+      expect(reported?[0].destination, _destinations[2]);
+      expect(reported?[1].origin, _destinations[2]);
+      expect(reported?[1].destination, _destinations[0]);
     },
   );
 

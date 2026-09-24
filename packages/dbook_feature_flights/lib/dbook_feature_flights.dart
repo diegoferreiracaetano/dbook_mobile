@@ -15,3 +15,4 @@ export 'src/ui/flight_detail_page.dart';
 export 'src/ui/flight_results_page.dart';
 export 'src/ui/flight_search_page.dart';
 export 'src/ui/region_carousel.dart';
+export 'src/ui/region_destinations_page.dart';

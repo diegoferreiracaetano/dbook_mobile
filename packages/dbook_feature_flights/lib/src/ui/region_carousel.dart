@@ -20,8 +20,7 @@ class RegionCarousel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final regions = destinations.map((d) => d.region).toSet().toList()
-      ..sort();
+    final regions = destinations.map((d) => d.region).toSet().toList()..sort();
 
     return SizedBox(
       height: 120,

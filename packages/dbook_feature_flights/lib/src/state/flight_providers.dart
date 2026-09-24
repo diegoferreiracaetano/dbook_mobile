@@ -28,9 +28,37 @@ final featuredDestinationsProvider = FutureProvider<List<Destination>>(
   (ref) => ref.watch(destinationRepositoryProvider).getFeaturedDestinations(),
 );
 
-/// Ponte efêmera entre a aba Explore e a busca: tocar um destino lá seta
-/// este provider, a Home lê uma vez (e limpa) pra pré-preencher o campo de
-/// destino. Não é estado de busca de verdade — some assim que a Home lê.
+/// A origem e a data de ida "atuais" do formulário de busca da Home — a
+/// única ponte de estado real entre Home e Explore (volta/tipo de
+/// viagem/passageiros continuam só da Home; Explore nunca precisa saber
+/// disso pra montar uma busca de 1 trecho). Atualizado pela Home sempre
+/// que origem ou data de ida mudam; lido por `main.dart` quando o usuário
+/// toca um destino no Explore, pra montar uma `FlightSearchQuery` real e
+/// já cair em resultados de voo de verdade — nenhum app de referência
+/// (Google Flights "Explore", Skyscanner "Explore Everywhere") busca
+/// "voos de uma região inteira"; é sempre origem→destino→data.
+typedef SearchOrigin = ({Destination origin, DateTime date});
+
+class SearchOriginNotifier extends Notifier<SearchOrigin?> {
+  @override
+  SearchOrigin? build() => null;
+
+  void set(Destination origin, DateTime date) =>
+      state = (origin: origin, date: date);
+}
+
+final searchOriginProvider =
+    NotifierProvider<SearchOriginNotifier, SearchOrigin?>(
+      SearchOriginNotifier.new,
+    );
+
+/// Ponte efêmera entre a aba Explore e a busca — só usada como
+/// **fallback**, pro caso raro de tocar um destino no Explore antes de
+/// `searchOriginProvider` ter uma origem (destinos ainda carregando):
+/// não dá pra fabricar uma origem (front burro), então cai de volta no
+/// comportamento antigo de só pré-preencher o campo de destino na Home e
+/// deixar o usuário buscar na mão. Fora esse caso, `main.dart` já monta a
+/// busca direto via `searchOriginProvider` e este provider nem é tocado.
 class PrefillDestinationNotifier extends Notifier<Destination?> {
   @override
   Destination? build() => null;
@@ -42,17 +70,3 @@ final prefillDestinationProvider =
     NotifierProvider<PrefillDestinationNotifier, Destination?>(
       PrefillDestinationNotifier.new,
     );
-
-/// Mesma ponte efêmera de [PrefillDestinationNotifier], só que pra região:
-/// tocar um card do carrossel de regiões na Home seta este provider, a
-/// Explore lê uma vez (e limpa) pra pré-selecionar o filtro da região
-/// tocada.
-class PrefillRegionNotifier extends Notifier<String?> {
-  @override
-  String? build() => null;
-
-  void set(String? region) => state = region;
-}
-
-final prefillRegionProvider =
-    NotifierProvider<PrefillRegionNotifier, String?>(PrefillRegionNotifier.new);
