@@ -4,6 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import '../wire_enums.dart';
 import 'flight_response_dto.dart';
 import 'seat_response_dto.dart';
+import 'review_response_dto.dart';
 
 part 'my_booking_response_dto.freezed.dart';
 part 'my_booking_response_dto.g.dart';
@@ -19,6 +20,7 @@ abstract class MyBookingResponseDto with _$MyBookingResponseDto {
     required String status,
     required SeatResponseDto seat,
     required FlightResponseDto flight,
+    ReviewResponseDto? review,
   }) = _MyBookingResponseDto;
 
   factory MyBookingResponseDto.fromJson(Map<String, dynamic> json) =>
@@ -40,6 +42,7 @@ abstract class MyBookingResponseDto with _$MyBookingResponseDto {
       status: bookingStatusFromWire(status),
       flight: resolvedFlight,
       seat: seat.toDomain(resolvedFlight.id),
+      review: review?.toDomain(),
     );
   }
 }

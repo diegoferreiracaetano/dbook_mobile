@@ -711,6 +711,33 @@ trocar de aba. Carrossel restaurado; toque nele agora abre
 
 **Bug pré-existente encontrado durante a verificação manual (não corrigido neste marco):** tocar num destino cuja cidade coincide com a origem selecionada (ex.: origem São Paulo, tocar o card "São Paulo" dentro de "Principais destinos" ou da listagem de "América do Sul") gera uma busca São Paulo→São Paulo, que sempre retorna "Nenhum voo encontrado" — a lista de destinos retornada pelo backend inclui a própria cidade de origem. Não é causado por este marco (já acontecia na grade do Explore antes dele), só ficou mais visível agora que tocar leva direto a resultados reais. Sinalizado para correção à parte.
 
+## M20 — Avaliação de reserva (`Review`), espelhando o `POST /reviews` do backend ✅
+
+Decisão (2026-09-27): mesmo exercício de aprendizado do M19 do backend
+(`../dbook`), agora no mobile — usuário avalia uma reserva `CONFIRMED`
+em My Bookings (nota 1-5 + comentário obrigatório), reaproveitando o
+mesmo `DbookRatingStars`/diálogo pra criar e pra exibir uma review já
+enviada. Escrito pelo próprio dono, camada por camada (domain → core_network
+→ design_system → feature), revisado item a item contra o irmão mais
+próximo (`Payment`/`PaymentRepositoryImpl`/`PaymentPage`).
+
+- [x] 20.1 `dbook_domain`: `Review` (freezed: `id`, `bookingId`, `customerId`, `rating`, `comment`, `createdAt`) + `ReviewRepository` (porta, `create(...)`) — espelham `Payment`/`PaymentRepository`
+- [x] 20.2 `dbook_core_network`: `ReviewResponseDto`/`CreateReviewRequestDto` (freezed+json) + `ReviewRepositoryImpl` (`POST /reviews`) — espelham `PaymentResponseDto`/`RegisterPaymentRequestDto`/`PaymentRepositoryImpl`
+- [x] 20.3 `dbook_design_system`: `DbookRatingStars` — seletor de 1-5 estrelas sem estado próprio (`rating` + `onRatingSelected`, mesmo padrão "state hoisting" do `DbookChipRow`); usado tanto pra **criar** (interativo) quanto pra **exibir** (`onRatingSelected: (_) {}`, só leitura) uma review
+- [x] 20.4 `dbook_feature_booking`: `MyBookingsNotifier.review(...)` (espelha `cancel`, deixa `DbookNetworkException` subir pra quem chamou); `_ReviewDialog` em `my_bookings_page.dart` (estrelas + comentário, botão "Enviar" só habilita com nota **e** comentário preenchidos); botão "Avaliar" só aparece numa reserva `CONFIRMED` **sem** review — quando já existe, mostra a nota/comentário reais no lugar do botão
+- [x] 20.5 **Decisão de arquitetura, revisitada em 2026-09-27**: cogitei guardar "já avaliada" só localmente (`shared_preferences`, estilo favoritos) — rejeitado pelo dono ("poderia dar errado se eu entrar com minha conta em outro celular"). Certo é `GET /bookings` devolver a `review` de cada reserva (addendum feito no backend, ver `../dbook/CHECKLIST.md` M19), o mobile nunca precisa aproximar estado de servidor com storage local — `MyBooking.review` (novo campo opcional) vem de lá
+- [x] 20.6 Testes: `dbook_rating_stars_test.dart` (nota preenche as estrelas certas; toque na estrela N devolve N pro callback)
+- [x] `melos run analyze` + `melos run test` + `melos run test:dart` limpos em todo o workspace
+
+**Checklist de fechamento do M20:**
+- [x] Itens 20.1-20.6 revisados
+- [x] Clean Code
+- [x] Arquitetura (nenhuma feature nova importando outra; composição só em `main.dart`/`booking_providers.dart`; nenhum estado de servidor aproximado localmente — item 20.5)
+- [x] `melos run analyze` — `SUCCESS` no workspace inteiro; `melos run test`/`test:dart` verdes
+- [x] Testado ponta a ponta no Browser pane (backend real): reserva sem review mostra "Avaliar"; diálogo trava "Enviar" sem nota e sem comentário; enviar salva de verdade (`POST /reviews → 201`, conferido no Postgres); recarregar a tela mostra a nota+comentário reais no lugar do botão, em qualquer reserva já avaliada (inclusive uma avaliada em sessão anterior)
+- [x] README atualizado
+- [x] Cobertura mínima — combinado: **80.73%** (2971/3680 linhas), acima do mínimo de 80% do gate de CI (mais apertado que os marcos anteriores — componente/tela novos ainda com poucos cenários de teste; ver "Ideias futuras" se quiser ampliar depois)
+
 ## Ideias futuras (fora da numeração)
 
 - Golden tests (regressão visual) pros componentes do `dbook_design_system`

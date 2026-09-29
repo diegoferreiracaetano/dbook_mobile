@@ -28,6 +28,10 @@ final paymentRepositoryProvider = Provider<PaymentRepository>(
   (ref) => PaymentRepositoryImpl(ref.watch(dioProvider)),
 );
 
+final reviewRepositoryProvider = Provider<ReviewRepository>(
+  (ref) => ReviewRepositoryImpl(ref.watch(dioProvider)),
+);
+
 final myBookingsNotifierProvider =
     AsyncNotifierProvider<MyBookingsNotifier, List<MyBooking>>(
       MyBookingsNotifier.new,

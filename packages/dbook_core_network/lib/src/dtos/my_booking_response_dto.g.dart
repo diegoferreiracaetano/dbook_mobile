@@ -13,6 +13,9 @@ _MyBookingResponseDto _$MyBookingResponseDtoFromJson(
   status: json['status'] as String,
   seat: SeatResponseDto.fromJson(json['seat'] as Map<String, dynamic>),
   flight: FlightResponseDto.fromJson(json['flight'] as Map<String, dynamic>),
+  review: json['review'] == null
+      ? null
+      : ReviewResponseDto.fromJson(json['review'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$MyBookingResponseDtoToJson(
@@ -22,4 +25,5 @@ Map<String, dynamic> _$MyBookingResponseDtoToJson(
   'status': instance.status,
   'seat': instance.seat,
   'flight': instance.flight,
+  'review': instance.review,
 };

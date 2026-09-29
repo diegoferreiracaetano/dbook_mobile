@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'booking_status.dart';
 import 'flight.dart';
+import 'review.dart';
 import 'seat.dart';
 
 part 'my_booking.freezed.dart';
@@ -18,5 +19,6 @@ abstract class MyBooking with _$MyBooking {
     required BookingStatus status,
     required Flight flight,
     required Seat seat,
+    Review? review,
   }) = _MyBooking;
 }

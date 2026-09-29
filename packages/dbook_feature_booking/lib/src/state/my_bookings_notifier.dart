@@ -22,4 +22,18 @@ class MyBookingsNotifier extends AsyncNotifier<List<MyBooking>> {
     ref.invalidateSelf();
     await future;
   }
+
+  /// Deixa o `DbookNetworkException` (400/403/404/409...) passar pra quem
+  /// chamou tratar — mesma ideia do [cancel]. Não invalida a lista: o
+  /// backend não devolve "já avaliada" no `GET /bookings`, então não tem
+  /// nada novo pra re-buscar depois de avaliar.
+  Future<void> review(
+    int bookingId, {
+    required int rating,
+    required String comment,
+  }) {
+    return ref
+        .read(reviewRepositoryProvider)
+        .create(bookingId: bookingId, rating: rating, comment: comment);
+  }
 }

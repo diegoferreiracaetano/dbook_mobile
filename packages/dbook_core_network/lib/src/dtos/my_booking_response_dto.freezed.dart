@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$MyBookingResponseDto {
 
- int? get id; String get status; SeatResponseDto get seat; FlightResponseDto get flight;
+ int? get id; String get status; SeatResponseDto get seat; FlightResponseDto get flight; ReviewResponseDto? get review;
 /// Create a copy of MyBookingResponseDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,20 +30,20 @@ $MyBookingResponseDtoCopyWith<MyBookingResponseDto> get copyWith => _$MyBookingR
 @override
 bool operator ==(Object other) {
   final _this = this as MyBookingResponseDto;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MyBookingResponseDto&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.seat, _this.seat) || other.seat == _this.seat)&&(identical(other.flight, _this.flight) || other.flight == _this.flight));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MyBookingResponseDto&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.seat, _this.seat) || other.seat == _this.seat)&&(identical(other.flight, _this.flight) || other.flight == _this.flight)&&(identical(other.review, _this.review) || other.review == _this.review));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as MyBookingResponseDto;
-  return Object.hash(runtimeType,_this.id,_this.status,_this.seat,_this.flight);
+  return Object.hash(runtimeType,_this.id,_this.status,_this.seat,_this.flight,_this.review);
 }
 
 @override
 String toString() {
   final _this = this as MyBookingResponseDto;
-  return 'MyBookingResponseDto(id: ${_this.id}, status: ${_this.status}, seat: ${_this.seat}, flight: ${_this.flight})';
+  return 'MyBookingResponseDto(id: ${_this.id}, status: ${_this.status}, seat: ${_this.seat}, flight: ${_this.flight}, review: ${_this.review})';
 }
 
 
@@ -54,11 +54,11 @@ abstract mixin class $MyBookingResponseDtoCopyWith<$Res>  {
   factory $MyBookingResponseDtoCopyWith(MyBookingResponseDto value, $Res Function(MyBookingResponseDto) _then) = _$MyBookingResponseDtoCopyWithImpl;
 @useResult
 $Res call({
- int? id, String status, SeatResponseDto seat, FlightResponseDto flight
+ int? id, String status, SeatResponseDto seat, FlightResponseDto flight, ReviewResponseDto? review
 });
 
 
-$SeatResponseDtoCopyWith<$Res> get seat;$FlightResponseDtoCopyWith<$Res> get flight;
+$SeatResponseDtoCopyWith<$Res> get seat;$FlightResponseDtoCopyWith<$Res> get flight;$ReviewResponseDtoCopyWith<$Res>? get review;
 
 }
 /// @nodoc
@@ -71,13 +71,14 @@ class _$MyBookingResponseDtoCopyWithImpl<$Res>
 
 /// Create a copy of MyBookingResponseDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? status = null,Object? seat = null,Object? flight = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? status = null,Object? seat = null,Object? flight = null,Object? review = freezed,}) {
   return _then(MyBookingResponseDto(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,seat: null == seat ? _self.seat : seat // ignore: cast_nullable_to_non_nullable
 as SeatResponseDto,flight: null == flight ? _self.flight : flight // ignore: cast_nullable_to_non_nullable
-as FlightResponseDto,
+as FlightResponseDto,review: freezed == review ? _self.review : review // ignore: cast_nullable_to_non_nullable
+as ReviewResponseDto?,
   ));
 }
 /// Create a copy of MyBookingResponseDto
@@ -97,6 +98,18 @@ $FlightResponseDtoCopyWith<$Res> get flight {
   
   return $FlightResponseDtoCopyWith<$Res>(_self.flight, (value) {
     return _then(_self.copyWith(flight: value));
+  });
+}/// Create a copy of MyBookingResponseDto
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ReviewResponseDtoCopyWith<$Res>? get review {
+    if (_self.review == null) {
+    return null;
+  }
+
+  return $ReviewResponseDtoCopyWith<$Res>(_self.review!, (value) {
+    return _then(_self.copyWith(review: value));
   });
 }
 }
@@ -180,10 +193,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String status,  SeatResponseDto seat,  FlightResponseDto flight)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String status,  SeatResponseDto seat,  FlightResponseDto flight,  ReviewResponseDto? review)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _MyBookingResponseDto() when $default != null:
-return $default(_that.id,_that.status,_that.seat,_that.flight);case _:
+return $default(_that.id,_that.status,_that.seat,_that.flight,_that.review);case _:
   return orElse();
 
 }
@@ -201,10 +214,10 @@ return $default(_that.id,_that.status,_that.seat,_that.flight);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String status,  SeatResponseDto seat,  FlightResponseDto flight)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String status,  SeatResponseDto seat,  FlightResponseDto flight,  ReviewResponseDto? review)  $default,) {final _that = this;
 switch (_that) {
 case _MyBookingResponseDto():
-return $default(_that.id,_that.status,_that.seat,_that.flight);case _:
+return $default(_that.id,_that.status,_that.seat,_that.flight,_that.review);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -221,10 +234,10 @@ return $default(_that.id,_that.status,_that.seat,_that.flight);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String status,  SeatResponseDto seat,  FlightResponseDto flight)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String status,  SeatResponseDto seat,  FlightResponseDto flight,  ReviewResponseDto? review)?  $default,) {final _that = this;
 switch (_that) {
 case _MyBookingResponseDto() when $default != null:
-return $default(_that.id,_that.status,_that.seat,_that.flight);case _:
+return $default(_that.id,_that.status,_that.seat,_that.flight,_that.review);case _:
   return null;
 
 }
@@ -236,13 +249,14 @@ return $default(_that.id,_that.status,_that.seat,_that.flight);case _:
 @JsonSerializable()
 
 class _MyBookingResponseDto extends MyBookingResponseDto {
-  const _MyBookingResponseDto({required this.id, required this.status, required this.seat, required this.flight}): super._();
+  const _MyBookingResponseDto({required this.id, required this.status, required this.seat, required this.flight, this.review}): super._();
   factory _MyBookingResponseDto.fromJson(Map<String, dynamic> json) => _$MyBookingResponseDtoFromJson(json);
 
 @override final  int? id;
 @override final  String status;
 @override final  SeatResponseDto seat;
 @override final  FlightResponseDto flight;
+@override final  ReviewResponseDto? review;
 
 /// Create a copy of MyBookingResponseDto
 /// with the given fields replaced by the non-null parameter values.
@@ -257,18 +271,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _MyBookingResponseDto&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.seat, seat) || other.seat == seat)&&(identical(other.flight, flight) || other.flight == flight));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _MyBookingResponseDto&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.seat, seat) || other.seat == seat)&&(identical(other.flight, flight) || other.flight == flight)&&(identical(other.review, review) || other.review == review));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,status,seat,flight);
+    return Object.hash(runtimeType,id,status,seat,flight,review);
 }
 
 @override
 String toString() {
-    return 'MyBookingResponseDto(id: $id, status: $status, seat: $seat, flight: $flight)';
+    return 'MyBookingResponseDto(id: $id, status: $status, seat: $seat, flight: $flight, review: $review)';
 }
 
 
@@ -279,11 +293,11 @@ abstract mixin class _$MyBookingResponseDtoCopyWith<$Res> implements $MyBookingR
   factory _$MyBookingResponseDtoCopyWith(_MyBookingResponseDto value, $Res Function(_MyBookingResponseDto) _then) = __$MyBookingResponseDtoCopyWithImpl;
 @override @useResult
 $Res call({
- int? id, String status, SeatResponseDto seat, FlightResponseDto flight
+ int? id, String status, SeatResponseDto seat, FlightResponseDto flight, ReviewResponseDto? review
 });
 
 
-@override $SeatResponseDtoCopyWith<$Res> get seat;@override $FlightResponseDtoCopyWith<$Res> get flight;
+@override $SeatResponseDtoCopyWith<$Res> get seat;@override $FlightResponseDtoCopyWith<$Res> get flight;@override $ReviewResponseDtoCopyWith<$Res>? get review;
 
 }
 /// @nodoc
@@ -296,13 +310,14 @@ class __$MyBookingResponseDtoCopyWithImpl<$Res>
 
 /// Create a copy of MyBookingResponseDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? status = null,Object? seat = null,Object? flight = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? status = null,Object? seat = null,Object? flight = null,Object? review = freezed,}) {
   return _then(_MyBookingResponseDto(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,seat: null == seat ? _self.seat : seat // ignore: cast_nullable_to_non_nullable
 as SeatResponseDto,flight: null == flight ? _self.flight : flight // ignore: cast_nullable_to_non_nullable
-as FlightResponseDto,
+as FlightResponseDto,review: freezed == review ? _self.review : review // ignore: cast_nullable_to_non_nullable
+as ReviewResponseDto?,
   ));
 }
 
@@ -323,6 +338,18 @@ $FlightResponseDtoCopyWith<$Res> get flight {
   
   return $FlightResponseDtoCopyWith<$Res>(_self.flight, (value) {
     return _then(_self.copyWith(flight: value));
+  });
+}/// Create a copy of MyBookingResponseDto
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ReviewResponseDtoCopyWith<$Res>? get review {
+    if (_self.review == null) {
+    return null;
+  }
+
+  return $ReviewResponseDtoCopyWith<$Res>(_self.review!, (value) {
+    return _then(_self.copyWith(review: value));
   });
 }
 }

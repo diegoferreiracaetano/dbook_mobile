@@ -103,6 +103,26 @@ class _MyBookingsPageState extends ConsumerState<MyBookingsPage> {
     }
   }
 
+  Future<void> _review(
+    BuildContext context,
+    WidgetRef ref,
+    MyBooking booking,
+  ) async {
+    final result = await _showReviewDialog(context);
+    if (result == null) return;
+    if (!context.mounted) return;
+
+    try {
+      await ref
+          .read(myBookingsNotifierProvider.notifier)
+          .review(booking.id, rating: result.rating, comment: result.comment);
+    } on DbookNetworkException catch (error) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(error.message)));
+    }
+  }
+
   Future<void> _refresh() async {
     final _ = await ref.refresh(myBookingsNotifierProvider.future);
   }
@@ -121,6 +141,7 @@ class _MyBookingsPageState extends ConsumerState<MyBookingsPage> {
           onTabChanged: (index) => setState(() => _tabIndex = index),
           onRefresh: _refresh,
           onCancel: (booking) => _cancel(context, ref, booking),
+          onReview: (booking) => _review(context, ref, booking),
         ),
         AsyncError(:final error) => DbookStatusPlaceholder(
           icon: Icons.error_outline,
@@ -146,6 +167,7 @@ class _BookingsBody extends StatelessWidget {
     required this.onTabChanged,
     required this.onRefresh,
     required this.onCancel,
+    required this.onReview,
   });
 
   final List<MyBooking> bookings;
@@ -154,6 +176,7 @@ class _BookingsBody extends StatelessWidget {
   final ValueChanged<int> onTabChanged;
   final Future<void> Function() onRefresh;
   final void Function(MyBooking booking) onCancel;
+  final void Function(MyBooking booking) onReview;
 
   @override
   Widget build(BuildContext context) {
@@ -227,6 +250,9 @@ class _BookingsBody extends StatelessWidget {
                         onCancel: booking.status == BookingStatus.pending
                             ? () => onCancel(booking)
                             : null,
+                        onReview: booking.status == BookingStatus.confirmed
+                            ? () => onReview(booking)
+                            : null,
                       );
                     },
                   ),
@@ -242,11 +268,13 @@ class _BookingCard extends StatelessWidget {
     required this.booking,
     required this.destination,
     this.onCancel,
+    this.onReview,
   });
 
   final MyBooking booking;
   final Destination? destination;
   final VoidCallback? onCancel;
+  final VoidCallback? onReview;
 
   @override
   Widget build(BuildContext context) {
@@ -254,6 +282,7 @@ class _BookingCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final flight = booking.flight;
     final airlineColor = _airlineColor(flight.airlineIataCode);
+    final review = booking.review;
 
     return Card(
       child: Padding(
@@ -323,6 +352,22 @@ class _BookingCard extends StatelessWidget {
                       onPressed: onCancel,
                     ),
                   ],
+                  if (review != null) ...[
+                    const SizedBox(height: DbookSpacing.sm),
+                    DbookRatingStars(
+                      rating: review.rating,
+                      onRatingSelected: (_) {},
+                    ),
+                    const SizedBox(height: DbookSpacing.xs),
+                    Text(review.comment, style: textTheme.bodySmall),
+                  ] else if (onReview != null) ...[
+                    const SizedBox(height: DbookSpacing.sm),
+                    DbookButton(
+                      label: 'Avaliar',
+                      variant: DbookButtonVariant.text,
+                      onPressed: onReview,
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -365,6 +410,71 @@ class _DestinationThumbnail extends StatelessWidget {
               )
             : Image.network(photoUrl!, fit: BoxFit.cover),
       ),
+    );
+  }
+}
+
+Future<({int rating, String comment})?> _showReviewDialog(
+  BuildContext context,
+) {
+  return showDialog<({int rating, String comment})>(
+    context: context,
+    builder: (context) => const _ReviewDialog(),
+  );
+}
+
+class _ReviewDialog extends StatefulWidget {
+  const _ReviewDialog();
+
+  @override
+  State<_ReviewDialog> createState() => _ReviewDialogState();
+}
+
+class _ReviewDialogState extends State<_ReviewDialog> {
+  var _rating = 0;
+  final _commentController = TextEditingController();
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Avaliar viagem'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          DbookRatingStars(
+            rating: _rating,
+            onRatingSelected: (rating) => setState(() => _rating = rating),
+          ),
+          const SizedBox(height: DbookSpacing.md),
+          TextField(
+            controller: _commentController,
+            onChanged: (_) => setState(() {}),
+            decoration: const InputDecoration(hintText: 'Comentário'),
+            maxLines: 3,
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancelar'),
+        ),
+        DbookButton(
+          label: 'Enviar',
+          onPressed: _rating == 0 || _commentController.text.trim().isEmpty
+              ? null
+              : () => Navigator.of(context).pop((
+                  rating: _rating,
+                  comment: _commentController.text.trim(),
+                )),
+        ),
+      ],
     );
   }
 }
