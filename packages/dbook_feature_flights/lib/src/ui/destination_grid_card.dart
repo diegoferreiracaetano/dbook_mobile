@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../state/favorite_destinations_notifier.dart';
+import '../state/flight_providers.dart';
 import 'destination_gradient.dart';
 
 final _priceFormat = NumberFormat.currency(symbol: r'$', decimalDigits: 0);
@@ -16,7 +17,12 @@ final _priceFormat = NumberFormat.currency(symbol: r'$', decimalDigits: 0);
 /// Aqui a altura é exatamente foto (3:2) + bloco de texto (cidade+país,
 /// medido a partir dos tokens de tipografia: `labelLarge` 20 + `bodySmall`
 /// 16 + padding vertical 12 = 48), então nunca sobra nem falta espaço.
-class DestinationCardGrid extends StatelessWidget {
+///
+/// Nunca oferece como destino o aeroporto de onde a busca já está saindo
+/// ([searchOriginProvider]): tocar nele montaria uma busca de uma cidade
+/// pra ela mesma, que nunca devolve voo. É o único lugar que filtra isso
+/// porque Home, Explore e a listagem por região passam todas por aqui.
+class DestinationCardGrid extends ConsumerWidget {
   const DestinationCardGrid({
     super.key,
     required this.destinations,
@@ -31,7 +37,12 @@ class DestinationCardGrid extends StatelessWidget {
   static const _textBlockHeight = 48.0;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final originIataCode = ref.watch(searchOriginProvider)?.origin.iataCode;
+    final offered = destinations
+        .where((destination) => destination.iataCode != originIataCode)
+        .toList();
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final totalSpacing = DbookSpacing.md * (crossAxisCount - 1);
@@ -48,9 +59,9 @@ class DestinationCardGrid extends StatelessWidget {
             crossAxisSpacing: DbookSpacing.md,
             mainAxisExtent: cellHeight,
           ),
-          itemCount: destinations.length,
+          itemCount: offered.length,
           itemBuilder: (context, index) {
-            final destination = destinations[index];
+            final destination = offered[index];
             return DestinationCard(
               destination: destination,
               onTap: () => onSelect(destination),

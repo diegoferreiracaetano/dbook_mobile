@@ -23,6 +23,43 @@ Widget _app(Widget home) {
   );
 }
 
+class _FixedSearchOrigin extends SearchOriginNotifier {
+  _FixedSearchOrigin(this._origin);
+
+  final SearchOrigin? _origin;
+
+  @override
+  SearchOrigin? build() => _origin;
+}
+
+Widget _gridApp(SearchOrigin? origin, List<Destination> destinations) {
+  return ProviderScope(
+    overrides: [
+      searchOriginProvider.overrideWith(() => _FixedSearchOrigin(origin)),
+    ],
+    child: MaterialApp(
+      theme: DbookTheme.light,
+      home: Scaffold(
+        body: SingleChildScrollView(
+          child: DestinationCardGrid(
+            destinations: destinations,
+            onSelect: (_) {},
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+const _gig = Destination(
+  iataCode: 'GIG',
+  city: 'Rio de Janeiro',
+  country: 'Brasil',
+  photoUrl: 'https://example.com/gig.jpg',
+  region: 'América do Sul',
+  isPopular: true,
+);
+
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
@@ -114,6 +151,35 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.star), findsNothing);
+    },
+  );
+
+  testWidgetsWithMockImages(
+    'given a search leaving from GRU when the grid builds then GRU is not '
+    'offered as a destination, but the others are',
+    (tester) async {
+      await tester.pumpWidget(
+        _gridApp(
+          (origin: _destination, date: DateTime(2026, 10, 3)),
+          [_destination, _gig],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('São Paulo'), findsNothing);
+      expect(find.text('Rio de Janeiro'), findsOneWidget);
+    },
+  );
+
+  testWidgetsWithMockImages(
+    'given no search origin yet when the grid builds then every destination '
+    'is offered',
+    (tester) async {
+      await tester.pumpWidget(_gridApp(null, [_destination, _gig]));
+      await tester.pumpAndSettle();
+
+      expect(find.text('São Paulo'), findsOneWidget);
+      expect(find.text('Rio de Janeiro'), findsOneWidget);
     },
   );
 }

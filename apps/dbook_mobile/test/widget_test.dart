@@ -637,7 +637,9 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(RegionDestinationsPage), findsOneWidget);
-      expect(find.text(_destinations[0].city), findsOneWidget); // São Paulo
+      // A busca sai de São Paulo (GRU): a própria origem não é oferecida como
+      // destino, só o Rio — e New York, de outra região, nem aparece.
+      expect(find.text(_destinations[0].city), findsNothing); // São Paulo
       expect(find.text(_destinations[1].city), findsOneWidget); // Rio
       expect(find.text(_destinations[2].city), findsNothing); // New York
     },
@@ -665,7 +667,7 @@ void main() {
       await tester.scrollUntilVisible(region, 200, scrollable: homeScrollable);
       await tester.tap(region);
       await tester.pumpAndSettle();
-      await tester.tap(find.text(_destinations[0].city)); // São Paulo
+      await tester.tap(find.text(_destinations[1].city)); // Rio
       await tester.pumpAndSettle();
 
       expect(find.text('Iberia · IB 6821'), findsOneWidget);
