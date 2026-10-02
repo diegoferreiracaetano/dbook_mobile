@@ -50,6 +50,10 @@ jobs:
   build-android:
     needs: analyze-format-test
     runs-on: ubuntu-latest
+    # `secrets` não existe no `if` de um passo (o GitHub recusa o workflow
+    # inteiro), então o secret vai pro `env` do job e o `if` testa o `env`.
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
 
     steps:
       - uses: actions/checkout@v4
@@ -75,14 +79,16 @@ jobs:
       # configurado), o build.gradle.kts cai pra assinatura de debug
       # sozinho — o release builda igual, só não sai pronto pra publicar.
       - name: Set up release signing
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
         working-directory: apps/dbook_mobile/android
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > app/release.jks
-          echo "storeFile=release.jks" > key.properties
-          echo "storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> key.properties
-          echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> key.properties
-          echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >> key.properties
+          {
+            echo "storeFile=release.jks"
+            echo "storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
+            echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}"
+            echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}"
+          } > key.properties
 
       - name: Build release APK
         working-directory: apps/dbook_mobile
