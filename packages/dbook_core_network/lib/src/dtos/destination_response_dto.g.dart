@@ -16,6 +16,7 @@ _DestinationResponseDto _$DestinationResponseDtoFromJson(
   region: json['region'] as String,
   isPopular: json['isPopular'] as bool,
   lowestPrice: (json['lowestPrice'] as num?)?.toDouble(),
+  averageRating: (json['averageRating'] as num?)?.toDouble(),
 );
 
 Map<String, dynamic> _$DestinationResponseDtoToJson(
@@ -28,4 +29,5 @@ Map<String, dynamic> _$DestinationResponseDtoToJson(
   'region': instance.region,
   'isPopular': instance.isPopular,
   'lowestPrice': instance.lowestPrice,
+  'averageRating': instance.averageRating,
 };

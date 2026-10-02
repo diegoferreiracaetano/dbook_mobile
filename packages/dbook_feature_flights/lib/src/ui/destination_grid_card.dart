@@ -79,9 +79,10 @@ class DestinationCard extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final isFavorite =
-        ref.watch(favoriteDestinationsProvider).value?.contains(
-          destination.iataCode,
-        ) ??
+        ref
+            .watch(favoriteDestinationsProvider)
+            .value
+            ?.contains(destination.iataCode) ??
         false;
     final lowestPrice = destination.lowestPrice;
 
@@ -143,6 +144,18 @@ class DestinationCard extends ConsumerWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      if (destination.averageRating != null) ...[
+                        Icon(Icons.star, size: 12, color: colorScheme.primary),
+                        const SizedBox(width: 2),
+                        Text(
+                          destination.averageRating!.toStringAsFixed(1),
+                          style: textTheme.bodySmall?.copyWith(
+                            color: colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(width: DbookSpacing.xs),
+                      ],
                       if (lowestPrice != null)
                         Text(
                           'from ${_priceFormat.format(lowestPrice)}',
@@ -184,7 +197,9 @@ class _FavoriteButton extends StatelessWidget {
           child: Icon(
             isFavorite ? Icons.favorite : Icons.favorite_border,
             size: 18,
-            color: isFavorite ? colorScheme.error : colorScheme.onSurfaceVariant,
+            color: isFavorite
+                ? colorScheme.error
+                : colorScheme.onSurfaceVariant,
           ),
         ),
       ),

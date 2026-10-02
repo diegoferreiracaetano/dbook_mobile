@@ -17,6 +17,7 @@ abstract class DestinationResponseDto with _$DestinationResponseDto {
     required String region,
     required bool isPopular,
     double? lowestPrice,
+    double? averageRating,
   }) = _DestinationResponseDto;
 
   factory DestinationResponseDto.fromJson(Map<String, dynamic> json) =>
@@ -31,6 +32,7 @@ abstract class DestinationResponseDto with _$DestinationResponseDto {
       region: region,
       isPopular: isPopular,
       lowestPrice: lowestPrice,
+      averageRating: averageRating,
     );
   }
 }

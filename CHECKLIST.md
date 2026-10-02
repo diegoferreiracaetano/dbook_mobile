@@ -738,6 +738,33 @@ próximo (`Payment`/`PaymentRepositoryImpl`/`PaymentPage`).
 - [x] README atualizado
 - [x] Cobertura mínima — combinado: **80.73%** (2971/3680 linhas), acima do mínimo de 80% do gate de CI (mais apertado que os marcos anteriores — componente/tela novos ainda com poucos cenários de teste; ver "Ideias futuras" se quiser ampliar depois)
 
+## M21 — Nota média de cada destino na Home ✅
+
+Decisão (2026-10-02): pedido do dono pra fechar o ciclo do M20 — quem avalia
+uma viagem agora também faz a nota aparecer na lista de destinos pra quem
+ainda vai escolher. A nota **vem pronta do backend**: `GET /destinations`
+ganhou `averageRating` (média 1-5 das avaliações das reservas de voos pra
+aquele destino, `null` enquanto ninguém avaliou — ver `../dbook/CHECKLIST.md`
+M19, item 19.11). O app não calcula nem aproxima nada (front burro).
+Escrito pelo próprio dono, camada por camada, revisado item a item.
+
+- [x] 21.1 `dbook_domain`: `Destination` ganha `double? averageRating` (opcional, igual `lowestPrice`)
+- [x] 21.2 `dbook_core_network`: `DestinationResponseDto` ganha `averageRating` e o `toDomain()` repassa. Campo novo e opcional no contrato — o app antigo continuava funcionando contra o backend novo, nenhuma versão quebra
+- [x] 21.3 `dbook_feature_flights`: `DestinationCard` mostra um selo compacto (ícone de estrela + nota com 1 casa decimal, `toStringAsFixed(1)`) ao lado do preço quando `averageRating != null`; sem nota, nada aparece. **Decisão de engenharia:** não reaproveitei o `DbookRatingStars` aqui — ele tem tamanho de área de toque e o texto do card tem altura fixa (`_textBlockHeight = 48`), então estouraria o layout; selo pequeno é o formato certo pra um card denso. Como só há um uso, fica inline no card, não vira componente do design system (regra do projeto: widget de uso único não sobe pro design system). O mesmo card alimenta a Home, o Explore e a listagem por região, então a nota aparece nos três
+- [x] 21.4 Testes: `destination_grid_card_test.dart` (nota aparece arredondada: `4.6667` → `4.7`; destino sem avaliação não mostra selo) e `destination_response_dto_test.dart` (`averageRating` presente é mantido no domínio, `null` continua `null` — regra do projeto: mudança de contrato com o backend atualiza o teste do DTO)
+- [x] 21.5 `melos run analyze` + `melos run test` + `melos run test:dart` limpos em todo o workspace; `build_runner` nos dois pacotes sem nada a regerar
+
+**Checklist de fechamento do M21:**
+- [x] Itens 21.1-21.5 revisados
+- [x] Clean Code
+- [x] Arquitetura (nenhuma feature importando outra; a decisão de mostrar ou não vem só do dado do backend; nenhum estado aproximado localmente)
+- [x] `melos run analyze` — `SUCCESS` nos 10 pacotes; `melos run test`/`test:dart` verdes
+- [x] Testado ponta a ponta no Browser pane (backend real na 8080, Postgres via `docker compose`): na Home, São Paulo `★ 5.0 from $304` e Rio de Janeiro `★ 4.7 from $45` (média real 4.67, arredondada); New York e Londres, sem nenhuma avaliação, mostram só o preço, sem selo. Conferido também em largura de celular (375px): sem overflow, o texto do país encolhe pra abrir espaço
+- [x] README atualizado
+- [x] Cobertura mínima — combinado: **80.79%** (2982/3691 linhas), acima do mínimo de 80% do gate de CI
+
+**Observação (não corrigida neste marco):** em largura de celular, `Estados Unidos` e `from $304` do card de New York já ficavam colados antes da feature — o selo não piorou isso, mas um espaçamento mínimo entre o país e o preço vale uma passada depois.
+
 ## Ideias futuras (fora da numeração)
 
 - Golden tests (regressão visual) pros componentes do `dbook_design_system`

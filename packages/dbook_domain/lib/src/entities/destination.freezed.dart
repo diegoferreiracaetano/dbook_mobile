@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Destination {
 
- String get iataCode; String get city; String get country; String get photoUrl; String get region; bool get isPopular; double? get lowestPrice;
+ String get iataCode; String get city; String get country; String get photoUrl; String get region; bool get isPopular; double? get lowestPrice; double? get averageRating;
 /// Create a copy of Destination
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -27,20 +27,20 @@ $DestinationCopyWith<Destination> get copyWith => _$DestinationCopyWithImpl<Dest
 @override
 bool operator ==(Object other) {
   final _this = this as Destination;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Destination&&(identical(other.iataCode, _this.iataCode) || other.iataCode == _this.iataCode)&&(identical(other.city, _this.city) || other.city == _this.city)&&(identical(other.country, _this.country) || other.country == _this.country)&&(identical(other.photoUrl, _this.photoUrl) || other.photoUrl == _this.photoUrl)&&(identical(other.region, _this.region) || other.region == _this.region)&&(identical(other.isPopular, _this.isPopular) || other.isPopular == _this.isPopular)&&(identical(other.lowestPrice, _this.lowestPrice) || other.lowestPrice == _this.lowestPrice));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Destination&&(identical(other.iataCode, _this.iataCode) || other.iataCode == _this.iataCode)&&(identical(other.city, _this.city) || other.city == _this.city)&&(identical(other.country, _this.country) || other.country == _this.country)&&(identical(other.photoUrl, _this.photoUrl) || other.photoUrl == _this.photoUrl)&&(identical(other.region, _this.region) || other.region == _this.region)&&(identical(other.isPopular, _this.isPopular) || other.isPopular == _this.isPopular)&&(identical(other.lowestPrice, _this.lowestPrice) || other.lowestPrice == _this.lowestPrice)&&(identical(other.averageRating, _this.averageRating) || other.averageRating == _this.averageRating));
 }
 
 
 @override
 int get hashCode {
   final _this = this as Destination;
-  return Object.hash(runtimeType,_this.iataCode,_this.city,_this.country,_this.photoUrl,_this.region,_this.isPopular,_this.lowestPrice);
+  return Object.hash(runtimeType,_this.iataCode,_this.city,_this.country,_this.photoUrl,_this.region,_this.isPopular,_this.lowestPrice,_this.averageRating);
 }
 
 @override
 String toString() {
   final _this = this as Destination;
-  return 'Destination(iataCode: ${_this.iataCode}, city: ${_this.city}, country: ${_this.country}, photoUrl: ${_this.photoUrl}, region: ${_this.region}, isPopular: ${_this.isPopular}, lowestPrice: ${_this.lowestPrice})';
+  return 'Destination(iataCode: ${_this.iataCode}, city: ${_this.city}, country: ${_this.country}, photoUrl: ${_this.photoUrl}, region: ${_this.region}, isPopular: ${_this.isPopular}, lowestPrice: ${_this.lowestPrice}, averageRating: ${_this.averageRating})';
 }
 
 
@@ -51,7 +51,7 @@ abstract mixin class $DestinationCopyWith<$Res>  {
   factory $DestinationCopyWith(Destination value, $Res Function(Destination) _then) = _$DestinationCopyWithImpl;
 @useResult
 $Res call({
- String iataCode, String city, String country, String photoUrl, String region, bool isPopular, double? lowestPrice
+ String iataCode, String city, String country, String photoUrl, String region, bool isPopular, double? lowestPrice, double? averageRating
 });
 
 
@@ -68,7 +68,7 @@ class _$DestinationCopyWithImpl<$Res>
 
 /// Create a copy of Destination
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? iataCode = null,Object? city = null,Object? country = null,Object? photoUrl = null,Object? region = null,Object? isPopular = null,Object? lowestPrice = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? iataCode = null,Object? city = null,Object? country = null,Object? photoUrl = null,Object? region = null,Object? isPopular = null,Object? lowestPrice = freezed,Object? averageRating = freezed,}) {
   return _then(Destination(
 iataCode: null == iataCode ? _self.iataCode : iataCode // ignore: cast_nullable_to_non_nullable
 as String,city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
@@ -77,6 +77,7 @@ as String,photoUrl: null == photoUrl ? _self.photoUrl : photoUrl // ignore: cast
 as String,region: null == region ? _self.region : region // ignore: cast_nullable_to_non_nullable
 as String,isPopular: null == isPopular ? _self.isPopular : isPopular // ignore: cast_nullable_to_non_nullable
 as bool,lowestPrice: freezed == lowestPrice ? _self.lowestPrice : lowestPrice // ignore: cast_nullable_to_non_nullable
+as double?,averageRating: freezed == averageRating ? _self.averageRating : averageRating // ignore: cast_nullable_to_non_nullable
 as double?,
   ));
 }
@@ -162,10 +163,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String iataCode,  String city,  String country,  String photoUrl,  String region,  bool isPopular,  double? lowestPrice)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String iataCode,  String city,  String country,  String photoUrl,  String region,  bool isPopular,  double? lowestPrice,  double? averageRating)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Destination() when $default != null:
-return $default(_that.iataCode,_that.city,_that.country,_that.photoUrl,_that.region,_that.isPopular,_that.lowestPrice);case _:
+return $default(_that.iataCode,_that.city,_that.country,_that.photoUrl,_that.region,_that.isPopular,_that.lowestPrice,_that.averageRating);case _:
   return orElse();
 
 }
@@ -183,10 +184,10 @@ return $default(_that.iataCode,_that.city,_that.country,_that.photoUrl,_that.reg
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String iataCode,  String city,  String country,  String photoUrl,  String region,  bool isPopular,  double? lowestPrice)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String iataCode,  String city,  String country,  String photoUrl,  String region,  bool isPopular,  double? lowestPrice,  double? averageRating)  $default,) {final _that = this;
 switch (_that) {
 case _Destination():
-return $default(_that.iataCode,_that.city,_that.country,_that.photoUrl,_that.region,_that.isPopular,_that.lowestPrice);case _:
+return $default(_that.iataCode,_that.city,_that.country,_that.photoUrl,_that.region,_that.isPopular,_that.lowestPrice,_that.averageRating);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -203,10 +204,10 @@ return $default(_that.iataCode,_that.city,_that.country,_that.photoUrl,_that.reg
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String iataCode,  String city,  String country,  String photoUrl,  String region,  bool isPopular,  double? lowestPrice)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String iataCode,  String city,  String country,  String photoUrl,  String region,  bool isPopular,  double? lowestPrice,  double? averageRating)?  $default,) {final _that = this;
 switch (_that) {
 case _Destination() when $default != null:
-return $default(_that.iataCode,_that.city,_that.country,_that.photoUrl,_that.region,_that.isPopular,_that.lowestPrice);case _:
+return $default(_that.iataCode,_that.city,_that.country,_that.photoUrl,_that.region,_that.isPopular,_that.lowestPrice,_that.averageRating);case _:
   return null;
 
 }
@@ -218,7 +219,7 @@ return $default(_that.iataCode,_that.city,_that.country,_that.photoUrl,_that.reg
 
 
 class _Destination extends Destination {
-  const _Destination({required this.iataCode, required this.city, required this.country, required this.photoUrl, required this.region, required this.isPopular, this.lowestPrice}): super._();
+  const _Destination({required this.iataCode, required this.city, required this.country, required this.photoUrl, required this.region, required this.isPopular, this.lowestPrice, this.averageRating}): super._();
   
 
 @override final  String iataCode;
@@ -228,6 +229,7 @@ class _Destination extends Destination {
 @override final  String region;
 @override final  bool isPopular;
 @override final  double? lowestPrice;
+@override final  double? averageRating;
 
 /// Create a copy of Destination
 /// with the given fields replaced by the non-null parameter values.
@@ -239,18 +241,18 @@ _$DestinationCopyWith<_Destination> get copyWith => __$DestinationCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Destination&&(identical(other.iataCode, iataCode) || other.iataCode == iataCode)&&(identical(other.city, city) || other.city == city)&&(identical(other.country, country) || other.country == country)&&(identical(other.photoUrl, photoUrl) || other.photoUrl == photoUrl)&&(identical(other.region, region) || other.region == region)&&(identical(other.isPopular, isPopular) || other.isPopular == isPopular)&&(identical(other.lowestPrice, lowestPrice) || other.lowestPrice == lowestPrice));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Destination&&(identical(other.iataCode, iataCode) || other.iataCode == iataCode)&&(identical(other.city, city) || other.city == city)&&(identical(other.country, country) || other.country == country)&&(identical(other.photoUrl, photoUrl) || other.photoUrl == photoUrl)&&(identical(other.region, region) || other.region == region)&&(identical(other.isPopular, isPopular) || other.isPopular == isPopular)&&(identical(other.lowestPrice, lowestPrice) || other.lowestPrice == lowestPrice)&&(identical(other.averageRating, averageRating) || other.averageRating == averageRating));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,iataCode,city,country,photoUrl,region,isPopular,lowestPrice);
+    return Object.hash(runtimeType,iataCode,city,country,photoUrl,region,isPopular,lowestPrice,averageRating);
 }
 
 @override
 String toString() {
-    return 'Destination(iataCode: $iataCode, city: $city, country: $country, photoUrl: $photoUrl, region: $region, isPopular: $isPopular, lowestPrice: $lowestPrice)';
+    return 'Destination(iataCode: $iataCode, city: $city, country: $country, photoUrl: $photoUrl, region: $region, isPopular: $isPopular, lowestPrice: $lowestPrice, averageRating: $averageRating)';
 }
 
 
@@ -261,7 +263,7 @@ abstract mixin class _$DestinationCopyWith<$Res> implements $DestinationCopyWith
   factory _$DestinationCopyWith(_Destination value, $Res Function(_Destination) _then) = __$DestinationCopyWithImpl;
 @override @useResult
 $Res call({
- String iataCode, String city, String country, String photoUrl, String region, bool isPopular, double? lowestPrice
+ String iataCode, String city, String country, String photoUrl, String region, bool isPopular, double? lowestPrice, double? averageRating
 });
 
 
@@ -278,7 +280,7 @@ class __$DestinationCopyWithImpl<$Res>
 
 /// Create a copy of Destination
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? iataCode = null,Object? city = null,Object? country = null,Object? photoUrl = null,Object? region = null,Object? isPopular = null,Object? lowestPrice = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? iataCode = null,Object? city = null,Object? country = null,Object? photoUrl = null,Object? region = null,Object? isPopular = null,Object? lowestPrice = freezed,Object? averageRating = freezed,}) {
   return _then(_Destination(
 iataCode: null == iataCode ? _self.iataCode : iataCode // ignore: cast_nullable_to_non_nullable
 as String,city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
@@ -287,6 +289,7 @@ as String,photoUrl: null == photoUrl ? _self.photoUrl : photoUrl // ignore: cast
 as String,region: null == region ? _self.region : region // ignore: cast_nullable_to_non_nullable
 as String,isPopular: null == isPopular ? _self.isPopular : isPopular // ignore: cast_nullable_to_non_nullable
 as bool,lowestPrice: freezed == lowestPrice ? _self.lowestPrice : lowestPrice // ignore: cast_nullable_to_non_nullable
+as double?,averageRating: freezed == averageRating ? _self.averageRating : averageRating // ignore: cast_nullable_to_non_nullable
 as double?,
   ));
 }

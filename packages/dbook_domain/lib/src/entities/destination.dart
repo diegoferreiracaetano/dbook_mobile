@@ -19,6 +19,7 @@ abstract class Destination with _$Destination {
     required String region,
     required bool isPopular,
     double? lowestPrice,
+    double? averageRating,
   }) = _Destination;
 
   String get label => '$city ($iataCode)';

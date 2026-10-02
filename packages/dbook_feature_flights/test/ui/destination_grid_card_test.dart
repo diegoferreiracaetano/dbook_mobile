@@ -83,4 +83,37 @@ void main() {
       ]);
     },
   );
+
+  testWidgetsWithMockImages(
+    'given a destination with a real average rating when built then it '
+    'shows the star badge rounded to one decimal',
+    (tester) async {
+      await tester.pumpWidget(
+        _app(
+          Scaffold(
+            body: DestinationCard(
+              destination: _destination.copyWith(averageRating: 4.6667),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.star), findsOneWidget);
+      expect(find.text('4.7'), findsOneWidget);
+    },
+  );
+
+  testWidgetsWithMockImages(
+    'given a destination nobody reviewed when built then no rating badge '
+    'renders',
+    (tester) async {
+      await tester.pumpWidget(
+        _app(Scaffold(body: DestinationCard(destination: _destination))),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.star), findsNothing);
+    },
+  );
 }
