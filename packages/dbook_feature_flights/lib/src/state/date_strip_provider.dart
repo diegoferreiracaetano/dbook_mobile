@@ -24,7 +24,8 @@ class DateStripQuery {
       other.centerDate == centerDate;
 
   @override
-  int get hashCode => Object.hash(originIataCode, destinationIataCode, centerDate);
+  int get hashCode =>
+      Object.hash(originIataCode, destinationIataCode, centerDate);
 }
 
 /// Uma data da faixa e o menor preço real encontrado nela (ou `null` — sem

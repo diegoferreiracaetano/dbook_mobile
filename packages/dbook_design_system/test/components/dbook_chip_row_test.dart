@@ -5,9 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   const labels = ['Todos', 'América do Sul', 'Europa'];
 
-  testWidgets('given labels when built then every one renders', (
-    tester,
-  ) async {
+  testWidgets('given labels when built then every one renders', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         theme: DbookTheme.light,
@@ -26,25 +24,26 @@ void main() {
     expect(find.text('Europa'), findsOneWidget);
   });
 
-  testWidgets('given a tap on another chip then onSelected receives its index', (
-    tester,
-  ) async {
-    int? tappedIndex;
+  testWidgets(
+    'given a tap on another chip then onSelected receives its index',
+    (tester) async {
+      int? tappedIndex;
 
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: DbookTheme.light,
-        home: Scaffold(
-          body: DbookChipRow(
-            labels: labels,
-            selectedIndex: 0,
-            onSelected: (index) => tappedIndex = index,
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: DbookTheme.light,
+          home: Scaffold(
+            body: DbookChipRow(
+              labels: labels,
+              selectedIndex: 0,
+              onSelected: (index) => tappedIndex = index,
+            ),
           ),
         ),
-      ),
-    );
+      );
 
-    await tester.tap(find.text('Europa'));
-    expect(tappedIndex, 2);
-  });
+      await tester.tap(find.text('Europa'));
+      expect(tappedIndex, 2);
+    },
+  );
 }

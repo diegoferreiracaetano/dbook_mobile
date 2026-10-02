@@ -124,26 +124,25 @@ void main() {
     },
   );
 
-  testWidgets(
-    'given no searchLabel when built then no search button renders',
-    (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: DbookTheme.light,
-          home: const Scaffold(
-            body: DbookTripSummaryCard(
-              origin: 'São Paulo (GRU)',
-              destination: 'Madrid (MAD)',
-              dateRangeLabel: 'Jan 13 - Jan 30, 2026',
-              passengersLabel: '1 Adult, Economy',
-            ),
+  testWidgets('given no searchLabel when built then no search button renders', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: DbookTheme.light,
+        home: const Scaffold(
+          body: DbookTripSummaryCard(
+            origin: 'São Paulo (GRU)',
+            destination: 'Madrid (MAD)',
+            dateRangeLabel: 'Jan 13 - Jan 30, 2026',
+            passengersLabel: '1 Adult, Economy',
           ),
         ),
-      );
+      ),
+    );
 
-      expect(find.byIcon(Icons.search), findsNothing);
-    },
-  );
+    expect(find.byIcon(Icons.search), findsNothing);
+  });
 
   testWidgets(
     'given compact mode when built then route and summary render on one '

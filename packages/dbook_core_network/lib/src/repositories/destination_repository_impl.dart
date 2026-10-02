@@ -16,9 +16,9 @@ class DestinationRepositoryImpl implements DestinationRepository {
 
       return response.data!
           .map(
-            (json) => DestinationResponseDto.fromJson(
-              json as Map<String, dynamic>,
-            ).toDomain(),
+            (json) =>
+                DestinationResponseDto.fromJson(json as Map<String, dynamic>)
+                    .toDomain(),
           )
           .toList();
     } on DioException catch (error) {
