@@ -3,6 +3,7 @@ import 'package:dbook_core_session/dbook_core_session.dart';
 import 'package:dbook_domain/dbook_domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'idempotency_key.dart';
 import 'my_bookings_notifier.dart';
 import 'payment_notifier.dart';
 import 'payment_state.dart';
@@ -26,6 +27,10 @@ final bookingRepositoryProvider = Provider<BookingRepository>(
 
 final paymentRepositoryProvider = Provider<PaymentRepository>(
   (ref) => PaymentRepositoryImpl(ref.watch(dioProvider)),
+);
+
+final idempotencyKeyGeneratorProvider = Provider<String Function()>(
+  (ref) => generateIdempotencyKey,
 );
 
 final reviewRepositoryProvider = Provider<ReviewRepository>(

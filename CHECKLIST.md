@@ -765,6 +765,30 @@ Escrito pelo próprio dono, camada por camada, revisado item a item.
 
 **Observação (não corrigida neste marco):** em largura de celular, `Estados Unidos` e `from $304` do card de New York já ficavam colados antes da feature — o selo não piorou isso, mas um espaçamento mínimo entre o país e o preço vale uma passada depois.
 
+## M22 — Idempotência no pagamento (`Idempotency-Key`), espelhando o M21 do backend ✅
+
+Problema real: se a resposta do pagamento se perde (timeout, rede móvel ruim) e o
+usuário toca em "Pagar" de novo, o app mandava um pedido idêntico sem nenhuma
+marca — o backend não tinha como saber que era uma retentativa e respondia 409
+(as reservas já estavam `CONFIRMED`), embora o dinheiro tivesse sido cobrado.
+Agora `POST /payments` exige o header `Idempotency-Key` (ver `../dbook/CHECKLIST.md`
+M21) e o app manda um UUID por tentativa de pagamento. Escrito pelo próprio
+dono (produção); testes por mim.
+
+- [x] 22.1 `dbook_domain`: `PaymentRepository.pay` ganha `required String idempotencyKey`
+- [x] 22.2 `dbook_core_network`: `PaymentRepositoryImpl` manda a chave no header `Idempotency-Key` (por requisição, via `Options`)
+- [x] 22.3 `dbook_feature_booking`: `generateIdempotencyKey()` — UUID v4 com `Random.secure()`, **sem pacote novo** (regra do projeto: dependência só com pedido explícito; são 10 linhas) — e `idempotencyKeyGeneratorProvider`, um provider só para os testes trocarem por chaves previsíveis
+- [x] 22.4 `PaymentNotifier` guarda a **tentativa em aberto** (a chave + os dados do pedido). Tocar em "Pagar" de novo com os **mesmos dados** depois de um erro reaproveita a chave (se o pagamento tinha dado certo e só a resposta se perdeu, o backend devolve o original em vez de cobrar duas vezes); dados diferentes, ou um pagamento já concluído, geram uma chave nova. A regra espelha a do servidor (o "mesmo pedido" é o mesmo conjunto reservas + cartão + nome), então o app nunca provoca o 422 de "chave reutilizada com outro pedido" por conta própria. A tela continua sem saber de chave nenhuma (front burro)
+- [x] 22.5 Testes: notifier (mesma chave depois de erro com os mesmos dados; chave nova com dados diferentes; chave nova depois de um pagamento concluído), `idempotency_key_test.dart` (UUID v4 válido, chaves diferentes), `payment_repository_impl_test.dart` (o header sai na requisição para `/payments`)
+
+**Checklist de fechamento do M22:**
+- [x] Itens 22.1-22.5 revisados
+- [x] Arquitetura (nenhuma feature importando outra; chave gerada e guardada no notifier, nunca na tela)
+- [x] `melos run analyze` — `SUCCESS`; `dart format` limpo nos arquivos tocados (só eles, como manda o projeto); testes dos pacotes tocados e do app verdes
+- [x] Testado de ponta a ponta com o **`PaymentRepositoryImpl` real contra o backend real** (teste temporário, apagado depois): o 1º pagamento e o retry com a mesma chave devolveram o mesmo `id`; reutilizar a chave com outro cartão voltou a mensagem do backend (422) como exceção do app. Não foi clicado pela interface (a mudança não tem efeito visual)
+- [x] README atualizado
+- [x] Cobertura mínima — combinado: **81.35%** (3027/3721 linhas), acima do mínimo de 80% do gate de CI
+
 ## Ideias futuras (fora da numeração)
 
 - Golden tests (regressão visual) pros componentes do `dbook_design_system`

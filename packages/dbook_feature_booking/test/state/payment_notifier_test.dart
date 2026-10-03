@@ -26,20 +26,24 @@ class _FakeBookingRepository implements BookingRepository {
 class _FakePaymentRepository implements PaymentRepository {
   _FakePaymentRepository({this.error});
 
-  final DbookNetworkException? error;
+  DbookNetworkException? error;
   List<int>? capturedBookingIds;
   String? capturedCardLast4;
   String? capturedCardholderName;
+  final capturedKeys = <String>[];
 
   @override
   Future<Payment> pay({
     required List<int> bookingIds,
     required String cardLast4,
     required String cardholderName,
+    required String idempotencyKey,
   }) async {
     capturedBookingIds = bookingIds;
     capturedCardLast4 = cardLast4;
     capturedCardholderName = cardholderName;
+    capturedKeys.add(idempotencyKey);
+
     if (error != null) throw error!;
     return Payment(
       id: 55,
@@ -55,10 +59,14 @@ ProviderContainer _buildContainer({
   required PaymentRepository paymentRepository,
   required BookingRepository bookingRepository,
 }) {
+  var keyCount = 0;
   final container = ProviderContainer(
     overrides: [
       paymentRepositoryProvider.overrideWithValue(paymentRepository),
       bookingRepositoryProvider.overrideWithValue(bookingRepository),
+      idempotencyKeyGeneratorProvider.overrideWithValue(
+        () => 'key-${++keyCount}',
+      ),
     ],
   );
   addTearDown(container.dispose);
@@ -121,4 +129,79 @@ void main() {
       expect((state as PaymentError).message, 'Booking is no longer PENDING');
     },
   );
+
+  test('given a failed payment when the same data is sent again then reuses '
+      'the same idempotency key', () async {
+    final paymentRepository = _FakePaymentRepository(
+      error: const DbookUnknownNetworkException('timeout'),
+    );
+    final container = _buildContainer(
+      paymentRepository: paymentRepository,
+      bookingRepository: _FakeBookingRepository(),
+    );
+    final notifier = container.read(paymentNotifierProvider.notifier);
+
+    await notifier.pay(
+      bookingIds: [1],
+      cardLast4: '4242',
+      cardholderName: 'Jane Doe',
+    );
+    paymentRepository.error = null;
+    await notifier.pay(
+      bookingIds: [1],
+      cardLast4: '4242',
+      cardholderName: 'Jane Doe',
+    );
+
+    expect(paymentRepository.capturedKeys, ['key-1', 'key-1']);
+    expect(container.read(paymentNotifierProvider), isA<PaymentPaid>());
+  });
+
+  test('given a failed payment when different data is sent then uses a new '
+      'idempotency key', () async {
+    final paymentRepository = _FakePaymentRepository(
+      error: const DbookUnknownNetworkException('timeout'),
+    );
+    final container = _buildContainer(
+      paymentRepository: paymentRepository,
+      bookingRepository: _FakeBookingRepository(),
+    );
+    final notifier = container.read(paymentNotifierProvider.notifier);
+
+    await notifier.pay(
+      bookingIds: [1],
+      cardLast4: '4242',
+      cardholderName: 'Jane Doe',
+    );
+    await notifier.pay(
+      bookingIds: [1],
+      cardLast4: '1111',
+      cardholderName: 'Jane Doe',
+    );
+
+    expect(paymentRepository.capturedKeys, ['key-1', 'key-2']);
+  });
+
+  test('given a completed payment when paying again then uses a new '
+      'idempotency key', () async {
+    final paymentRepository = _FakePaymentRepository();
+    final container = _buildContainer(
+      paymentRepository: paymentRepository,
+      bookingRepository: _FakeBookingRepository(),
+    );
+    final notifier = container.read(paymentNotifierProvider.notifier);
+
+    await notifier.pay(
+      bookingIds: [1],
+      cardLast4: '4242',
+      cardholderName: 'Jane Doe',
+    );
+    await notifier.pay(
+      bookingIds: [1],
+      cardLast4: '4242',
+      cardholderName: 'Jane Doe',
+    );
+
+    expect(paymentRepository.capturedKeys, ['key-1', 'key-2']);
+  });
 }

@@ -8,9 +8,15 @@ abstract interface class PaymentRepository {
   /// autenticado de uma vez (ex. ida + volta de uma Round Trip), sem
   /// nunca enviar o número completo do cartão ou o CVV — só os 4 últimos
   /// dígitos e o nome do titular.
+  ///
+  /// [idempotencyKey] vai no header `Idempotency-Key`: se a resposta se
+  /// perder e o pedido for repetido com a mesma chave, o backend devolve o
+  /// pagamento original em vez de cobrar duas vezes. Uma chave por tentativa
+  /// de pagamento — quem gera e reaproveita é o `PaymentNotifier`.
   Future<Payment> pay({
     required List<int> bookingIds,
     required String cardLast4,
     required String cardholderName,
+    required String idempotencyKey,
   });
 }

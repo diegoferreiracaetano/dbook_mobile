@@ -15,6 +15,7 @@ class PaymentRepositoryImpl implements PaymentRepository {
     required List<int> bookingIds,
     required String cardLast4,
     required String cardholderName,
+    required String idempotencyKey,
   }) async {
     try {
       final response = await _dio.post<Map<String, dynamic>>(
@@ -24,6 +25,7 @@ class PaymentRepositoryImpl implements PaymentRepository {
           cardLast4: cardLast4,
           cardholderName: cardholderName,
         ).toJson(),
+        options: Options(headers: {'Idempotency-Key': idempotencyKey}),
       );
 
       return PaymentResponseDto.fromJson(response.data!).toDomain();
