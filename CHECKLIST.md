@@ -789,6 +789,15 @@ dono (produção); testes por mim.
 - [x] README atualizado
 - [x] Cobertura mínima — combinado: **81.35%** (3027/3721 linhas), acima do mínimo de 80% do gate de CI
 
+## M23 — API versionada: o app fala `/v1`, espelhando o M24 do backend ✅
+
+O backend passou a versionar a API de negócio pelo caminho (`/v1/...`; ver `../dbook/docs/versionamento.md`) e os caminhos antigos deixaram de existir. O app só precisou mudar **uma coisa**: a base URL.
+
+- [x] 23.1 `apps/dbook_mobile/lib/main.dart`: a base ganhou o `/v1` (`const _apiVersionPath = '/v1'`; o host vira `10.0.2.2` no emulador Android e `localhost` no resto). **Nenhum repositório mudou**: todos usam caminhos relativos (`/bookings`...) sobre o único `baseUrlProvider`, então trocar de versão é trocar só essa constante
+- [x] 23.2 **O WebSocket não herda o `/v1`**: a URL dele é derivada da base por `httpUri.replace(scheme: ..., path: '/ws')`, que **substitui** o caminho inteiro, então continua `ws://host:8080/ws` (o `/ws` é operacional, sem versão). Testado
+- [x] 23.3 Testes: `dbook_dio_client_test.dart` (o Dio mantém a versão: base `.../v1` + `/bookings` = `.../v1/bookings`) e `dbook_live_availability_versioned_base_test.dart` (com a base versionada, o WebSocket conecta em `ws://localhost:8080/ws`)
+- [x] `melos run analyze` limpo; testes do app e dos pacotes tocados verdes; `dart format` limpo. Validado com o **cliente real do app contra o backend real**: `DestinationRepositoryImpl` pela base `/v1` devolveu 200 e 9 destinos, e a base sem versão é recusada com 401. **Tropeço:** meu primeiro `if (...) return ...;` virou multilinha no `dart format` e o analisador reprovou (`curly_braces_in_flow_control_structures`) — reescrito sem o `if`
+
 ## Ideias futuras (fora da numeração)
 
 - Golden tests (regressão visual) pros componentes do `dbook_design_system`

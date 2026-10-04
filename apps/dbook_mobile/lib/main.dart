@@ -15,12 +15,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'profile_page.dart';
 
+/// Versão da API de negócio que este app fala. Todos os repositórios usam
+/// caminhos relativos (`/bookings`...) sobre esta base, então trocar de
+/// versão é trocar só isto. O WebSocket (`/ws`) não tem versão: a URL dele
+/// só reaproveita host e porta da base (ver `dbook_live_availability.dart`).
+const _apiVersionPath = '/v1';
+
 /// Backend rodando localmente na máquina host: emulador Android enxerga o
 /// host via `10.0.2.2`; todo o resto (iOS simulator, web, desktop) enxerga
 /// via `localhost` normalmente.
 String get _localApiBaseUrl {
-  if (!kIsWeb && Platform.isAndroid) return 'http://10.0.2.2:8080';
-  return 'http://localhost:8080';
+  final host = !kIsWeb && Platform.isAndroid ? '10.0.2.2' : 'localhost';
+  return 'http://$host:8080$_apiVersionPath';
 }
 
 void main() {
