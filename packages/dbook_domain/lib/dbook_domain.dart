@@ -9,6 +9,7 @@ export 'src/entities/booking_status.dart';
 export 'src/entities/destination.dart';
 export 'src/entities/flight.dart';
 export 'src/entities/my_booking.dart';
+export 'src/entities/permission.dart';
 export 'src/entities/payment.dart';
 export 'src/entities/review.dart';
 export 'src/entities/role.dart';

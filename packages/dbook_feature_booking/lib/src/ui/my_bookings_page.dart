@@ -37,12 +37,14 @@ DbookStatus _toDbookStatus(BookingStatus status) => switch (status) {
   BookingStatus.pending => DbookStatus.pending,
   BookingStatus.confirmed => DbookStatus.confirmed,
   BookingStatus.cancelled => DbookStatus.cancelled,
+  BookingStatus.unknown => DbookStatus.unknown,
 };
 
 String _statusLabel(BookingStatus status) => switch (status) {
   BookingStatus.pending => 'Pendente',
   BookingStatus.confirmed => 'Confirmada',
   BookingStatus.cancelled => 'Cancelada',
+  BookingStatus.unknown => 'Status desconhecido',
 };
 
 Destination? _destinationFor(String iataCode, List<Destination> destinations) {

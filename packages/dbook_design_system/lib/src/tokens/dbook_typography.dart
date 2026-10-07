@@ -53,4 +53,12 @@ abstract final class DbookTypography {
       fontWeight: weight,
     );
   }
+
+  /// Algarismos de largura fixa: em coluna de tabela, as casas decimais ficam
+  /// alinhadas e o valor não "dança" quando muda.
+  static TextStyle tabular(TextStyle base) =>
+      base.copyWith(fontFeatures: const [FontFeature.tabularFigures()]);
+
+  static TextStyle get dataMedium => tabular(textTheme.bodyMedium!);
+  static TextStyle get dataSmall => tabular(textTheme.bodySmall!);
 }

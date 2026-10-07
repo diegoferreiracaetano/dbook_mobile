@@ -1,39 +1,35 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# dbook_design_system
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
+Tokens, tema e componentes compartilhados do DBook. Nenhuma tela define cor, espaçamento, fonte ou raio "no olho": tudo vem daqui.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
+Ordem de trabalho (não negociável): **tokens → componentes → telas.**
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+## Tokens (`lib/src/tokens/`)
 
-## Features
+| Token | O que é |
+|---|---|
+| `DbookPalette` | paleta primitiva da marca; só o tema a referencia |
+| `DbookColorScheme` | `ColorScheme` Material 3 claro e escuro |
+| `DbookStatusColors` | tons semânticos (`success`, `warning`, `danger`, `info`), cada um com texto, fundo e borda; texto sobre fundo cumpre AA (4,5:1), garantido por teste |
+| `DbookTypography` | escala Material 3 em Roboto; `tabular(...)`, `dataMedium`, `dataSmall` para números de largura fixa em tabelas |
+| `DbookSpacing` | escala de 4dp (`xxs` = 2 até `xxxl` = 48) |
+| `DbookDensity` | medidas das telas densas do portal (linha de tabela, cabeçalho, células) |
+| `DbookBreakpoints` | `compact` < 600, `medium` 600–1023, `expanded` ≥ 1024 (`DbookBreakpoints.of(context)`) |
+| `DbookRadius`, `DbookElevation`, `DbookMotion` | raio, elevação (`panel` para os painéis do portal) e animação |
+| `DbookFocus` | anel de foco do teclado, com contraste de 3:1 verificado por teste |
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+## Tema
 
-## Getting started
+`DbookTheme.light` / `DbookTheme.dark` são o que o `MaterialApp` consome. O tema escuro ainda não tem pares próprios nos tons semânticos (`DbookStatusColors.dark` é igual ao claro): isso entra quando o tema escuro do portal for decidido.
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+## Testes
 
-## Usage
+- Um widget test por componente.
+- `test/tokens/`: contraste (AA para texto, 3:1 para o anel de foco), breakpoints e o golden dos swatches (`goldens/status_colors.png`).
+- Mudou uma cor de propósito? `flutter test test/tokens --update-goldens`, **olhe a imagem nova** e só então commite.
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+## Ver o resultado
 
-```dart
-const like = 'sample';
-```
-
-## Additional information
-
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+```bash
+cd sample && flutter run        # app de exemplo
+cd widgetbook && flutter run    # catálogo visual

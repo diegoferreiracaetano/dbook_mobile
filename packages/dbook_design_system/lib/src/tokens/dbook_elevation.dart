@@ -7,4 +7,5 @@ abstract final class DbookElevation {
   static const double sm = 1;
   static const double md = 3;
   static const double lg = 6;
+  static const double panel = 1;
 }

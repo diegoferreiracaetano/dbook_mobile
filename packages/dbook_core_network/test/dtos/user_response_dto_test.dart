@@ -16,14 +16,25 @@ void main() {
     expect(user.name, 'Diego Ferreira');
   });
 
-  test('given an ADMIN role JSON when mapped then role decodes to admin', () {
+  test('given a SUPER_ADMIN role JSON when mapped then role decodes', () {
     final user = UserResponseDto.fromJson({
       'id': 1,
       'email': 'admin@dbook.com',
       'name': 'Admin',
-      'role': 'ADMIN',
+      'role': 'SUPER_ADMIN',
     }).toDomain();
 
-    expect(user.role, Role.admin);
+    expect(user.role, Role.superAdmin);
+  });
+
+  test('given a role the app does not know when mapped then it is unknown', () {
+    final user = UserResponseDto.fromJson({
+      'id': 1,
+      'email': 'new@dbook.com',
+      'name': 'New',
+      'role': 'AUDITOR',
+    }).toDomain();
+
+    expect(user.role, Role.unknown);
   });
 }

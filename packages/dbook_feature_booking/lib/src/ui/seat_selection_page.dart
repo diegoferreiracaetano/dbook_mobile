@@ -14,6 +14,7 @@ DbookSeatState _seatCellState(Seat seat, Seat? selected) {
   return switch (seat.status) {
     SeatStatus.available => DbookSeatState.available,
     SeatStatus.reserved => DbookSeatState.occupied,
+    SeatStatus.unknown => DbookSeatState.occupied,
   };
 }
 
@@ -283,7 +284,7 @@ class _SeatMapRow extends StatelessWidget {
           DbookSeatCell(
             state: _seatCellState(seat, selected),
             label: seat.label,
-            onTap: seat.status == SeatStatus.reserved
+            onTap: seat.status != SeatStatus.available
                 ? null
                 : () => onSelect(seat),
           ),

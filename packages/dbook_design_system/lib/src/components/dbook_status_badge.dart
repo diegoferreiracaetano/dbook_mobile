@@ -6,7 +6,7 @@ import '../tokens/dbook_spacing.dart';
 
 /// Status semântico de uma reserva — cada valor mapeia pra um par de cores
 /// (fundo claro + texto saturado) definido no tema.
-enum DbookStatus { confirmed, pending, cancelled }
+enum DbookStatus { confirmed, pending, cancelled, unknown }
 
 /// Badge (pill pequena) de status — ex.: "Confirmada"/"Pendente"/"Cancelada"
 /// na lista de reservas.
@@ -37,6 +37,10 @@ class DbookStatusBadge extends StatelessWidget {
       DbookStatus.cancelled => (
         theme.colorScheme.errorContainer,
         theme.colorScheme.error,
+      ),
+      DbookStatus.unknown => (
+        theme.colorScheme.surfaceContainerHighest,
+        theme.colorScheme.onSurfaceVariant,
       ),
     };
 

@@ -19,7 +19,42 @@ void main() {
     },
   );
 
-  test('given an unknown value when parsed then throws FormatException', () {
-    expect(() => seatClassFromWire('ECONOMY_PLUS'), throwsFormatException);
+  test(
+    'given an unknown value when parsed then it is unknown and is reported',
+    () {
+      final reported = <String>[];
+      onUnknownWireValue = (enumName, value) =>
+          reported.add('$enumName:$value');
+
+      expect(seatClassFromWire('ECONOMY_PLUS'), SeatClass.unknown);
+      expect(bookingStatusFromWire('REFUNDED'), BookingStatus.unknown);
+      expect(reported, ['SeatClass:ECONOMY_PLUS', 'BookingStatus:REFUNDED']);
+
+      onUnknownWireValue = (_, _) {};
+    },
+  );
+
+  test('given every backend Role value when parsed then all decode', () {
+    expect(roleFromWire('CLIENT'), Role.client);
+    expect(roleFromWire('SUPPORT'), Role.support);
+    expect(roleFromWire('CATALOG_MANAGER'), Role.catalogManager);
+    expect(roleFromWire('SUPER_ADMIN'), Role.superAdmin);
+  });
+
+  test('given permissions with an unknown one when parsed then it is dropped '
+      'and reported', () {
+    final reported = <String>[];
+    onUnknownWireValue = (enumName, value) => reported.add('$enumName:$value');
+
+    final permissions = permissionsFromWire([
+      'FLIGHT_WRITE',
+      'AUDIT_READ',
+      'TIME_TRAVEL',
+    ]);
+
+    expect(permissions, {Permission.flightWrite, Permission.auditRead});
+    expect(reported, ['Permission:TIME_TRAVEL']);
+
+    onUnknownWireValue = (_, _) {};
   });
 }

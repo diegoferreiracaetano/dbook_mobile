@@ -21,6 +21,13 @@ final tokenStorageProvider = Provider<TokenStorage>(
   (ref) => SecureTokenStorage(),
 );
 
+/// Quem está chamando a API (versão e plataforma). O app sobrescreve com a
+/// versão real do pacote; o padrão `unknown` é o que o servidor espera de
+/// um cliente que não se identifica.
+final appClientProvider = Provider<AppClientInfo>(
+  (ref) => AppClientInfo.unknown,
+);
+
 /// Dio só pra chamadas de auth (`login`/`register`/`refresh`) — sem o
 /// interceptor de token, pra nunca entrar em loop: a própria chamada de
 /// refresh não pode disparar o fluxo de refresh de novo. Usado também pela
@@ -29,6 +36,7 @@ final authOnlyDioProvider = Provider<Dio>((ref) {
   return DbookDioClient.create(
     baseUrl: ref.watch(baseUrlProvider),
     logging: ref.watch(dbookNetworkLoggingProvider),
+    appClient: ref.watch(appClientProvider),
   );
 });
 
@@ -38,6 +46,7 @@ final dioProvider = Provider<Dio>((ref) {
   final dio = DbookDioClient.create(
     baseUrl: ref.watch(baseUrlProvider),
     logging: ref.watch(dbookNetworkLoggingProvider),
+    appClient: ref.watch(appClientProvider),
   );
   final rawAuthRepository = AuthRepositoryImpl(ref.watch(authOnlyDioProvider));
 

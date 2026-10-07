@@ -3,6 +3,7 @@
 /// `Dio` ou falar com a API direto.
 library;
 
+export 'src/app_client_info.dart';
 export 'src/dbook_dio_client.dart';
 export 'src/dtos/ai_suggestion_item_dto.dart';
 export 'src/dtos/booking_response_dto.dart';

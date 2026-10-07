@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dbook_core_network/dbook_core_network.dart';
 import 'package:dbook_core_session/dbook_core_session.dart';
 import 'package:dbook_design_system/dbook_design_system.dart';
 import 'package:dbook_domain/dbook_domain.dart';
@@ -11,6 +12,7 @@ import 'package:dbook_feature_realtime/dbook_feature_realtime.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'profile_page.dart';
@@ -29,12 +31,32 @@ String get _localApiBaseUrl {
   return 'http://$host:8080$_apiVersionPath';
 }
 
-void main() {
+/// Plataforma no vocabulário do servidor (`X-App-Platform`); o que ele não
+/// conhece vira `unknown` do lado dele.
+String get _appPlatform {
+  if (kIsWeb) return 'web';
+  return switch (defaultTargetPlatform) {
+    TargetPlatform.android => 'android',
+    TargetPlatform.iOS => 'ios',
+    _ => 'unknown',
+  };
+}
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final package = await PackageInfo.fromPlatform();
+
   runApp(
     ProviderScope(
       overrides: [
         baseUrlProvider.overrideWithValue(_localApiBaseUrl),
         dbookNetworkLoggingProvider.overrideWithValue(kDebugMode),
+        appClientProvider.overrideWithValue(
+          AppClientInfo(
+            version: '${package.version}+${package.buildNumber}',
+            platform: _appPlatform,
+          ),
+        ),
       ],
       child: const DbookMobileApp(),
     ),

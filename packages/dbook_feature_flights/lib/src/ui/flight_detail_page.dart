@@ -24,6 +24,7 @@ String _seatClassLabel(SeatClass seatClass) => switch (seatClass) {
   SeatClass.premiumEconomy => 'Premium Economy',
   SeatClass.business => 'Business',
   SeatClass.first => 'First',
+  SeatClass.unknown => 'Outra classe',
 };
 
 /// Mesma lista já carregada pela Home/Explore/Minhas Viagens

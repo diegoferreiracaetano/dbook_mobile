@@ -34,6 +34,7 @@ String _seatClassLabel(SeatClass seatClass) => switch (seatClass) {
   SeatClass.premiumEconomy => 'Premium Economy',
   SeatClass.business => 'Business',
   SeatClass.first => 'First',
+  SeatClass.unknown => 'Outra classe',
 };
 
 enum _SortOrder {
@@ -541,7 +542,9 @@ class _FilterSheetState extends State<_FilterSheet> {
                 selected: _classFilter == null,
                 onSelected: (_) => setState(() => _classFilter = null),
               ),
-              for (final seatClass in SeatClass.values)
+              for (final seatClass in SeatClass.values.where(
+                (c) => c != SeatClass.unknown,
+              ))
                 ChoiceChip(
                   label: Text(_seatClassLabel(seatClass)),
                   selected: _classFilter == seatClass,

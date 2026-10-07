@@ -798,6 +798,202 @@ O backend passou a versionar a API de negócio pelo caminho (`/v1/...`; ver `../
 - [x] 23.3 Testes: `dbook_dio_client_test.dart` (o Dio mantém a versão: base `.../v1` + `/bookings` = `.../v1/bookings`) e `dbook_live_availability_versioned_base_test.dart` (com a base versionada, o WebSocket conecta em `ws://localhost:8080/ws`)
 - [x] `melos run analyze` limpo; testes do app e dos pacotes tocados verdes; `dart format` limpo. Validado com o **cliente real do app contra o backend real**: `DestinationRepositoryImpl` pela base `/v1` devolveu 200 e 9 destinos, e a base sem versão é recusada com 401. **Tropeço:** meu primeiro `if (...) return ...;` virou multilinha no `dart format` e o analisador reprovou (`curly_braces_in_flow_control_structures`) — reescrito sem o `if`
 
+## Plano — Portal administrativo (CRM web) e evolução do app 📋
+
+Decisão (2026-10-04): o portal é um **segundo app Flutter Web neste monorepo** (`apps/dbook_admin`), reaproveitando `dbook_domain`, `dbook_core_network`, `dbook_core_session` e o `dbook_design_system`. Este bloco espelha o plano do backend (`dbook/CHECKLIST.md`, M25–M47) — **cada marco do app depende do marco do backend indicado**, e o backend sempre sai primeiro. Regra de ouro do projeto continua valendo: **tokens → componentes → telas**, nessa ordem, sem exceção; e o front é "burro": o que o servidor autoriza (`GET /v1/admin/auth/me`) é o que o portal mostra, e estado que representa ação real (reembolso, bloqueio, favorito) vem do backend, nunca de storage local.
+
+### Por que Flutter Web e não React
+
+Reaproveita o domínio, a camada de rede, o design system e o seu conhecimento (aprende-se **produto**, não outra stack). O custo conhecido: bundle maior e acessibilidade/SEO exigem cuidado (SEO não importa para portal interno; acessibilidade importa — M35). Decisão registrada em ADR no backend (ADR de portal) para o caso de a vaga pedir React algum dia.
+
+### Princípios de UX (valem para portal e app — viram critério de aceite de cada tela)
+
+1. **Todo estado desenhado:** carregando (esqueleto, não spinner solto), vazio (diz o que fazer), erro (diz o que houve e oferece tentar de novo), parcial e sem permissão. Tela sem um desses é tela incompleta.
+2. **URL é o estado** (portal): filtros, página, ordenação e o item aberto vivem na URL — recarregar, voltar e compartilhar o link funcionam; voltar do detalhe preserva a lista como estava.
+3. **Confirmação proporcional ao risco:** ação reversível → *desfazer* (snackbar); irreversível → diálogo que explica a consequência; destrutiva em massa (anonimizar, cancelar voo) → **digitar uma frase** de confirmação.
+4. **Mensagens por `code`, não por texto:** o app/portal traduz `code` do erro (`ACCOUNT_BLOCKED`, `STALE_VERSION`...) em português claro e acionável — nunca mostra o texto cru do servidor.
+5. **Validação em linha** (no campo, ao sair dele), com a regra visível *antes* do erro (ex.: requisitos de senha); o botão de enviar nunca fica mudo — desabilitado com motivo ou habilitado.
+6. **Otimismo só onde é reversível** (favoritar, marcar notificação como lida), com *rollback* e aviso; dinheiro e permissão **nunca** são otimistas.
+7. **Conflito de edição** (`STALE_VERSION`): mostra o que mudou e oferece "recarregar" ou "ver diferenças" — nunca sobrescreve em silêncio.
+8. **Não perder trabalho:** formulário sujo pergunta antes de sair; rascunho de nota/motivo não se apaga ao errar.
+9. **Densidade e teclado** (portal): tabelas densas, atalhos (`/` busca, `Esc` fecha painel, setas na lista), foco visível, ordem de tabulação lógica.
+10. **Acessibilidade WCAG 2.1 AA:** contraste ≥ 4,5:1 (testado nos tokens), nada comunicado só por cor (status = cor + ícone + texto), `Semantics` em tudo que é interativo, alvos de toque ≥ 44 px no app.
+11. **Linguagem consistente** (glossário único: "reserva", "reembolso", "cliente"), datas e valores sempre no formato/fuso do usuário (`pt-BR`, `America/Sao_Paulo`), e **i18n desde o primeiro dia** (arquivos `.arb`, sem texto solto no código).
+12. **Desempenho percebido:** busca com *debounce* de 300 ms e cancelamento da requisição anterior, paginação no servidor, nenhuma lista carrega "tudo".
+
+---
+
+## M24 — Fundações do portal: tolerância a enum, `Role` e tokens de desktop 📋  *(espelha o M25 do backend)*
+
+Problema (achado 4 do backend): `wire_enums.dart` lança `FormatException` em valor desconhecido — qualquer enum novo no backend (`SUPPORT`, `REFUNDED`) derrubaria o app. E o design system só conhece celular.
+
+- [x] 24.1 **Tolerância a valor desconhecido:** cada `xxxFromWire` passa a ter um valor `unknown` no enum do domínio (ou `null` tratado na borda) em vez de lançar; a UI trata `unknown` com um rótulo neutro ("Status desconhecido") e **registra** o fato. Testes: valor novo não derruba a lista de reservas
+- [x] 24.2 `Role` do domínio espelha o backend (`client`, `support`, `catalogManager`, `superAdmin`) + `Permission` (enum espelhando as permissões); `roleFromWire`/`permissionFromWire` tolerantes. O app de clientes continua só enxergando `client`
+- [x] 24.3 **Tokens de desktop** no `dbook_design_system`: *breakpoints* (compacto < 600, médio 600–1023, expandido ≥ 1024), escala de espaçamento densa para tabelas, tipografia de dados (números tabulares), cores **semânticas** (`success`, `warning`, `danger`, `info`, cada uma com fundo/borda/texto e par de contraste AA verificado por teste), anel de foco, elevação para painéis. Tema claro e escuro decididos (claro primeiro; escuro só se os tokens já nascerem pares)
+- [x] 24.4 Cabeçalho `X-App-Version` enviado pelo cliente de rede (versão do pacote) — o backend registra (M44 do backend)
+- [x] 24.5 Testes, goldens dos tokens (swatches) e atualização do `README.md`/`CHECKLIST.md`
+
+**Como ficou (desvios do plano):**
+- 24.1: a UI mostra um rótulo neutro para `unknown`; o registro do fato é o gancho `onUnknownWireValue` (o `main` de cada app o liga ao registro de erros; hoje o padrão não faz nada).
+- 24.2: `Role` ganhou `unknown` e `Permission` **não** (uma permissão desconhecida não tem controle na tela: é descartada e reportada). O `Role` do front não carrega a matriz papel→permissões: quem diz o que o usuário pode é o servidor (o `/me` do portal devolve a lista, no M26).
+- 24.3: `DbookStatusColors` foi **estendido** (não renomeado, tinha 5 usos); `dark` é igual ao `light` por enquanto. O teste de contraste reprovou o `warning` (4,05:1) e a cor foi escurecida para `#855A0E` (≈5,3:1).
+- 24.4: o app manda também `X-App-Platform` (o backend normaliza as duas). A versão vem de `package_info_plus` no `main`; o `dbook_core_network` continua Dart puro e só recebe um `AppClientInfo`.
+- 24.5: o golden dos swatches é só de caixas de cor, sem texto, para não depender de fonte nem de sistema operacional.
+
+**Ficou para depois:** valores reais `expired`/`refunded` em `BookingStatus` (hoje caem em `unknown`); tela de "atualize o app" pela versão mínima (backend M44); pares escuros dos tons semânticos.
+## M25 — Componentes de dados do design system 📋
+
+Antes de qualquer tela do CRM (regra tokens → componentes → telas). Cada componente: **documentado, com estados, teste de widget, golden, teste de acessibilidade e de teclado**.
+
+- [ ] 25.1 `DbookDataTable<T>`: colunas tipadas, ordenação (controlada por fora — o servidor ordena), paginação no servidor (`page/size/total`), cabeçalho fixo, seleção de linhas, **esqueleto** de carregamento, estado vazio e de erro com "tentar de novo", visibilidade de colunas, rolagem horizontal em largura média, navegação por teclado
+- [ ] 25.2 `DbookFilterBar`: busca com *debounce* (300 ms) e cancelamento, *chips* de filtro ativos removíveis, seletor de período com *presets*, botão "limpar tudo", sincronizada com a URL
+- [ ] 25.3 `DbookSidePanel` (painel lateral de detalhe, `Esc` fecha, foco preso e devolvido), `DbookConfirmDialog` (3 níveis: simples, destrutivo, **com frase digitada**), `DbookToast`/`DbookUndoSnackbar`
+- [ ] 25.4 `DbookStatusBadge` (cor + ícone + texto), `DbookKpiCard` (valor, variação, estado carregando/erro), `DbookEmptyState`, `DbookErrorState`, `DbookBreadcrumbs`, `DbookDefinitionList` (pares rótulo/valor para a visão 360º)
+- [ ] 25.5 Campos de formulário com validação em linha e mensagem acessível (`DbookTextField`, `DbookSelect`, `DbookDateRange`, `DbookTextArea` com contador), e `DbookFormDirtyGuard`
+- [ ] 25.6 Testes de contraste automatizados dos pares de cor, goldens de todos os estados, catálogo visual interno (uma página "galeria" no portal, só em debug)
+
+## M26 — Esqueleto do portal (`apps/dbook_admin`) 📋
+
+- [ ] 26.1 Criar o app Flutter **só web** no monorepo e no `melos` (`analyze`, `test`, cobertura combinada); *flavors* por `--dart-define` (`API_BASE_URL`, ambiente); sem copiar `main.dart` do app — composição entre features continua só no `main` de cada app
+- [ ] 26.2 `go_router` com **rotas por URL** (links diretos, recarga preserva a tela, parâmetros de filtro na *query string*); página 404 e 403
+- [ ] 26.3 **Layout responsivo:** barra lateral fixa (≥ 1024), *rail* de ícones (600–1023), gaveta (< 600); menu **construído a partir das permissões** de `GET /v1/admin/auth/me` (item sem permissão não aparece e a rota correspondente redireciona para 403)
+- [ ] 26.4 Fronteira de erros global (erro de renderização vira tela amigável + registro), indicador de rede/API fora do ar, contexto de ambiente visível (faixa "HOMOLOGAÇÃO" fora de produção)
+- [ ] 26.5 **i18n** com `.arb` pt-BR desde o início, formatação de datas/valores centralizada
+- [ ] 26.6 Testes de roteamento e do menu por permissão; documentação (`docs/portal.md`: como rodar, estrutura, convenções)
+
+## M27 — Sessão, login e 2FA no portal 📋  *(depende dos M25 e M29 do backend)*
+
+- [ ] 27.1 Tela de login (`/v1/admin/auth/login`): foco no primeiro campo, `Enter` envia, erros por `code` (`INVALID_CREDENTIALS`, `TOO_MANY_ATTEMPTS` com contagem regressiva de `Retry-After`, `ACCOUNT_BLOCKED`), sem revelar se o e-mail existe
+- [ ] 27.2 **Sessão segura:** *access token só em memória*; refresh por **cookie `httpOnly`** (Dio com `withCredentials` na web); *interceptor* de renovação com **requisição única em voo** (várias chamadas `401` simultâneas disparam um só refresh); renovação silenciosa antes de expirar
+- [ ] 27.3 **Ociosidade:** aviso 1 min antes e saída automática após inatividade (configurável); rascunhos abertos não se perdem (guardados em memória e oferecidos ao voltar)
+- [ ] 27.4 Fluxo `mustChangePassword` (troca obrigatória, indicador de força e **requisitos visíveis antes do erro**), tela de aceitar convite (`/accept-invite?token=`, estados válido/expirado/usado com a mesma mensagem), logout
+- [ ] 27.5 **2FA:** cadastro (QR a partir da URI `otpauth://`, confirmação por código, exibição única dos códigos de recuperação com "copiar" e "baixar"), tela do código (6 campos com colagem e avanço automático), uso de código de recuperação
+- [ ] 27.6 Testes (renovação concorrente, expiração, perda de cookie, ociosidade, estados de erro), documentação
+
+## M28 — Equipe e convites (portal) 📋  *(depende do M28 do backend)*
+
+- [ ] 28.1 Lista da equipe (papel, status, último acesso) e de convites pendentes com estado (válido/expirado/revogado)
+- [ ] 28.2 Convidar (e-mail + papel com **descrição do que cada papel pode fazer**), reenviar, revogar (com desfazer não se aplica — confirmação simples)
+- [ ] 28.3 Alterar papel e bloquear/desbloquear com confirmação que explica a consequência (sessões encerradas); impedir na UI e **explicar** o motivo quando for o próprio usuário ou o último `SUPER_ADMIN` (o servidor continua sendo a autoridade)
+- [ ] 28.4 Testes e documentação
+
+## M29 — Clientes (CRM) 📋  *(depende do M30 do backend)*
+
+- [ ] 29.1 **Lista:** `DbookDataTable` + `DbookFilterBar` (busca, status, período, "com reservas"), ordenação, paginação, tudo na URL; atalho `/` foca a busca
+- [ ] 29.2 **Visão 360º** em painel lateral/tela: cabeçalho (nome, status, desde quando, último acesso), KPIs (reservas, total pago, nota média), abas (Reservas, Pagamentos, Avaliações, Notas, Histórico/auditoria do cliente); carregamento por aba (não busca tudo de uma vez)
+- [ ] 29.3 **Notas:** criar/editar/fixar/apagar, rascunho preservado, autor e data visíveis
+- [ ] 29.4 **Bloquear/desbloquear** com motivo obrigatório (contador, mínimo explícito) e confirmação; estado "bloqueado" evidente em toda a visão
+- [ ] 29.5 **Exportar** (só quem tem a permissão): progresso, aviso de teto e do que será exportado, download; **Anonimizar** (só `SUPER_ADMIN`): diálogo com a consequência em linguagem simples, motivo e **frase digitada**
+- [ ] 29.6 Testes (permissão esconde ações, filtros na URL, aba carrega sob demanda, confirmações), documentação
+
+## M30 — Reservas e reembolsos (portal) 📋  *(depende do M31 do backend)*
+
+- [ ] 30.1 Lista de reservas com filtros (status, voo, cliente, período, pago) e detalhe com **linha do tempo** (criada → paga → reembolsada/cancelada/expirada, com o ator)
+- [ ] 30.2 Cancelar reserva `PENDING` e **reembolsar** reserva paga: tela mostra valor, política aplicável e prazo **antes** de confirmar; chave de idempotência gerada por tentativa e **reaproveitada na repetição** (mesma lógica do `payment_notifier`); botão fica em "processando", nunca duplica; estados `REQUESTED`/`FAILED` com "tentar de novo"
+- [ ] 30.3 Exceção de política (`override`) visível só a quem pode, exigindo motivo
+- [ ] 30.4 Testes (duplo clique, falha do gateway, repetição idempotente, conflito `409` com outro atendente) e documentação
+
+## M31 — Catálogo (portal) 📋  *(depende do M32 do backend)*
+
+- [ ] 31.1 Voos: lista filtrável, formulário de criar/editar com validação em linha (chegada depois da partida, capacidade ≥ reservado — mostrando **quantos assentos estão reservados**), campos imutáveis desabilitados **com explicação**
+- [ ] 31.2 **Conflito de edição (`STALE_VERSION`):** painel "outro administrador alterou este voo" com os campos que diferem, e as opções recarregar / ver diferenças
+- [ ] 31.3 Cancelar voo (resultado "há N reservas ativas" explicado; fase 2 depois), companhias e aeroportos (CRUD, IATA validado no cliente apenas como conveniência)
+- [ ] 31.4 **Importação CSV:** escolher arquivo → *dry-run* → tabela de pré-visualização com erros **por linha** destacados → confirmar; nada grava até confirmar
+- [ ] 31.5 Testes e documentação
+
+## M32 — Dashboard (portal) 📋  *(depende do M33 do backend)*
+
+- [ ] 32.1 Cartões de KPI (com variação contra o período anterior), seletor de período com *presets*, séries temporais e ranking de rotas (biblioteca de gráficos decidida em ADR: `fl_chart` como candidata)
+- [ ] 32.2 Estados completos por cartão (carregando/vazio/erro independentes — um cartão com falha não derruba a página), atualização automática a cada 60 s com indicador de "atualizado há…", **tooltips com a definição** de cada métrica (o glossário do backend)
+- [ ] 32.3 Gráficos acessíveis (resumo textual e tabela alternativa, cor + padrão), testes e documentação
+
+## M33 — Auditoria, moderação e promoções (portal) 📋  *(M26, M37 e M39 do backend)*
+
+- [ ] 33.1 Visualizador de auditoria (`AUDIT_READ`): filtros, rolagem por cursor, linha expansível com **antes/depois** em diff legível, link para o cliente/reserva alvo
+- [ ] 33.2 Moderação de avaliações (fila de denunciadas, ocultar/restaurar com motivo)
+- [ ] 33.3 Promoções: criar/editar/desativar, regras explicadas em linguagem natural ("10 % em compras acima de R$ 500, até 100 usos"), lista com resgates
+- [ ] 33.4 Testes e documentação
+
+## M34 — Segurança do portal 📋  *(M43 e M46 do backend)*
+
+- [ ] 34.1 **CSP** restritiva (sem `unsafe-inline` quando possível; atenção ao que o Flutter Web exige — documentar exceções), `X-Content-Type-Options`, `Referrer-Policy`, `frame-ancestors 'none'` (anti-*clickjacking*) — definidos no CloudFront (M43 do backend)
+- [ ] 34.2 Auditoria de dependências do `pubspec` no CI, nada de segredo no bundle (`--dart-define` só com valor público), nenhum dado pessoal em logs do navegador
+- [ ] 34.3 Revisão de XSS (todo texto vindo de cliente — nome, notas, avaliações — renderizado como texto, nunca como HTML), de `postMessage`/*deep links* e de *open redirect* no login (`returnTo` só para rotas internas)
+
+## M35 — Qualidade do portal: E2E, acessibilidade e desempenho 📋
+
+- [ ] 35.1 **Testes E2E** (`integration_test` + Chrome) contra o backend real subido por `docker compose` no CI: login → buscar cliente → bloquear → ver na auditoria; convite → aceitar; reembolso; edição concorrente de voo
+- [ ] 35.2 **Acessibilidade:** auditoria com leitor de tela nos fluxos principais, checagem automatizada de `Semantics`, navegação 100 % por teclado nas telas de lista/detalhe
+- [ ] 35.3 **Desempenho:** orçamento de tamanho do bundle e de tempo até interativo medidos no CI (`flutter build web --wasm` avaliado), carregamento tardio (`deferred`) das telas pesadas (dashboard/gráficos)
+- [ ] 35.4 Goldens de regressão visual para os componentes (já listado em "Ideias futuras" — entra aqui)
+
+## M36 — Deploy do portal 📋  *(depende do M43 do backend)*
+
+- [ ] 36.1 Pipeline: build web com `--dart-define` por ambiente, publicação em S3 + invalidação do CloudFront, *cache* longo para arquivos com hash e **nenhum** para `index.html`/`flutter_service_worker`, *rollback* por versão anterior
+- [ ] 36.2 CORS e origem do portal no backend por ambiente, link do convite apontando para a URL real
+- [ ] 36.3 Gate `check-aws` (como no backend): sem conta, o pipeline só valida e gera o artefato
+
+---
+
+# Evolução do app de clientes
+
+## M37 — Notificações no app 📋  *(M36 do backend)*
+
+- [ ] 37.1 Caixa de entrada (lista por cursor, não lidas em destaque, marcar lida ao abrir e "marcar todas"), *badge* com contagem, estado vazio com orientação
+- [ ] 37.2 Preferências por tipo e canal (alternadores com efeito imediato otimista e *rollback*); registro do dispositivo para *push* (FCM real fica como evolução; no local, adaptador falso)
+- [ ] 37.3 Tocar numa notificação abre a tela certa (*deep link* por tipo: reserva, reembolso, voo); testes e documentação
+
+## M38 — Detalhe do destino e avaliações 📋  *(M37 do backend)*
+
+- [ ] 38.1 Tela de detalhe do destino: média, total e **distribuição por estrelas**, lista de avaliações com rolagem infinita, estados vazio/erro/carregando-mais
+- [ ] 38.2 **Editar/apagar a própria avaliação** (confirmar; apagar com *desfazer* de alguns segundos), denunciar avaliação alheia
+- [ ] 38.3 Entrada pelos cartões de destino (Home/Explore, sem quebrar o comportamento do M19), testes e documentação
+
+## M39 — Favoritos no servidor 📋  *(M38 do backend)*
+
+- [ ] 39.1 `FavoriteRepository` (API) como **fonte da verdade**; `shared_preferences` deixa de guardar o estado e passa a servir só de cache de leitura
+- [ ] 39.2 Favoritar/desfavoritar **otimista** com *rollback* e aviso; comportamento sem rede definido (ação desabilitada com explicação — nada de fila silenciosa)
+- [ ] 39.3 **Migração única** dos favoritos locais existentes (envia ao servidor, confirma, só então limpa o local; idempotente); testes e documentação
+
+## M40 — Código promocional no pagamento 📋  *(M39 do backend)*
+
+- [ ] 40.1 Campo de código com validação ao sair (`/promo-codes/validate`), *chip* "aplicado" com remover, **detalhamento do preço** (subtotal, desconto, total), mensagens por `code` (expirado, mínimo não atingido, esgotado, já usado)
+- [ ] 40.2 O `Idempotency-Key` continua por tentativa e o código faz parte da tentativa (mudou o código → nova tentativa); testes e documentação
+
+## M41 — Histórico e alerta de preço 📋  *(M40 do backend)*
+
+- [ ] 41.1 Gráfico simples de histórico no detalhe do voo (com alternativa em texto), indicação "preço abaixo/acima da média"
+- [ ] 41.2 Criar/editar/desativar alerta por rota e data (folha inferior), listagem dos alertas, notificação ao disparar (M37); testes e documentação
+
+## M42 — Reembolso e privacidade (cliente) 📋  *(M41 e M30 do backend)*
+
+- [ ] 42.1 Em "Minhas viagens": **política de cancelamento antes de confirmar** (valor, prazo), pedido de reembolso idempotente, estados `REQUESTED`/`COMPLETED`/`FAILED` visíveis
+- [ ] 42.2 Privacidade: exportar meus dados e **excluir minha conta** (confirmação com consequência clara, senha de novo), tela "Conta bloqueada" para `ACCOUNT_BLOCKED` com caminho de contato
+- [ ] 42.3 Testes e documentação
+
+## M43 — Hotéis no app 📋  *(M42 do backend, em incrementos)*
+
+- [ ] 43.1 Busca de hospedagem (cidade, datas com seletor de intervalo, hóspedes), resultados com preço **total da estadia**
+- [ ] 43.2 Detalhe do hotel e escolha de quarto, reserva → revisão → pagamento reaproveitando o fluxo atual, "Minhas viagens" com voos e hotéis
+- [ ] 43.3 Avaliações do hotel (reaproveita o M38), testes e documentação
+
+## M44 — Versão mínima e ciclo de vida da API no app 📋  *(M44 do backend)*
+
+- [ ] 44.1 Ao iniciar, consulta `GET /v1/app-config`; versão abaixo da mínima → tela de **atualização obrigatória** (com link da loja), versão defasada porém aceita → aviso dispensável
+- [ ] 44.2 Tratamento do cabeçalho `Deprecation` (registrar e, em debug, avisar), testes e documentação
+
+---
+
+**Checklist de fechamento — vale para TODO marco acima (além do checklist padrão):**
+- [ ] Tokens → componentes → telas respeitado; **nenhum valor de cor/espaçamento solto** na tela
+- [ ] Todos os estados desenhados e testados (carregando, vazio, erro, parcial, sem permissão)
+- [ ] **Erros por `code`**, mensagens em português acionáveis; nenhum texto cru do servidor na tela
+- [ ] **Acessibilidade:** `Semantics`, contraste, foco/teclado (portal) e alvo de toque (app) verificados
+- [ ] **Front burro:** nada de regra de negócio ou estado de ação real guardado só no cliente
+- [ ] Verificado **renderizado de verdade** no Browser pane (portal) / simulador (app), com a API real — não só testes passando
+- [ ] `melos run analyze`, `melos run test`, cobertura combinada ≥ 80 % e `dart format` só nos arquivos tocados
+- [ ] `CHECKLIST.md` e `README.md` atualizados
+
 ## Ideias futuras (fora da numeração)
 
 - Golden tests (regressão visual) pros componentes do `dbook_design_system`

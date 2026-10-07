@@ -16,10 +16,18 @@ abstract final class DbookPalette {
 
   static const success = Color(0xFF1E7A34);
   static const successBg = Color(0xFFE3F3E6);
-  static const warning = Color(0xFF9C6B12);
+  static const warning = Color(0xFF855A0E);
   static const warningBg = Color(0xFFFBEEDA);
   static const error = Color(0xFFB23A2E);
   static const errorBg = Color(0xFFF8E6E3);
+
+  static const info = Color(0xFF0B5FA5);
+  static const infoBg = Color(0xFFE6F3FF);
+
+  static const successBorder = Color(0xFFB5DDBE);
+  static const warningBorder = Color(0xFFEBCF9E);
+  static const errorBorder = Color(0xFFE9B7B1);
+  static const infoBorder = Color(0xFFB3D9FF);
 
   static const n900 = Color(0xFF141E27);
   static const n800 = Color(0xFF263640);
@@ -89,73 +97,112 @@ abstract final class DbookColorScheme {
       );
 }
 
-/// Cores de status que o `ColorScheme` do Material não cobre nativamente
-/// (sucesso/aviso) — como [ThemeExtension], pra ficar disponível em
-/// `Theme.of(context).extension<DbookStatusColors>()` igual qualquer outra
-/// cor do tema.
+/// Tons semânticos que o `ColorScheme` do Material não cobre (sucesso, aviso,
+/// perigo, informação) — como [ThemeExtension], em
+/// `Theme.of(context).extension<DbookStatusColors>()`. Cada tom é um trio:
+/// texto/ícone saturado, fundo claro e borda; texto sobre fundo cumpre AA (4,5:1),
+/// o que `dbook_status_colors_test.dart` garante.
 @immutable
 class DbookStatusColors extends ThemeExtension<DbookStatusColors> {
   const DbookStatusColors({
     required this.success,
     required this.successContainer,
+    required this.successBorder,
     required this.warning,
     required this.warningContainer,
+    required this.warningBorder,
+    required this.danger,
+    required this.dangerContainer,
+    required this.dangerBorder,
+    required this.info,
+    required this.infoContainer,
+    required this.infoBorder,
   });
 
-  /// Cor saturada — texto/ícone sobre [successContainer], ou fundo sólido.
   final Color success;
-
-  /// Tom claro de fundo — usado com texto/ícone na cor [success] por cima.
   final Color successContainer;
+  final Color successBorder;
 
   final Color warning;
   final Color warningContainer;
+  final Color warningBorder;
+
+  final Color danger;
+  final Color dangerContainer;
+  final Color dangerBorder;
+
+  final Color info;
+  final Color infoContainer;
+  final Color infoBorder;
 
   static const light = DbookStatusColors(
     success: DbookPalette.success,
     successContainer: DbookPalette.successBg,
+    successBorder: DbookPalette.successBorder,
     warning: DbookPalette.warning,
     warningContainer: DbookPalette.warningBg,
+    warningBorder: DbookPalette.warningBorder,
+    danger: DbookPalette.error,
+    dangerContainer: DbookPalette.errorBg,
+    dangerBorder: DbookPalette.errorBorder,
+    info: DbookPalette.info,
+    infoContainer: DbookPalette.infoBg,
+    infoBorder: DbookPalette.infoBorder,
   );
 
-  static const dark = DbookStatusColors(
-    success: DbookPalette.success,
-    successContainer: DbookPalette.successBg,
-    warning: DbookPalette.warning,
-    warningContainer: DbookPalette.warningBg,
-  );
+  /// Pílulas autocontidas (fundo claro com texto escuro) funcionam nos dois
+  /// temas; pares escuros de verdade entram quando o tema escuro do portal
+  /// for decidido.
+  static const dark = light;
 
   @override
   DbookStatusColors copyWith({
     Color? success,
     Color? successContainer,
+    Color? successBorder,
     Color? warning,
     Color? warningContainer,
+    Color? warningBorder,
+    Color? danger,
+    Color? dangerContainer,
+    Color? dangerBorder,
+    Color? info,
+    Color? infoContainer,
+    Color? infoBorder,
   }) {
     return DbookStatusColors(
       success: success ?? this.success,
       successContainer: successContainer ?? this.successContainer,
+      successBorder: successBorder ?? this.successBorder,
       warning: warning ?? this.warning,
       warningContainer: warningContainer ?? this.warningContainer,
+      warningBorder: warningBorder ?? this.warningBorder,
+      danger: danger ?? this.danger,
+      dangerContainer: dangerContainer ?? this.dangerContainer,
+      dangerBorder: dangerBorder ?? this.dangerBorder,
+      info: info ?? this.info,
+      infoContainer: infoContainer ?? this.infoContainer,
+      infoBorder: infoBorder ?? this.infoBorder,
     );
   }
 
   @override
   DbookStatusColors lerp(ThemeExtension<DbookStatusColors>? other, double t) {
     if (other is! DbookStatusColors) return this;
+    Color mix(Color a, Color b) => Color.lerp(a, b, t)!;
     return DbookStatusColors(
-      success: Color.lerp(success, other.success, t)!,
-      successContainer: Color.lerp(
-        successContainer,
-        other.successContainer,
-        t,
-      )!,
-      warning: Color.lerp(warning, other.warning, t)!,
-      warningContainer: Color.lerp(
-        warningContainer,
-        other.warningContainer,
-        t,
-      )!,
+      success: mix(success, other.success),
+      successContainer: mix(successContainer, other.successContainer),
+      successBorder: mix(successBorder, other.successBorder),
+      warning: mix(warning, other.warning),
+      warningContainer: mix(warningContainer, other.warningContainer),
+      warningBorder: mix(warningBorder, other.warningBorder),
+      danger: mix(danger, other.danger),
+      dangerContainer: mix(dangerContainer, other.dangerContainer),
+      dangerBorder: mix(dangerBorder, other.dangerBorder),
+      info: mix(info, other.info),
+      infoContainer: mix(infoContainer, other.infoContainer),
+      infoBorder: mix(infoBorder, other.infoBorder),
     );
   }
 }
