@@ -9,56 +9,72 @@ import '../tokens/dbook_spacing.dart';
 enum DbookStatus { confirmed, pending, cancelled, unknown }
 
 /// Badge (pill pequena) de status — ex.: "Confirmada"/"Pendente"/"Cancelada"
-/// na lista de reservas.
+/// na lista de reservas. Com [showIcon] o status deixa de depender só da cor
+/// (acessibilidade: daltonismo): o portal liga, o app de clientes não.
 class DbookStatusBadge extends StatelessWidget {
   const DbookStatusBadge({
     super.key,
     required this.status,
     required this.label,
+    this.showIcon = false,
   });
 
   final DbookStatus status;
   final String label;
+  final bool showIcon;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final statusColors = theme.extension<DbookStatusColors>()!;
 
-    final (background, foreground) = switch (status) {
+    final (background, foreground, icon) = switch (status) {
       DbookStatus.confirmed => (
         statusColors.successContainer,
         statusColors.success,
+        Icons.check_circle_outline,
       ),
       DbookStatus.pending => (
         statusColors.warningContainer,
         statusColors.warning,
+        Icons.schedule,
       ),
       DbookStatus.cancelled => (
         theme.colorScheme.errorContainer,
         theme.colorScheme.error,
+        Icons.cancel_outlined,
       ),
       DbookStatus.unknown => (
         theme.colorScheme.surfaceContainerHighest,
         theme.colorScheme.onSurfaceVariant,
+        Icons.help_outline,
       ),
     };
 
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: DbookSpacing.sm,
-        vertical: 2,
+        vertical: DbookSpacing.xxs,
       ),
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(DbookRadius.sm),
       ),
-      child: Text(
-        label,
-        style: theme.textTheme.labelSmall?.copyWith(
-          color: foreground,
-          fontWeight: FontWeight.w700,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (showIcon) ...[
+            Icon(icon, size: 14, color: foreground),
+            const SizedBox(width: DbookSpacing.xs),
+          ],
+          Text(
+            label,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: foreground,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
       ),
     );
   }

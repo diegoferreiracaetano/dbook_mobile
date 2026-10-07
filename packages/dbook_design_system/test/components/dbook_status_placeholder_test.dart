@@ -49,4 +49,32 @@ void main() {
     await tester.tap(find.text('Tentar de novo'));
     expect(tapCount, 1);
   });
+
+  _shortSpace();
+}
+
+void _shortSpace() {
+  testWidgets('given a space shorter than the content when built then it '
+      'scrolls instead of overflowing', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: DbookTheme.light,
+        home: Scaffold(
+          body: SizedBox(
+            height: 100,
+            child: DbookStatusPlaceholder(
+              icon: Icons.inbox_outlined,
+              title: 'Nenhum resultado',
+              message: 'Ajuste os filtros.',
+              actionLabel: 'Limpar',
+              onAction: () {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(find.byType(SingleChildScrollView), findsOneWidget);
+  });
 }

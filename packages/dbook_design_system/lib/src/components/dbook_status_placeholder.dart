@@ -6,7 +6,8 @@ import 'dbook_button.dart';
 /// Bloco de estado (ícone em círculo + título + mensagem + ação opcional)
 /// reusado em estado vazio, estado de erro e estado de sucesso — muda só
 /// ícone, cor e tamanho do círculo conforme quem chama, em vez de cada
-/// tela reimplementar essa estrutura sozinha.
+/// tela reimplementar essa estrutura sozinha. Rola quando o espaço é curto
+/// (num painel baixo, por exemplo), em vez de estourar a altura.
 class DbookStatusPlaceholder extends StatelessWidget {
   const DbookStatusPlaceholder({
     super.key,
@@ -36,43 +37,45 @@ class DbookStatusPlaceholder extends StatelessWidget {
     final effectiveIconColor = iconColor ?? colorScheme.primary;
 
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(DbookSpacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: circleSize,
-              height: circleSize,
-              decoration: BoxDecoration(
-                color: effectiveIconColor.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(DbookSpacing.xl),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: circleSize,
+                height: circleSize,
+                decoration: BoxDecoration(
+                  color: effectiveIconColor.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: effectiveIconColor, size: iconSize),
               ),
-              child: Icon(icon, color: effectiveIconColor, size: iconSize),
-            ),
-            const SizedBox(height: DbookSpacing.lg),
-            Text(
-              title,
-              style: textTheme.titleMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: DbookSpacing.xs),
-            Text(
-              message,
-              style: textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            if (actionLabel != null && onAction != null) ...[
               const SizedBox(height: DbookSpacing.lg),
-              DbookButton(
-                label: actionLabel!,
-                onPressed: onAction,
-                variant: DbookButtonVariant.secondary,
+              Text(
+                title,
+                style: textTheme.titleMedium,
+                textAlign: TextAlign.center,
               ),
+              const SizedBox(height: DbookSpacing.xs),
+              Text(
+                message,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              if (actionLabel != null && onAction != null) ...[
+                const SizedBox(height: DbookSpacing.lg),
+                DbookButton(
+                  label: actionLabel!,
+                  onPressed: onAction,
+                  variant: DbookButtonVariant.secondary,
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

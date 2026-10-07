@@ -46,4 +46,39 @@ void main() {
       expect(text.style!.color, DbookColorScheme.light.error);
     },
   );
+
+  testWidgets('given showIcon when built then the status icon appears beside '
+      'the label', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: DbookTheme.light,
+        home: const Scaffold(
+          body: DbookStatusBadge(
+            status: DbookStatus.confirmed,
+            label: 'Confirmada',
+            showIcon: true,
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byIcon(Icons.check_circle_outline), findsOneWidget);
+  });
+
+  testWidgets('given the default when built then no icon is shown (the '
+      'customer app is unchanged)', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: DbookTheme.light,
+        home: const Scaffold(
+          body: DbookStatusBadge(
+            status: DbookStatus.confirmed,
+            label: 'Confirmada',
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(Icon), findsNothing);
+  });
 }

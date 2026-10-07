@@ -845,12 +845,22 @@ Problema (achado 4 do backend): `wire_enums.dart` lança `FormatException` em va
 
 Antes de qualquer tela do CRM (regra tokens → componentes → telas). Cada componente: **documentado, com estados, teste de widget, golden, teste de acessibilidade e de teclado**.
 
-- [ ] 25.1 `DbookDataTable<T>`: colunas tipadas, ordenação (controlada por fora — o servidor ordena), paginação no servidor (`page/size/total`), cabeçalho fixo, seleção de linhas, **esqueleto** de carregamento, estado vazio e de erro com "tentar de novo", visibilidade de colunas, rolagem horizontal em largura média, navegação por teclado
-- [ ] 25.2 `DbookFilterBar`: busca com *debounce* (300 ms) e cancelamento, *chips* de filtro ativos removíveis, seletor de período com *presets*, botão "limpar tudo", sincronizada com a URL
-- [ ] 25.3 `DbookSidePanel` (painel lateral de detalhe, `Esc` fecha, foco preso e devolvido), `DbookConfirmDialog` (3 níveis: simples, destrutivo, **com frase digitada**), `DbookToast`/`DbookUndoSnackbar`
-- [ ] 25.4 `DbookStatusBadge` (cor + ícone + texto), `DbookKpiCard` (valor, variação, estado carregando/erro), `DbookEmptyState`, `DbookErrorState`, `DbookBreadcrumbs`, `DbookDefinitionList` (pares rótulo/valor para a visão 360º)
-- [ ] 25.5 Campos de formulário com validação em linha e mensagem acessível (`DbookTextField`, `DbookSelect`, `DbookDateRange`, `DbookTextArea` com contador), e `DbookFormDirtyGuard`
-- [ ] 25.6 Testes de contraste automatizados dos pares de cor, goldens de todos os estados, catálogo visual interno (uma página "galeria" no portal, só em debug)
+- [x] 25.1 `DbookDataTable<T>`: colunas tipadas, ordenação (controlada por fora — o servidor ordena), paginação no servidor (`page/size/total`), cabeçalho fixo, seleção de linhas, **esqueleto** de carregamento, estado vazio e de erro com "tentar de novo", visibilidade de colunas, rolagem horizontal em largura média, navegação por teclado
+- [x] 25.2 `DbookFilterBar`: busca com *debounce* (300 ms) e cancelamento, *chips* de filtro ativos removíveis, seletor de período com *presets*, botão "limpar tudo", sincronizada com a URL
+- [x] 25.3 `DbookSidePanel` (painel lateral de detalhe, `Esc` fecha, foco preso e devolvido), `DbookConfirmDialog` (3 níveis: simples, destrutivo, **com frase digitada**), `DbookToast`/`DbookUndoSnackbar`
+- [x] 25.4 `DbookStatusBadge` (cor + ícone + texto), `DbookKpiCard` (valor, variação, estado carregando/erro), `DbookEmptyState`, `DbookErrorState`, `DbookBreadcrumbs`, `DbookDefinitionList` (pares rótulo/valor para a visão 360º)
+- [x] 25.5 Campos de formulário com validação em linha e mensagem acessível (`DbookTextField`, `DbookSelect`, `DbookDateRange`, `DbookTextArea` com contador), e `DbookFormDirtyGuard`
+- [x] 25.6 Testes de contraste automatizados dos pares de cor, goldens de todos os estados, catálogo visual interno (uma página "galeria" no portal, só em debug)
+
+**Como ficou (desvios do plano):**
+- 25.1: `DbookDataTable<T>` é controlada por fora (ordenação, página, seleção e colunas visíveis vêm de quem a usa; o servidor ordena e pagina). Sem papéis semânticos de tabela (`SemanticsRole`): a árvore do Flutter exige `table > row > cell` estrito e a rolagem da lista quebra isso; a acessibilidade ficou em rótulo da tabela, cabeçalho ordenável com a direção dita, linha com estado de seleção e foco de teclado visível.
+- 25.2: `DbookFilterBar` é controlada; a sincronização com a URL fica no portal (M26), que tem o roteador.
+- 25.3: em vez de um `DbookConfirmDialog` novo, o `showDbookConfirmationDialog` existente ganhou `DbookConfirmLevel` (simples, destrutivo, frase digitada). O "Desfazer" devolve `true`/`false`; quem chama confirma a ação no servidor só depois.
+- 25.4: `DbookStatusBadge` ganhou `showIcon` (desligado por padrão: o app de clientes não muda).
+- 25.6: a galeria do design system vai para o portal (M26), onde já há um app para hospedá-la; entradas no widgetbook ficam pendentes. Os goldens usam a fonte de teste do Flutter (blocos no lugar do texto).
+- Achados corrigidos: `DbookStatusPlaceholder` estourava a altura em espaço curto (agora rola); `SnackBar` com ação não fechava sozinho no Material 3 (`persist: false`).
+
+**Decisões pendentes (design):** pares da paleta abaixo do AA, listados e travados em `dbook_theme_contrast_test.dart`: texto branco sobre o azul primário (3,62:1), azul primário como texto sobre superfície (3,62:1 claro, 3,57:1 escuro), `onSecondaryContainer` (3,83:1) e `onSecondary` no claro (2,17:1). Bordas de campo no claro (1,37:1) ficam abaixo dos 3:1 de elementos de interface.
 
 ## M26 — Esqueleto do portal (`apps/dbook_admin`) 📋
 
