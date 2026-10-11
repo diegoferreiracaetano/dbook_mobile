@@ -3,8 +3,8 @@
 .flutter-plugins
 .flutter-plugins-dependencies
 .packages
-/build/
-/coverage/
+build/
+coverage/
 **/doc/api/
 pubspec.lock
 
