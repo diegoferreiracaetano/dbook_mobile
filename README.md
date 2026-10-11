@@ -20,6 +20,10 @@ O app de clientes (Flutter, web e mobile) busca voos e hotéis numa tela só, mo
 |---|---|---|
 | ![Perfil](docs/screenshots/07-perfil.png) | ![Preferências de viagem](docs/screenshots/08-preferencias-viagem.png) | ![Home com a origem das preferências](docs/screenshots/09-home-origem-das-preferencias.png) |
 
+| Perguntar à IA | IA para visitante | Perfil no tema escuro |
+|---|---|---|
+| ![Sugestões da IA](docs/screenshots/13-ia-sugestoes.png) | ![IA para visitante](docs/screenshots/14-ia-visitante.png) | ![Perfil no tema escuro](docs/screenshots/11-perfil-escuro.png) |
+
 ## Estrutura
 
 ```
