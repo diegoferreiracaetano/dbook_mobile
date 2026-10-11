@@ -860,9 +860,9 @@ Antes de qualquer tela do CRM (regra tokens → componentes → telas). Cada com
 - 25.6: a galeria do design system vai para o portal (M26), onde já há um app para hospedá-la; entradas no widgetbook ficam pendentes. Os goldens usam a fonte de teste do Flutter (blocos no lugar do texto).
 - Achados corrigidos: `DbookStatusPlaceholder` estourava a altura em espaço curto (agora rola); `SnackBar` com ação não fechava sozinho no Material 3 (`persist: false`).
 
-**Decisões pendentes (design):** pares da paleta abaixo do AA, listados e travados em `dbook_theme_contrast_test.dart`: texto branco sobre o azul primário (3,62:1), azul primário como texto sobre superfície (3,62:1 claro, 3,57:1 escuro), `onSecondaryContainer` (3,83:1) e `onSecondary` no claro (2,17:1). Bordas de campo no claro (1,37:1) ficam abaixo dos 3:1 de elementos de interface.
+**Decisões pendentes (design) — RESOLVIDO em 2026-10-09 (ver revisão de identidade abaixo):** pares da paleta que estavam abaixo do AA: texto branco sobre o azul primário (3,62:1), azul primário como texto sobre superfície (3,62:1 claro, 3,57:1 escuro), `onSecondaryContainer` (3,83:1) e `onSecondary` no claro (2,17:1). Bordas de campo no claro (1,37:1) ficam abaixo dos 3:1 de elementos de interface.
 
-## M26 — Esqueleto do portal (`apps/dbook_admin`) 📋
+## M26 — Esqueleto do portal (`apps/dbook_admin`) 🟡
 
 - [ ] 26.1 Criar o app Flutter **só web** no monorepo e no `melos` (`analyze`, `test`, cobertura combinada); *flavors* por `--dart-define` (`API_BASE_URL`, ambiente); sem copiar `main.dart` do app — composição entre features continua só no `main` de cada app
 - [ ] 26.2 `go_router` com **rotas por URL** (links diretos, recarga preserva a tela, parâmetros de filtro na *query string*); página 404 e 403
@@ -871,7 +871,7 @@ Antes de qualquer tela do CRM (regra tokens → componentes → telas). Cada com
 - [ ] 26.5 **i18n** com `.arb` pt-BR desde o início, formatação de datas/valores centralizada
 - [ ] 26.6 Testes de roteamento e do menu por permissão; documentação (`docs/portal.md`: como rodar, estrutura, convenções)
 
-## M27 — Sessão, login e 2FA no portal 📋  *(depende dos M25 e M29 do backend)*
+## M27 — Sessão, login e 2FA no portal 🟡  *(depende dos M25 e M29 do backend)*
 
 - [ ] 27.1 Tela de login (`/v1/admin/auth/login`): foco no primeiro campo, `Enter` envia, erros por `code` (`INVALID_CREDENTIALS`, `TOO_MANY_ATTEMPTS` com contagem regressiva de `Retry-After`, `ACCOUNT_BLOCKED`), sem revelar se o e-mail existe
 - [ ] 27.2 **Sessão segura:** *access token só em memória*; refresh por **cookie `httpOnly`** (Dio com `withCredentials` na web); *interceptor* de renovação com **requisição única em voo** (várias chamadas `401` simultâneas disparam um só refresh); renovação silenciosa antes de expirar
@@ -880,14 +880,14 @@ Antes de qualquer tela do CRM (regra tokens → componentes → telas). Cada com
 - [ ] 27.5 **2FA:** cadastro (QR a partir da URI `otpauth://`, confirmação por código, exibição única dos códigos de recuperação com "copiar" e "baixar"), tela do código (6 campos com colagem e avanço automático), uso de código de recuperação
 - [ ] 27.6 Testes (renovação concorrente, expiração, perda de cookie, ociosidade, estados de erro), documentação
 
-## M28 — Equipe e convites (portal) 📋  *(depende do M28 do backend)*
+## M28 — Equipe e convites (portal) 🟡  *(depende do M28 do backend)*
 
 - [ ] 28.1 Lista da equipe (papel, status, último acesso) e de convites pendentes com estado (válido/expirado/revogado)
 - [ ] 28.2 Convidar (e-mail + papel com **descrição do que cada papel pode fazer**), reenviar, revogar (com desfazer não se aplica — confirmação simples)
 - [ ] 28.3 Alterar papel e bloquear/desbloquear com confirmação que explica a consequência (sessões encerradas); impedir na UI e **explicar** o motivo quando for o próprio usuário ou o último `SUPER_ADMIN` (o servidor continua sendo a autoridade)
 - [ ] 28.4 Testes e documentação
 
-## M29 — Clientes (CRM) 📋  *(depende do M30 do backend)*
+## M29 — Clientes (CRM) 🟡  *(depende do M30 do backend)*
 
 - [ ] 29.1 **Lista:** `DbookDataTable` + `DbookFilterBar` (busca, status, período, "com reservas"), ordenação, paginação, tudo na URL; atalho `/` foca a busca
 - [ ] 29.2 **Visão 360º** em painel lateral/tela: cabeçalho (nome, status, desde quando, último acesso), KPIs (reservas, total pago, nota média), abas (Reservas, Pagamentos, Avaliações, Notas, Histórico/auditoria do cliente); carregamento por aba (não busca tudo de uma vez)
@@ -896,14 +896,14 @@ Antes de qualquer tela do CRM (regra tokens → componentes → telas). Cada com
 - [ ] 29.5 **Exportar** (só quem tem a permissão): progresso, aviso de teto e do que será exportado, download; **Anonimizar** (só `SUPER_ADMIN`): diálogo com a consequência em linguagem simples, motivo e **frase digitada**
 - [ ] 29.6 Testes (permissão esconde ações, filtros na URL, aba carrega sob demanda, confirmações), documentação
 
-## M30 — Reservas e reembolsos (portal) 📋  *(depende do M31 do backend)*
+## M30 — Reservas e reembolsos (portal) 🟡  *(depende do M31 do backend)*
 
 - [ ] 30.1 Lista de reservas com filtros (status, voo, cliente, período, pago) e detalhe com **linha do tempo** (criada → paga → reembolsada/cancelada/expirada, com o ator)
 - [ ] 30.2 Cancelar reserva `PENDING` e **reembolsar** reserva paga: tela mostra valor, política aplicável e prazo **antes** de confirmar; chave de idempotência gerada por tentativa e **reaproveitada na repetição** (mesma lógica do `payment_notifier`); botão fica em "processando", nunca duplica; estados `REQUESTED`/`FAILED` com "tentar de novo"
 - [ ] 30.3 Exceção de política (`override`) visível só a quem pode, exigindo motivo
 - [ ] 30.4 Testes (duplo clique, falha do gateway, repetição idempotente, conflito `409` com outro atendente) e documentação
 
-## M31 — Catálogo (portal) 📋  *(depende do M32 do backend)*
+## M31 — Catálogo (portal) 🟡  *(depende do M32 do backend)*
 
 - [ ] 31.1 Voos: lista filtrável, formulário de criar/editar com validação em linha (chegada depois da partida, capacidade ≥ reservado — mostrando **quantos assentos estão reservados**), campos imutáveis desabilitados **com explicação**
 - [ ] 31.2 **Conflito de edição (`STALE_VERSION`):** painel "outro administrador alterou este voo" com os campos que diferem, e as opções recarregar / ver diferenças
@@ -911,33 +911,33 @@ Antes de qualquer tela do CRM (regra tokens → componentes → telas). Cada com
 - [ ] 31.4 **Importação CSV:** escolher arquivo → *dry-run* → tabela de pré-visualização com erros **por linha** destacados → confirmar; nada grava até confirmar
 - [ ] 31.5 Testes e documentação
 
-## M32 — Dashboard (portal) 📋  *(depende do M33 do backend)*
+## M32 — Dashboard (portal) 🟡  *(depende do M33 do backend)*
 
 - [ ] 32.1 Cartões de KPI (com variação contra o período anterior), seletor de período com *presets*, séries temporais e ranking de rotas (biblioteca de gráficos decidida em ADR: `fl_chart` como candidata)
 - [ ] 32.2 Estados completos por cartão (carregando/vazio/erro independentes — um cartão com falha não derruba a página), atualização automática a cada 60 s com indicador de "atualizado há…", **tooltips com a definição** de cada métrica (o glossário do backend)
 - [ ] 32.3 Gráficos acessíveis (resumo textual e tabela alternativa, cor + padrão), testes e documentação
 
-## M33 — Auditoria, moderação e promoções (portal) 📋  *(M26, M37 e M39 do backend)*
+## M33 — Auditoria, moderação e promoções (portal) 🟡  *(M26, M37 e M39 do backend)*
 
 - [ ] 33.1 Visualizador de auditoria (`AUDIT_READ`): filtros, rolagem por cursor, linha expansível com **antes/depois** em diff legível, link para o cliente/reserva alvo
 - [ ] 33.2 Moderação de avaliações (fila de denunciadas, ocultar/restaurar com motivo)
 - [ ] 33.3 Promoções: criar/editar/desativar, regras explicadas em linguagem natural ("10 % em compras acima de R$ 500, até 100 usos"), lista com resgates
 - [ ] 33.4 Testes e documentação
 
-## M34 — Segurança do portal 📋  *(M43 e M46 do backend)*
+## M34 — Segurança do portal 🟡  *(M43 e M46 do backend)*
 
 - [ ] 34.1 **CSP** restritiva (sem `unsafe-inline` quando possível; atenção ao que o Flutter Web exige — documentar exceções), `X-Content-Type-Options`, `Referrer-Policy`, `frame-ancestors 'none'` (anti-*clickjacking*) — definidos no CloudFront (M43 do backend)
 - [ ] 34.2 Auditoria de dependências do `pubspec` no CI, nada de segredo no bundle (`--dart-define` só com valor público), nenhum dado pessoal em logs do navegador
 - [ ] 34.3 Revisão de XSS (todo texto vindo de cliente — nome, notas, avaliações — renderizado como texto, nunca como HTML), de `postMessage`/*deep links* e de *open redirect* no login (`returnTo` só para rotas internas)
 
-## M35 — Qualidade do portal: E2E, acessibilidade e desempenho 📋
+## M35 — Qualidade do portal: E2E, acessibilidade e desempenho 🟡
 
 - [ ] 35.1 **Testes E2E** (`integration_test` + Chrome) contra o backend real subido por `docker compose` no CI: login → buscar cliente → bloquear → ver na auditoria; convite → aceitar; reembolso; edição concorrente de voo
 - [ ] 35.2 **Acessibilidade:** auditoria com leitor de tela nos fluxos principais, checagem automatizada de `Semantics`, navegação 100 % por teclado nas telas de lista/detalhe
 - [ ] 35.3 **Desempenho:** orçamento de tamanho do bundle e de tempo até interativo medidos no CI (`flutter build web --wasm` avaliado), carregamento tardio (`deferred`) das telas pesadas (dashboard/gráficos)
 - [ ] 35.4 Goldens de regressão visual para os componentes (já listado em "Ideias futuras" — entra aqui)
 
-## M36 — Deploy do portal 📋  *(depende do M43 do backend)*
+## M36 — Deploy do portal 🟡  *(depende do M43 do backend)*
 
 - [ ] 36.1 Pipeline: build web com `--dart-define` por ambiente, publicação em S3 + invalidação do CloudFront, *cache* longo para arquivos com hash e **nenhum** para `index.html`/`flutter_service_worker`, *rollback* por versão anterior
 - [ ] 36.2 CORS e origem do portal no backend por ambiente, link do convite apontando para a URL real
@@ -947,50 +947,178 @@ Antes de qualquer tela do CRM (regra tokens → componentes → telas). Cada com
 
 # Evolução do app de clientes
 
-## M37 — Notificações no app 📋  *(M36 do backend)*
+## M37 — Notificações no app 🟡  *(M36 do backend)*
 
 - [ ] 37.1 Caixa de entrada (lista por cursor, não lidas em destaque, marcar lida ao abrir e "marcar todas"), *badge* com contagem, estado vazio com orientação
 - [ ] 37.2 Preferências por tipo e canal (alternadores com efeito imediato otimista e *rollback*); registro do dispositivo para *push* (FCM real fica como evolução; no local, adaptador falso)
 - [ ] 37.3 Tocar numa notificação abre a tela certa (*deep link* por tipo: reserva, reembolso, voo); testes e documentação
 
-## M38 — Detalhe do destino e avaliações 📋  *(M37 do backend)*
+## M38 — Detalhe do destino e avaliações 🟡  *(M37 do backend)*
 
 - [ ] 38.1 Tela de detalhe do destino: média, total e **distribuição por estrelas**, lista de avaliações com rolagem infinita, estados vazio/erro/carregando-mais
 - [ ] 38.2 **Editar/apagar a própria avaliação** (confirmar; apagar com *desfazer* de alguns segundos), denunciar avaliação alheia
 - [ ] 38.3 Entrada pelos cartões de destino (Home/Explore, sem quebrar o comportamento do M19), testes e documentação
 
-## M39 — Favoritos no servidor 📋  *(M38 do backend)*
+## M39 — Favoritos no servidor 🟡  *(M38 do backend)*
 
 - [ ] 39.1 `FavoriteRepository` (API) como **fonte da verdade**; `shared_preferences` deixa de guardar o estado e passa a servir só de cache de leitura
 - [ ] 39.2 Favoritar/desfavoritar **otimista** com *rollback* e aviso; comportamento sem rede definido (ação desabilitada com explicação — nada de fila silenciosa)
 - [ ] 39.3 **Migração única** dos favoritos locais existentes (envia ao servidor, confirma, só então limpa o local; idempotente); testes e documentação
 
-## M40 — Código promocional no pagamento 📋  *(M39 do backend)*
+## M40 — Código promocional no pagamento 🟡  *(M39 do backend)*
 
 - [ ] 40.1 Campo de código com validação ao sair (`/promo-codes/validate`), *chip* "aplicado" com remover, **detalhamento do preço** (subtotal, desconto, total), mensagens por `code` (expirado, mínimo não atingido, esgotado, já usado)
 - [ ] 40.2 O `Idempotency-Key` continua por tentativa e o código faz parte da tentativa (mudou o código → nova tentativa); testes e documentação
 
-## M41 — Histórico e alerta de preço 📋  *(M40 do backend)*
+## M41 — Histórico e alerta de preço 🟡  *(M40 do backend)*
 
 - [ ] 41.1 Gráfico simples de histórico no detalhe do voo (com alternativa em texto), indicação "preço abaixo/acima da média"
 - [ ] 41.2 Criar/editar/desativar alerta por rota e data (folha inferior), listagem dos alertas, notificação ao disparar (M37); testes e documentação
 
-## M42 — Reembolso e privacidade (cliente) 📋  *(M41 e M30 do backend)*
+## M42 — Reembolso e privacidade (cliente) 🟡  *(M41 e M30 do backend)*
 
 - [ ] 42.1 Em "Minhas viagens": **política de cancelamento antes de confirmar** (valor, prazo), pedido de reembolso idempotente, estados `REQUESTED`/`COMPLETED`/`FAILED` visíveis
 - [ ] 42.2 Privacidade: exportar meus dados e **excluir minha conta** (confirmação com consequência clara, senha de novo), tela "Conta bloqueada" para `ACCOUNT_BLOCKED` com caminho de contato
 - [ ] 42.3 Testes e documentação
 
-## M43 — Hotéis no app 📋  *(M42 do backend, em incrementos)*
+## M43 — Hotéis no app 🟡  *(M42 do backend, em incrementos)*
 
 - [ ] 43.1 Busca de hospedagem (cidade, datas com seletor de intervalo, hóspedes), resultados com preço **total da estadia**
 - [ ] 43.2 Detalhe do hotel e escolha de quarto, reserva → revisão → pagamento reaproveitando o fluxo atual, "Minhas viagens" com voos e hotéis
 - [ ] 43.3 Avaliações do hotel (reaproveita o M38), testes e documentação
 
-## M44 — Versão mínima e ciclo de vida da API no app 📋  *(M44 do backend)*
+## M44 — Versão mínima e ciclo de vida da API no app 🟡  *(M44 do backend)*
 
 - [ ] 44.1 Ao iniciar, consulta `GET /v1/app-config`; versão abaixo da mínima → tela de **atualização obrigatória** (com link da loja), versão defasada porém aceita → aviso dispensável
 - [ ] 44.2 Tratamento do cabeçalho `Deprecation` (registrar e, em debug, avisar), testes e documentação
+
+## Estado real de M26–M44 (2026-10-09)
+
+Legenda: 🟡 = **implementado e compilando**, verificação completa pendente. Nada
+foi verificado contra a API real (o Docker não subiu na máquina de
+desenvolvimento) nem renderizado no navegador com dados; o E2E e o Lighthouse
+foram escritos e **não executados**; o deploy tem workflow e portão de
+credencial, **não executado**. Os itens `[ ]` de cada marco acima continuam
+sem marca de propósito: só se marca o que foi visto funcionando.
+
+| Marco | Entregue | Testes que existem | Pendente |
+|---|---|---|---|
+| M26 esqueleto | app, rotas, shell responsivo, menu por permissão, faixa de ambiente, saúde da API, fronteira de erro | regras de redirecionamento e `safeReturnTo` (`apps/dbook_admin/test/router_rules_test.dart`) | teste de widget do shell e do menu por permissão |
+| M27 sessão/2FA | login, desafio 2FA, cadastro do autenticador, códigos de recuperação, renovação em voo único, ociosidade | interceptor (inclui a corrida de renovação), gerente de token, notifier de sessão | `IdleGuard`, telas de login/2FA |
+| M28 equipe | lista, convite, mudança de papel, bloqueio | nenhum | telas e providers |
+| M29 clientes | lista, ficha 360º, ações | codec da consulta | telas |
+| M30 reservas | lista, detalhe, reembolso com chave de idempotência, fila de reembolsos | codec da consulta | telas |
+| M31 catálogo | voos (form com versão/`STALE_VERSION`), importação CSV com simulação, companhias, aeroportos | codec e leitor de CSV | telas |
+| M32 dashboard | KPIs e séries (cache de 60 s no servidor) | nenhum | séries e KPIs |
+| M33 governança | auditoria por cursor, moderação, promoções | nenhum | telas |
+| M34 segurança | CSP e cabeçalhos, guardas de código no CI, rascunho protegido, retorno seguro | `safeReturnTo` e redirecionamento por permissão | `DraftGuard`, `PermissionGate` |
+| M35 qualidade | `integration_test` e workflow `e2e-portal.yml` | **não rodou** | executar E2E e Lighthouse |
+| M36 deploy | `deploy-portal.yml` com `releases/<versão>/` e *rollback* | **não rodou** | credencial AWS e primeiro deploy |
+| M37 notificações | caixa de entrada, preferências, sino, registro do aparelho (`FakePushTokenSource`) | notifier da caixa (carregar, paginar, voltar atrás), registrador | páginas (inbox, preferências, sino) |
+| M38 destino e avaliações | detalhe, avaliações, favoritos no servidor com migração única | favoritos (adicionar e voltar atrás) | avaliações |
+| M39 favoritos | ver M38 | idem | |
+| M40 promo | código no pagamento, total previsto pelo servidor | `PromoNotifier` (aplicar, vazio, recusado), pagamento com `items` (hotel) coberto só pelo fluxo da busca | tela de pagamento com promo |
+| M41 preço | histórico e alertas | nenhum | seção de preço e alertas |
+| M42 reembolso/privacidade | política, pedido com chave por tentativa, exportar e excluir conta | `CancellationNotifier` (chave por tentativa, nova chave após falha, janela fechada), folha de cancelamento via página | diálogos de privacidade |
+| M43 hotéis | busca, resultados com total da estadia, detalhe e quartos, reserva e pagamento reaproveitando a revisão do voo, minhas estadias | repositório (rede, inclusive "Minhas viagens" ignorando estadia) e fluxo busca, detalhe e reserva | avaliações do hotel (M38 ainda só para destino); minhas viagens unificadas |
+| M44 versão e `Deprecation` | atualização obrigatória e aviso, interceptor de `Deprecation` | regra de versão (`assessUpdate`/`compareVersions`) e `DeprecationInterceptor` | gate de atualização e de conta bloqueada na UI |
+
+**Revisão de identidade (2026-10-09)** — ver `docs/identidade-visual.md`:
+paleta com AA em todos os pares (as lacunas "conhecidas" do M25 foram
+eliminadas), Manrope empacotada (a CSP bloqueia fonte remota), cartão plano,
+~55 valores soltos viraram token. A fonte nova **não** foi vista renderizada
+ainda; os goldens usam a fonte de teste do Flutter e validam layout e cor.
+
+**Achado corrigido pelos testes com respostas reais (2026-10-09):** dropdowns do formulário de voo estouravam 6 px à direita com nomes longos (`isExpanded`).
+
+**Achado CORRIGIDO no M46.6 (2026-10-10):** na fila de moderação do portal o botão "Dispensar denúncias" (segunda ação da coluna "Ações", 230 px) não recebe clique em teste de 1400 px: o hit-test cai em outro elemento (provável quebra de linha do `Wrap` sob a altura fixa da linha). Alargar a coluna para 340 px **não resolveu** e foi revertido. Investigar o layout da célula de ações (menu de ações como nos outros itens da equipe/promoções).
+
+**Mudança de testabilidade (2026-10-10):** o seletor de arquivo do portal virou `textFilePickerProvider` (padrão = seletor real do navegador) para a importação de voos ser testável.
+
+**Achado corrigido pelos testes (2026-10-10):** `DbookStatusBadge` estourava 18 px à direita em coluna estreita das tabelas do portal (agora `Flexible` com reticências).
+
+**Achado corrigido pelos testes (2026-10-10):** linhas de tabela do portal com duas linhas de texto (voo + companhia, cliente + e-mail) estouravam a altura de 40 dp; `DbookDensity.rowHeight` passou para 52 dp (goldens regenerados).
+
+**Achados corrigidos no fechamento:** reserva de hotel quebrava "Minhas
+viagens" (`flight`/`seat` nulos no DTO); corrida de renovação no interceptor
+do portal (duas renovações gastavam o refresh token de uso único); botão
+"Reservar" do hotel ficava preso em carregando ao voltar do pagamento;
+testes de favoritos e cancelamento estavam defasados em relação ao M39/M42.
+
+
+**Medições do fechamento (2026-10-09):**
+- `melos run analyze`: 26 pacotes, **zero issues**.
+- `melos run coverage` e `coverage:dart`: **todos os testes passam** (design system 190, notificações 8, hotéis 5, booking 44, sessão do portal 33, etc.).
+- **Cobertura combinada: 80,47 %** (11.255 de 13.986 linhas, medido em 2026-10-10 depois do M46; era 80,30 % antes dele; era 41,5 % no primeiro fechamento e 67,0 % na medição anterior). **O portão de 80 % do CI é atendido**, com folga curta (cerca de 40 linhas). Fora do alcance de teste: `main()` do app e do portal (bootstrap com `runApp`), que seguem sem cobertura de propósito. Maiores lacunas restantes: `flight_form_page` (envio de criação, seletores de data), `promos_page` (edição), `main.dart` do app. `melos run analyze`, `melos run test` e `melos run test:dart` terminam com exit 0 (2026-10-10). Nada foi excluído da medição para subir o número.
+- Verificado **contra a API real** (backend em banco descartável): login do portal com cookie, `me`, equipe, clientes (lista e ficha), reservas (lista e detalhe), voos, companhias, aeroportos, painel, auditoria, promoções, reembolsos; no app: busca de hotel, detalhe, reserva, "Minhas viagens" (voo e hotel), validação e **pagamento do hotel confirmado**. Portal **renderizado** (login, menu por permissão, Clientes, Painel, Reservas) com Manrope carregando.
+- Achados visuais **ainda abertos** no portal: coluna "Criada em" cortada na borda da tabela de Reservas; o seletor "Todas as situações" não segue o estilo dos chips; KPIs do Painel empilhavam em coluna única (corrigido para grade de 260 px, **não revisto renderizado**).
+- Ainda **não verificado**: E2E, Lighthouse, deploy, push real, o app de clientes renderizado com a fonte nova, dark mode do app.
+
+**Decisões pendentes:** borda de campo abaixo de 3:1; push real (FCM) no lugar
+do adaptador falso; busca de hotel por nome de cidade em vez de código IATA
+(depende de endpoint de busca de destino no backend).
+
+## M45 — Revisão do app de clientes: correções e busca unificada 📋  *(pedido de 2026-10-09)*
+
+Origem: feedback do dono ao ver o app renderizado. **Regra desta etapa: planejar e registrar primeiro; nada é corrigido sem estar aqui.**
+
+### Achados (o que o dono apontou)
+1. **Botão sem altura mínima**: os botões do tema não definem altura mínima (alvo de toque pequeno; visto em "Buscar hotéis").
+2. **Fonte**: a Manrope não agradou; o dono preferia a anterior (Roboto).
+3. **Contraste azul e preto**: algumas combinações ficam fora do contraste, em especial a faixa azul da Home no tema escuro (rádios "One Way/Multi-city" apagados sobre o azul claro) e o cabeçalho do Perfil.
+4. **Busca separada**: voo e hotel têm telas de busca diferentes (aba Home e aba Hotels). Deve ser **uma busca só**.
+5. **Revisão geral do cliente**: passar por todas as telas do app (ver 45.5).
+
+### Itens
+- [ ] 45.1 **Altura mínima de botão** (48 dp) como token (`DbookSizes.controlHeight`), aplicada no tema a elevado, contornado e texto; teste de widget que mede a altura.
+- [ ] 45.2 **Fonte**: voltar para Roboto, **empacotada** (cópia da que já vem no SDK do Flutter, sem CDN, por causa da CSP do portal); remover a Manrope; pesos reais (400, 500, 700, 900); documentar em `docs/identidade-visual.md`.
+- [ ] 45.3 **Contraste**: superfície de marca por tema (`DbookBrandColors`: azul da marca no claro, azul profundo no escuro) usada na faixa da Home e no cabeçalho do Perfil; texto secundário em cor sólida (sem transparência); teste de contraste AA dos pares da marca; varredura de **todos** os usos de `primary`/`onPrimary` e de `Colors.white70`/`withValues(alpha)` sobre cor de marca.
+- [ ] 45.4 **Busca unificada voo + hotel**
+  - Uma tela de busca com o tipo (Voo, Hotel, e depois Voo + Hotel), origem/destino, datas e passageiros/hóspedes compartilhados.
+  - Destino de hotel escolhido pelo **mesmo seletor de aeroporto/destino** do voo (hoje o hotel pede código IATA digitado, o que fere o princípio de front burro: a lista vem do servidor).
+  - Resultados do hotel mostram o preço **total da estadia**; reserva e pagamento seguem o fluxo único.
+  - A aba "Hotels" deixa de existir como busca própria (a lista de "Minhas estadias" migra para Trips).
+  - Decisão pendente com o dono: ordem das abas e se "Voo + Hotel" entra agora ou depois.
+- [ ] 45.5 **Revisão geral do cliente** (tela a tela, com captura renderizada em claro e escuro, 360 e 400 dp): onboarding, login e cadastro, Home, resultados, detalhe do voo, assento, pagamento, sucesso, Trips (voos **e** hotéis juntos), Explore, destino e avaliações, alertas de preço, notificações, Perfil e privacidade. Para cada tela: tokens, estados (carregando, vazio, erro), idioma (hoje **misto** inglês/português), acessibilidade, alvo de toque.
+- [ ] 45.6 **Idioma**: decidir e aplicar um só idioma de interface (o app mistura "Search Flights" com "Destinos em destaque"); hoje não há l10n no app de clientes.
+- [ ] 45.7 Testes: widget de cada tela revisada, golden claro e escuro da folha de identidade, regressão do contraste; cobertura do app de clientes de volta a ≥ 80 %.
+
+
+### Achados da revisão renderizada (skills `design-critique` e `accessibility-review`, 2026-10-09)
+
+Método: app web compilado em release, 400 dp, claro e escuro, contra a API real; telas vistas: Home, Explore, Trips (visitante e logado), Hotels, Login, Resultados (vazio), Perfil. **Nada corrigido**; cada achado vira item de 45.x.
+
+| # | Achado | Gravidade | Item |
+|---|---|---|---|
+| R1 | ✅ **Corrigido** (2026-10-09): avatar do Perfil com cores próprias sobre a faixa de marca (`DbookAvatar.backgroundColor/foregroundColor`); teste de widget | 🔴 | 45.3 |
+| R2 | **Busca duplicada:** Home (voo) e aba Hotels (hotel) são telas diferentes, com campos e seletores diferentes; hotel pede código IATA digitado | 🔴 | 45.4 |
+| R3 | **Trips não mostra a estadia** paga (só o voo); a estadia fica escondida atrás de um ícone de mala na aba Hotels | 🔴 | 45.4 |
+| R4 | 🟡 **"Pagar agora" implementado** em reserva pendente (leva à revisão e pagamento do voo; teste de widget). **Falta** a contagem regressiva dos 15 min (o servidor não expõe o instante de expiração na lista) | 🔴 | 45.5 |
+| R5 | **Idioma misto:** "Welcome Back", "Sign In", "Search Flights", "My Bookings", "Cancel Booking", "1 Passenger" ao lado de "Entrar para continuar", "Destinos em destaque", "Hotéis"; a aba chama "Trips" e a página "My Bookings" | 🟡 | 45.6 |
+| R6 | ✅ **Corrigido** (2026-10-09): botões Google e Apple removidos do login (o componente segue no design system, sem uso); teste de widget | 🟡 | 45.5 |
+| R7 | **Padrões da Home sem sentido para o usuário:** origem Paris (CDG), destino Buenos Aires (EZE) e datas fixas; ninguém escolheu isso | 🟡 | 45.5 |
+| R8 | **Resultados vazios:** a faixa de datas mostra "–" em todas as datas sem explicar (sem voo naquele dia ou sem preço?) | 🟢 | 45.5 |
+| R9 | **Perfil:** "Excluir minha conta" e "Sair" têm o mesmo peso visual; ação destrutiva sem distinção de cor ou separação | 🟡 | 45.5 |
+| R10 | **Rádios Round Trip/One Way/Multi-city desativados** (pausa pedida antes) parecem controles ativos; nenhum rótulo diz que estão indisponíveis | 🟡 | 45.5 |
+| R11 | **Alvos de toque pequenos:** ícones do cabeçalho da Home (sino, IA, sair) e o coração do cartão de destino têm cerca de 28 a 32 dp (mínimo 44) | 🟡 | 45.5 |
+| R12 | Botão primário agora com 48 dp e contraste AA nos dois temas (verificado visualmente em "Search Flights", "Sign In", "Buscar hotéis") | ✅ | 45.1 |
+| R13 | Faixa azul da Home no escuro corrigida (texto dos rádios legível); cartão de busca escuro sobre azul profundo funciona | ✅ | 45.3 |
+
+**A verificar com leitor de tela** (a captura não prova): rótulo e papel dos ícones sem texto (sino, IA, sair, coração, olho da senha, Google, Apple), ordem de foco na Home, anúncio do estado selecionado nos chips de região e nas abas, e `Semantics` do botão "Reservar" quando carregando.
+
+**Funciona bem (manter):** hierarquia da Home (busca em destaque, depois destinos); fotos reais e título com bom contraste nos cartões de destino; estados vazios com ícone, título e instrução ("Nenhum voo encontrado"); badge de status com cor + texto; abas com ícone e rótulo; guarda de visitante em Trips com chamada para entrar.
+
+
+### Crítica de UX aprofundada
+Movida para o **Backlog** no fim deste arquivo ("Backlog: revisão de UX do app de clientes", itens U1 a U21), por decisão do dono: entra **por último**, depois do que está priorizado.
+
+### Já aplicado no código (antes deste registro, **não validado pelo dono**)
+Foram feitas alterações **antes** de o planejamento estar registrado; ficam listadas aqui e **podem ser revertidas** se o dono preferir outro caminho:
+- Fonte Roboto empacotada no lugar da Manrope (`packages/dbook_design_system/assets/fonts`, `dbook_typography.dart`, `pubspec.yaml`).
+- `DbookBrandColors` (tema claro/escuro) e uso na Home (`flight_search_page.dart`) e no Perfil (`profile_page.dart`).
+- Altura mínima de 48 dp nos botões do tema (`dbook_theme.dart`, `DbookSizes.controlHeight`).
+- Teste de contraste dos pares da marca e goldens regenerados.
+Não foram feitos: busca unificada (45.4), revisão geral (45.5), idioma (45.6).
 
 ---
 
@@ -1004,7 +1132,105 @@ Antes de qualquer tela do CRM (regra tokens → componentes → telas). Cada com
 - [ ] `melos run analyze`, `melos run test`, cobertura combinada ≥ 80 % e `dart format` só nos arquivos tocados
 - [ ] `CHECKLIST.md` e `README.md` atualizados
 
+## M46 — Fechamento: Home com Voos e Hotéis, correções e encerramento ✅  *(pedido de 2026-10-10; substitui o M45 no que ele tem de pendente)*
+
+Decisão do dono: **não será publicado em cenário real** e o escopo deve ficar **simples**. Fecha-se só o que está pendente. Fora do escopo por isso: credencial AWS e primeiro deploy (M36), Lighthouse, backlog U1–U21 (continua listado, sem execução), l10n completo.
+
+### Decisões tomadas (a confirmar só se discordar)
+- **Home com abas de topo "Voos | Hotéis"**: a busca unificada vira uma tela só, o tipo troca os campos (voo: origem, destino, datas, passageiros; hotel: destino, entrada, saída, hóspedes). Destino do hotel vem do **mesmo seletor** do voo (lista do servidor, sem IATA digitado).
+- **Carrossel de hotéis** na Home, abaixo dos destinos, com hotéis reais da API (`GET` de acomodações já existente), tocar abre o detalhe do hotel.
+- **BottomNavigation** continua separada: Home, Explore, Trips, Perfil. A aba "Hotels" some; "Minhas estadias" entra em Trips junto das passagens.
+- **Pacotes (voo + hotel)**: o backend não tem pacote, então o app **não inventa preço de pacote** (front burro). Entra como **fluxo**: cartão "Voo + hotel" no carrossel, que leva à busca de voo e, depois da escolha, oferece hotéis do mesmo destino e datas; cada item continua com o seu preço real e o total é só a soma mostrada na revisão. Se preferir, o cartão sai e fica só voo e hotel separados.
+- **Idioma**: português em toda a interface do app de clientes (sem l10n; textos em um lugar só por tela).
+
+### Itens (ordem de execução, um por vez, testes por item)
+- [x] 46.1 **Home com abas Voos | Hotéis** (busca unificada, 45.4) e remoção da aba Hotels do `NavigationBar`. `FlightSearchPage.hotelPanelBuilder` + `StaySearchPanel` (destino pelo mesmo seletor do voo).
+- [x] 46.2 **Carrossel de hotéis** + cartão de pacote como fluxo (`apps/dbook_mobile/lib/home_stays_section.dart`; hotéis da busca real com recorte padrão de 2 noites; o pacote mostra voo e hotel lado a lado, sem somar). Verificado renderizado contra a API real.
+- [x] 46.3 **Trips unificada**: "Voos | Hotéis" na mesma tela, com "Pagar agora" nas estadias pendentes (R3). Sem contagem regressiva (o servidor não expõe o prazo).
+- [x] 46.4 **Idioma único em português** (R5): telas, rótulos, abas, onboarding e testes. Pendente menor: datas da busca saem no formato inglês (`EEE, MMM d`), pois o locale não é inicializado.
+- [x] 46.5 **Correções de UX da revisão**: Home sem origem/destino pré-escolhidos (R7), rádios pausados com "em breve" (R10), coração do cartão com alvo de 44 dp (R11), Perfil com ações agrupadas e "Excluir minha conta" separada em cor de perigo (R9), "sem voo" na faixa de datas (R8).
+- [x] 46.6 **Portal: moderação** — coluna de ações virou menu (como equipe); fecha o achado do "Dispensar denúncias" (testes agora clicam de verdade).
+- [x] 46.7 **Gates da UI (M44)**: já existiam (`app_update_gate`, `account_blocked_gate`, `gates_test.dart`); avaliações do hotel ficam fora (não há endpoint).
+- [x] 46.10 **Busca de hotel no mesmo componente do voo** (crítica do dono em 2026-10-10, ao ver a Home renderizada: a busca de hotel estava com botões soltos, fora do padrão do cartão do voo). Reusar `DbookTripSummaryCard` (campo de destino único, entrada/saída, hóspedes) dentro da faixa de marca, igual ao voo; resultados abaixo. Estado da busca em provider da feature de hotéis para o formulário (faixa) e a lista (corpo) conversarem sem acoplar as features.
+- [~] 46.8 **Verificação real**: passada visual da Home (Voos, Hotéis, vitrine) contra a API real, 400 dp, feita. **E2E do portal não rodou aqui**: falta o `chromedriver` na máquina; o workflow `e2e-portal.yml` o instala no CI.
+- [ ] 46.9 **Fechamento**: `analyze`, testes e cobertura ≥ 80 %; `CHECKLIST.md`, `README.md`, `docs/portal.md` e `docs/identidade-visual.md` no estado final; marcos 🟡 viram ✅ só os verificados. Commit só a pedido.
+
+## M47 — Logo da companhia e fotos administráveis (portal + app) 🟡  *(depende do M50 do backend; pedido de 2026-10-10)*
+
+O app só exibe o que a API manda (front burro): sem o `airlineLogoUrl` do M50.2 não há logo. O atendente mantém logo, foto de cidade e foto de hotel pelo portal.
+
+- [x] 47.1 **App** (feito em 2026-10-10; `DbookAirlineLogo` no resultado, detalhe e Trips): `Flight.airlineLogoUrl` (entidade, DTO, mapper tolerante a nulo); `DbookAirlineLogo` no design system (círculo com o logo, cai nas iniciais da companhia sem URL ou com erro), usado nos resultados, detalhe do voo, assento/pagamento e Trips, no lugar da bolinha colorida.
+- [x] 47.2 **Portal, companhias** (campo, validação `https` e pré-visualização): campo "URL do logo" (https) no formulário, com pré-visualização e erro por `code`.
+- [ ] 47.3 **Portal, hotéis** (**não feito**: a API já existe, falta só a tela; fica como próximo passo) (depende do M50.3): lista, criar e editar hotel com foto, estrelas, endereço, comodidades e tipos de quarto; permissão de catálogo; `STALE_VERSION` tratado como nos voos.
+- [ ] 47.4 **Portal, aeroportos** (**não feito**): pré-visualização da foto da cidade no formulário que já existe.
+- [x] 47.5 Testes do logo (design system) e do campo no portal (API); cobertura combinada **80,68 %** (11.635 de 14.422 linhas, 2026-10-10).
+
+## M48 — Perfil do cliente completo (app) ✅  *(parte sem backend feita em 2026-10-10; o resto depende do M51 do backend)*
+
+Feito (só com dado e ação reais): perfil em seções, resumo com números reais (viagens, favoritos, alertas), Preferências (notificações, alertas de preço, **aparência** Sistema/Claro/Escuro guardada no aparelho), Conta (editar perfil, exportar dados), Sobre (versão), Sair e "Excluir minha conta" separada em cor de perigo. Testes em `apps/dbook_mobile/test/profile_page_test.dart`.
+
+- [x] 48.1 **Foto de perfil** no avatar do Perfil e do cabeçalho (depende do M51.1); troca e remoção.
+- [x] 48.2 **"Membro desde"** no cabeçalho (M51.2).
+- [x] 48.3 **Preferências de viagem** (origem, classe): tela e uso para pré-preencher a busca da Home (M51.3).
+- [x] 48.4 **Trocar senha** e **dispositivos conectados** dentro do app (M51.4) e **sessões ativas** (M51.5).
+- [x] 48.5 Testes de `apps/dbook_mobile/test/account_test.dart` (contrato da conta, preferências com recusa do servidor, dispositivos, senha, foto) e do perfil; telas verificadas renderizadas contra a API real (`docs/screenshots`). O teste achou um defeito real: os controladores dos diálogos eram descartados antes da animação de saída.
+
 ## Ideias futuras (fora da numeração)
 
 - Golden tests (regressão visual) pros componentes do `dbook_design_system`
 - Deploy interno via Firebase App Distribution / TestFlight beta
+
+## Backlog: revisão de UX do app de clientes (por último) 📋
+
+**Prioridade: a mais baixa.** Decisão do dono em 2026-10-09: estes itens ficam registrados e só entram **depois** de tudo que está priorizado (cobertura, E2E, achados R1 a R4 e a busca unificada do M45). Nada daqui é corrigido antes disso.
+
+Contexto e método: ver M45 (achados R1 a R13). Referências do Mobbin não foram consultadas (conector exige plano pago).
+
+### Itens U1 a U21 (crítica de 2026-10-09)
+
+Referências do Mobbin **não** foram consultadas (o conector exige plano pago); a crítica vem de heurísticas (Nielsen, hierarquia, Lei de Fitts, agrupamento de Gestalt) e do que está renderizado.
+
+**Perfil (o exemplo do dono, e é pior do que parece)**
+- U1 🔴 **Lista de botões de contorno com o mesmo peso**: Editar Perfil, Alertas de preço, Exportar meus dados são botões contornados em pílula, empilhados. Um botão é uma **ação**; isto são **destinos e configurações**, que pedem uma lista agrupada (linha com ícone, rótulo e seta), como em qualquer app de conta. Hoje nada diz o que é frequente e o que é raro.
+- U2 🔴 **Sem agrupamento nem rótulos de seção**: conta, viagens, notificações, privacidade e sair estão no mesmo bloco. Faltam "Conta", "Preferências" (notificações já existem e **não aparecem** no Perfil), "Privacidade e dados".
+- U3 🔴 **Ação destrutiva sem proteção visual**: "Excluir minha conta" (irreversível, LGPD) tem o mesmo estilo de "Sair" e fica colado nele. Deve ficar **no fim, separada, em cor de perigo**, e "Sair" não pode ficar ao lado.
+- U4 🟡 **Cabeçalho do Perfil não ajuda**: ocupa 20% da tela só para nome e e-mail, e o avatar sumiu no escuro (R1). Não há ação de foto, nem status da conta, nem resumo útil (próxima viagem, alertas ativos).
+- U5 🟡 **Metade da tela vazia**: nada sobre histórico, favoritos, pagamentos, ajuda ou termos; o app promete uma "conta" e entrega quatro links.
+- U6 🟡 **"Alertas de preço" está no Perfil, mas "Notificações"/"Avisos" não**: duas funções do mesmo assunto em lugares diferentes (o sino está só na Home).
+
+**Home**
+- U7 🔴 **O cartão de busca é um formulário de 6 campos antes de qualquer valor**: origem, destino, ida, volta, passageiros e o botão, com origem e destino pré-preenchidos com Paris e Buenos Aires. Em app de viagem, o padrão é destino em destaque + datas, e origem inferida do usuário/última busca.
+- U8 🟡 **Três rádios desativados no topo** (Round Trip/One Way/Multi-city) gastam a área mais nobre para mostrar o que **não** funciona.
+- U9 🟡 **Cabeçalho com 3 ícones sem rótulo** (sino, IA, sair) de 24 dp, sem hierarquia; "sair" no topo da Home é um erro de lugar (é ação rara e de risco).
+- U10 🟡 **"Destinos em destaque"** é um carrossel/grade que empurra o usuário para fora do fluxo de busca; tocar leva direto a resultados, sem datas.
+
+**Navegação**
+- U11 🔴 **Cinco abas com sobreposição**: Home, Explore e Hotels são "descobrir/buscar" (três portas para a mesma intenção); Trips e Profile são "meus". Para um app com dois produtos (voo e hotel) a navegação deveria ser **Buscar**, **Viagens**, **Alertas/Avisos**, **Conta**.
+- U12 🟡 **Nome incoerente**: aba "Trips", página "My Bookings", ação "Cancel Booking", e a estadia em "Minhas estadias" (quarto nome).
+
+**Trips**
+- U13 🔴 **Reserva pendente sem saída** (R4): o único botão é cancelar; falta "Pagar agora" e o tempo restante.
+- U14 🟡 **"Cancel Booking" como botão de texto azul** compete com nada e some; para uma ação financeira (pode virar reembolso) a tela devia mostrar o que acontece antes de pedir.
+- U15 🟡 **Abas Próximas/Anteriores** escondem "Canceladas" e "Pendentes de pagamento", que são os estados que pedem ação.
+
+**Hotels**
+- U16 🔴 **Formulário sem contexto**: campo de código IATA com texto de ajuda "Ex.: LIS, GIG, JFK" obriga o usuário a conhecer códigos de aeroporto para achar um hotel; o seletor de destino do voo já existe e vem do servidor.
+- U17 🟡 **Contador de hóspedes e seletor de datas fora do padrão da Home** (outros componentes para a mesma coisa).
+- U18 🟡 **Tela vazia abaixo do botão**: sem sugestões, sem últimas buscas, sem destinos.
+
+**Login**
+- U19 🟡 **"Welcome Back" e "Sign In" em inglês, resto em português**; botões Google e Apple sem função (R6) e sem texto, só ícone.
+- U20 🟢 **Sem "Esqueci a senha"** visível.
+
+**Resultados**
+- U21 🟡 **Estado vazio genérico** ("Tente outra data ou outra rota"): com a faixa de datas toda em "–", o usuário não sabe se o problema é a data, a rota ou o servidor; faltam sugestões (datas próximas, aeroportos próximos).
+
+**Princípios que o app viola de forma sistemática**
+1. *Reconhecimento em vez de memória* (Nielsen 6): IATA digitado, sem histórico de buscas.
+2. *Consistência* (Nielsen 4): três nomes para "reserva", idioma misto, dois seletores de data.
+3. *Prevenção de erro* (Nielsen 5): destrutivo colado ao comum.
+4. *Visibilidade do estado do sistema* (Nielsen 1): reserva pendente sem tempo, rádios desativados sem aviso.
+5. *Hierarquia de ação*: quase toda tela usa o mesmo botão primário em pílula e o mesmo contornado; não há distinção entre ação principal, secundária e navegação.
+
+**Proposta de perfil (para validar, não aplicada):** cabeçalho compacto (avatar, nome, e-mail, "Editar") → seção **Viagens** (Minhas reservas, Alertas de preço, Favoritos) → seção **Preferências** (Notificações, Idioma, Tema) → seção **Privacidade** (Exportar meus dados, Termos) → seção **Ajuda** → rodapé: **Sair** (linha neutra) e, separado e em cor de perigo, **Excluir minha conta** com confirmação por frase digitada (o componente `DbookConfirmLevel` já existe).
+

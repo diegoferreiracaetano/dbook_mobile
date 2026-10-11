@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-/// Escala de tipografia do Material 3 em Roboto — os mesmos tamanhos, pesos
-/// e alturas de linha do artifact de tokens do design system. Sem cor: a cor
-/// do texto vem do `ColorScheme` quando o tema é montado (ver [DbookTheme]).
+/// Escala de tipografia do Material 3 em Roboto: tamanhos, pesos e alturas
+/// de linha do Material. A fonte vai empacotada (`assets/fonts`), não vem de
+/// um CDN. Roboto não tem peso 600: ele cai no Bold. Sem cor: a cor do texto
+/// vem do `ColorScheme` quando o tema é montado (ver [DbookTheme]).
 abstract final class DbookTypography {
+  /// Família empacotada em `assets/fonts` (ver `pubspec.yaml`).
+  static const family = 'Roboto';
+
   static TextTheme get textTheme => TextTheme(
     displayLarge: _style(fontSize: 57, lineHeight: 64, weight: FontWeight.w400),
     displayMedium: _style(
@@ -46,13 +49,26 @@ abstract final class DbookTypography {
     required double fontSize,
     required double lineHeight,
     required FontWeight weight,
+    double tracking = 0,
   }) {
-    return GoogleFonts.roboto(
+    return TextStyle(
+      fontFamily: family,
+      package: 'dbook_design_system',
       fontSize: fontSize,
       height: lineHeight / fontSize,
       fontWeight: weight,
+      letterSpacing: tracking,
     );
   }
+
+  /// Texto de código, identificadores e valores copiáveis (códigos de
+  /// reserva, `promo`, JSON de auditoria). Largura fixa, cor herdada.
+  static TextStyle get mono => const TextStyle(
+    fontFamily: 'Menlo',
+    fontFamilyFallback: ['Consolas', 'Courier New', 'monospace'],
+    fontSize: 13,
+    height: 1.5,
+  );
 
   /// Algarismos de largura fixa: em coluna de tabela, as casas decimais ficam
   /// alinhadas e o valor não "dança" quando muda.

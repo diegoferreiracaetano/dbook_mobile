@@ -126,3 +126,58 @@ jobs:
         with:
           name: dbook_mobile-ios-build
           path: apps/dbook_mobile/build/ios/iphoneos/Runner.app
+
+  # --- Portal administrativo (Flutter Web) -----------------------------------
+  # Guardas de segurança do código, build de verdade, orçamento de tamanho e de
+  # tempo até interativo. Os testes do portal já rodam em `analyze-format-test`
+  # (o melos pega todo pacote com pasta test/).
+  build-portal:
+    needs: analyze-format-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Bootstrap workspace
+        run: flutter pub get
+
+      - name: Guardas de segurança do código do portal
+        run: ./tool/check_portal_source.sh
+
+      # `--no-web-resources-cdn`: o CanvasKit sai junto do bundle, e a CSP do
+      # portal (docs/portal-seguranca.md) não precisa liberar o gstatic.
+      - name: Build do portal
+        working-directory: apps/dbook_admin
+        run: flutter build web --release --no-web-resources-cdn --dart-define=APP_ENV=ci
+
+      - name: Orçamento de tamanho do bundle
+        run: ./tool/check_bundle_size.sh apps/dbook_admin/build/web 1500
+
+      - name: Tempo até interativo (Lighthouse)
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: apps/dbook_admin/deploy/lighthouserc.json
+          uploadArtifacts: true
+
+      - name: Guardar o build do portal
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbook_admin-web
+          path: apps/dbook_admin/build/web
+
+  # Vulnerabilidades conhecidas nas dependências do `pubspec.lock`.
+  dependency-audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Auditar pubspec.lock
+        uses: google/osv-scanner-action/osv-scanner-action@v1.9.0
+        with:
+          scan-args: |-
+            --lockfile=pubspec.lock

@@ -15,7 +15,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Payment {
 
- int get id; double get amount; String get cardLast4; List<int> get bookingIds; String get status;
+ int get id; double get amount; String get cardLast4; List<int> get bookingIds; String get status;/// Antes do desconto e o desconto aplicado (código promocional); `null`
+/// em pagamentos anteriores ao M39 do backend. [amount] é o que foi
+/// **cobrado** (`subtotal − discount`).
+ double? get subtotal; double? get discount; String? get promoCode;
 /// Create a copy of Payment
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -27,20 +30,20 @@ $PaymentCopyWith<Payment> get copyWith => _$PaymentCopyWithImpl<Payment>(this as
 @override
 bool operator ==(Object other) {
   final _this = this as Payment;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Payment&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.amount, _this.amount) || other.amount == _this.amount)&&(identical(other.cardLast4, _this.cardLast4) || other.cardLast4 == _this.cardLast4)&&const DeepCollectionEquality().equals(other.bookingIds, _this.bookingIds)&&(identical(other.status, _this.status) || other.status == _this.status));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Payment&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.amount, _this.amount) || other.amount == _this.amount)&&(identical(other.cardLast4, _this.cardLast4) || other.cardLast4 == _this.cardLast4)&&const DeepCollectionEquality().equals(other.bookingIds, _this.bookingIds)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.subtotal, _this.subtotal) || other.subtotal == _this.subtotal)&&(identical(other.discount, _this.discount) || other.discount == _this.discount)&&(identical(other.promoCode, _this.promoCode) || other.promoCode == _this.promoCode));
 }
 
 
 @override
 int get hashCode {
   final _this = this as Payment;
-  return Object.hash(runtimeType,_this.id,_this.amount,_this.cardLast4,const DeepCollectionEquality().hash(_this.bookingIds),_this.status);
+  return Object.hash(runtimeType,_this.id,_this.amount,_this.cardLast4,const DeepCollectionEquality().hash(_this.bookingIds),_this.status,_this.subtotal,_this.discount,_this.promoCode);
 }
 
 @override
 String toString() {
   final _this = this as Payment;
-  return 'Payment(id: ${_this.id}, amount: ${_this.amount}, cardLast4: ${_this.cardLast4}, bookingIds: ${_this.bookingIds}, status: ${_this.status})';
+  return 'Payment(id: ${_this.id}, amount: ${_this.amount}, cardLast4: ${_this.cardLast4}, bookingIds: ${_this.bookingIds}, status: ${_this.status}, subtotal: ${_this.subtotal}, discount: ${_this.discount}, promoCode: ${_this.promoCode})';
 }
 
 
@@ -51,7 +54,7 @@ abstract mixin class $PaymentCopyWith<$Res>  {
   factory $PaymentCopyWith(Payment value, $Res Function(Payment) _then) = _$PaymentCopyWithImpl;
 @useResult
 $Res call({
- int id, double amount, String cardLast4, List<int> bookingIds, String status
+ int id, double amount, String cardLast4, List<int> bookingIds, String status, double? subtotal, double? discount, String? promoCode
 });
 
 
@@ -68,14 +71,17 @@ class _$PaymentCopyWithImpl<$Res>
 
 /// Create a copy of Payment
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? amount = null,Object? cardLast4 = null,Object? bookingIds = null,Object? status = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? amount = null,Object? cardLast4 = null,Object? bookingIds = null,Object? status = null,Object? subtotal = freezed,Object? discount = freezed,Object? promoCode = freezed,}) {
   return _then(Payment(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as double,cardLast4: null == cardLast4 ? _self.cardLast4 : cardLast4 // ignore: cast_nullable_to_non_nullable
 as String,bookingIds: null == bookingIds ? _self.bookingIds : bookingIds // ignore: cast_nullable_to_non_nullable
 as List<int>,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as String,
+as String,subtotal: freezed == subtotal ? _self.subtotal : subtotal // ignore: cast_nullable_to_non_nullable
+as double?,discount: freezed == discount ? _self.discount : discount // ignore: cast_nullable_to_non_nullable
+as double?,promoCode: freezed == promoCode ? _self.promoCode : promoCode // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -160,10 +166,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  double amount,  String cardLast4,  List<int> bookingIds,  String status)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  double amount,  String cardLast4,  List<int> bookingIds,  String status,  double? subtotal,  double? discount,  String? promoCode)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Payment() when $default != null:
-return $default(_that.id,_that.amount,_that.cardLast4,_that.bookingIds,_that.status);case _:
+return $default(_that.id,_that.amount,_that.cardLast4,_that.bookingIds,_that.status,_that.subtotal,_that.discount,_that.promoCode);case _:
   return orElse();
 
 }
@@ -181,10 +187,10 @@ return $default(_that.id,_that.amount,_that.cardLast4,_that.bookingIds,_that.sta
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  double amount,  String cardLast4,  List<int> bookingIds,  String status)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  double amount,  String cardLast4,  List<int> bookingIds,  String status,  double? subtotal,  double? discount,  String? promoCode)  $default,) {final _that = this;
 switch (_that) {
 case _Payment():
-return $default(_that.id,_that.amount,_that.cardLast4,_that.bookingIds,_that.status);case _:
+return $default(_that.id,_that.amount,_that.cardLast4,_that.bookingIds,_that.status,_that.subtotal,_that.discount,_that.promoCode);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -201,10 +207,10 @@ return $default(_that.id,_that.amount,_that.cardLast4,_that.bookingIds,_that.sta
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  double amount,  String cardLast4,  List<int> bookingIds,  String status)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  double amount,  String cardLast4,  List<int> bookingIds,  String status,  double? subtotal,  double? discount,  String? promoCode)?  $default,) {final _that = this;
 switch (_that) {
 case _Payment() when $default != null:
-return $default(_that.id,_that.amount,_that.cardLast4,_that.bookingIds,_that.status);case _:
+return $default(_that.id,_that.amount,_that.cardLast4,_that.bookingIds,_that.status,_that.subtotal,_that.discount,_that.promoCode);case _:
   return null;
 
 }
@@ -216,7 +222,7 @@ return $default(_that.id,_that.amount,_that.cardLast4,_that.bookingIds,_that.sta
 
 
 class _Payment implements Payment {
-  const _Payment({required this.id, required this.amount, required this.cardLast4, required  List<int> bookingIds, required this.status}): _bookingIds = bookingIds;
+  const _Payment({required this.id, required this.amount, required this.cardLast4, required  List<int> bookingIds, required this.status, this.subtotal, this.discount, this.promoCode}): _bookingIds = bookingIds;
   
 
 @override final  int id;
@@ -230,6 +236,12 @@ class _Payment implements Payment {
 }
 
 @override final  String status;
+/// Antes do desconto e o desconto aplicado (código promocional); `null`
+/// em pagamentos anteriores ao M39 do backend. [amount] é o que foi
+/// **cobrado** (`subtotal − discount`).
+@override final  double? subtotal;
+@override final  double? discount;
+@override final  String? promoCode;
 
 /// Create a copy of Payment
 /// with the given fields replaced by the non-null parameter values.
@@ -241,18 +253,18 @@ _$PaymentCopyWith<_Payment> get copyWith => __$PaymentCopyWithImpl<_Payment>(thi
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Payment&&(identical(other.id, id) || other.id == id)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.cardLast4, cardLast4) || other.cardLast4 == cardLast4)&&const DeepCollectionEquality().equals(other.bookingIds, _bookingIds)&&(identical(other.status, status) || other.status == status));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Payment&&(identical(other.id, id) || other.id == id)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.cardLast4, cardLast4) || other.cardLast4 == cardLast4)&&const DeepCollectionEquality().equals(other.bookingIds, _bookingIds)&&(identical(other.status, status) || other.status == status)&&(identical(other.subtotal, subtotal) || other.subtotal == subtotal)&&(identical(other.discount, discount) || other.discount == discount)&&(identical(other.promoCode, promoCode) || other.promoCode == promoCode));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,amount,cardLast4,const DeepCollectionEquality().hash(_bookingIds),status);
+    return Object.hash(runtimeType,id,amount,cardLast4,const DeepCollectionEquality().hash(_bookingIds),status,subtotal,discount,promoCode);
 }
 
 @override
 String toString() {
-    return 'Payment(id: $id, amount: $amount, cardLast4: $cardLast4, bookingIds: $bookingIds, status: $status)';
+    return 'Payment(id: $id, amount: $amount, cardLast4: $cardLast4, bookingIds: $bookingIds, status: $status, subtotal: $subtotal, discount: $discount, promoCode: $promoCode)';
 }
 
 
@@ -263,7 +275,7 @@ abstract mixin class _$PaymentCopyWith<$Res> implements $PaymentCopyWith<$Res> {
   factory _$PaymentCopyWith(_Payment value, $Res Function(_Payment) _then) = __$PaymentCopyWithImpl;
 @override @useResult
 $Res call({
- int id, double amount, String cardLast4, List<int> bookingIds, String status
+ int id, double amount, String cardLast4, List<int> bookingIds, String status, double? subtotal, double? discount, String? promoCode
 });
 
 
@@ -280,14 +292,17 @@ class __$PaymentCopyWithImpl<$Res>
 
 /// Create a copy of Payment
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? amount = null,Object? cardLast4 = null,Object? bookingIds = null,Object? status = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? amount = null,Object? cardLast4 = null,Object? bookingIds = null,Object? status = null,Object? subtotal = freezed,Object? discount = freezed,Object? promoCode = freezed,}) {
   return _then(_Payment(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as double,cardLast4: null == cardLast4 ? _self.cardLast4 : cardLast4 // ignore: cast_nullable_to_non_nullable
 as String,bookingIds: null == bookingIds ? _self._bookingIds : bookingIds // ignore: cast_nullable_to_non_nullable
 as List<int>,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as String,
+as String,subtotal: freezed == subtotal ? _self.subtotal : subtotal // ignore: cast_nullable_to_non_nullable
+as double?,discount: freezed == discount ? _self.discount : discount // ignore: cast_nullable_to_non_nullable
+as double?,promoCode: freezed == promoCode ? _self.promoCode : promoCode // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

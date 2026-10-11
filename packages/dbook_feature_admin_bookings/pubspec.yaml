@@ -1,0 +1,33 @@
+name: dbook_feature_admin_bookings
+description: "Portal administrativo do DBook: bookings."
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.13.3
+  flutter: ">=1.17.0"
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  dbook_admin_session:
+    path: ../dbook_admin_session
+  dbook_admin_data:
+    path: ../dbook_admin_data
+  dbook_admin_l10n:
+    path: ../dbook_admin_l10n
+  dbook_design_system:
+    path: ../dbook_design_system
+  dbook_domain:
+    path: ../dbook_domain
+  dbook_core_network:
+    path: ../dbook_core_network
+  flutter_riverpod: ^3.4.3
+
+dev_dependencies:
+  dio: ^5.9.0
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter

@@ -3,9 +3,11 @@ import 'package:dbook_design_system/dbook_design_system.dart';
 import 'package:dbook_domain/dbook_domain.dart';
 import 'package:dbook_feature_auth/dbook_feature_auth.dart';
 import 'package:dbook_mobile/profile_page.dart';
+import 'package:dbook_mobile/theme_mode.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Já nasce `loggedIn` com [email]/[name] fixos — pula bootstrap/getMe(),
 /// que bateriam na rede de verdade.
@@ -100,7 +102,7 @@ void main() {
   );
 
   testWidgets(
-    'given Editar Perfil tapped when a new name is submitted then it saves '
+    'given Editar perfil tapped when a new name is submitted then it saves '
     'and the header updates',
     (tester) async {
       final authRepository = _FakeAuthRepository();
@@ -109,7 +111,9 @@ void main() {
         _wrap(authRepository, email: 'diego@dbook.com', name: 'Diego'),
       );
 
-      await tester.tap(find.text('Editar Perfil'));
+      await tester.ensureVisible(find.text('Editar perfil'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Editar perfil'));
       await tester.pumpAndSettle();
 
       await tester.enterText(
@@ -120,6 +124,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(authRepository.capturedName, 'Diego Ferreira');
+      await tester.drag(find.byType(ListView).first, const Offset(0, 3000));
+      await tester.pumpAndSettle();
       expect(find.text('Diego Ferreira'), findsOneWidget);
       expect(find.text('Perfil atualizado'), findsOneWidget);
     },
@@ -137,7 +143,9 @@ void main() {
         _wrap(authRepository, email: 'diego@dbook.com', name: 'Diego'),
       );
 
-      await tester.tap(find.text('Editar Perfil'));
+      await tester.ensureVisible(find.text('Editar perfil'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Editar perfil'));
       await tester.pumpAndSettle();
       await tester.enterText(
         find.widgetWithText(TextFormField, 'Nome'),
@@ -149,6 +157,58 @@ void main() {
       expect(find.text('Nome inválido'), findsOneWidget);
       expect(find.byType(AlertDialog), findsOneWidget);
       expect(authRepository.capturedName, 'Novo Nome');
+    },
+  );
+
+  testWidgets(
+    'given the Profile when built then groups preferences, account and the '
+    'destructive action apart',
+    (tester) async {
+      await tester.pumpWidget(
+        _wrap(_FakeAuthRepository(), email: 'diego@dbook.com', name: 'Diego'),
+      );
+
+      expect(find.text('Viagens'), findsOneWidget);
+      expect(find.text('Favoritos'), findsOneWidget);
+      expect(find.text('Notificações'), findsOneWidget);
+      expect(find.text('Aparência'), findsOneWidget);
+      await tester.ensureVisible(find.text('Excluir minha conta'));
+      expect(find.text('Excluir minha conta'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'given the appearance control when choosing Escuro then the app theme '
+    'mode changes',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      late WidgetRef capturedRef;
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
+            authNotifierProvider.overrideWith(
+              () => _FakeAuthNotifier(email: 'a@b.c', name: 'Ana'),
+            ),
+          ],
+          child: Consumer(
+            builder: (context, ref, _) {
+              capturedRef = ref;
+              return MaterialApp(
+                theme: DbookTheme.light,
+                themeMode: ref.watch(themeModeProvider),
+                home: const ProfilePage(),
+              );
+            },
+          ),
+        ),
+      );
+
+      await tester.ensureVisible(find.text('Escuro'));
+      await tester.tap(find.text('Escuro'));
+      await tester.pumpAndSettle();
+
+      expect(capturedRef.read(themeModeProvider), ThemeMode.dark);
     },
   );
 }

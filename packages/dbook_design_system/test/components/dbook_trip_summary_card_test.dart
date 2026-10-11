@@ -50,8 +50,8 @@ void main() {
         ),
       );
 
-      await tester.tap(find.text('From'));
-      await tester.tap(find.text('To'));
+      await tester.tap(find.text('Origem'));
+      await tester.tap(find.text('Destino'));
 
       expect(originTaps, 1);
       expect(destinationTaps, 1);
@@ -71,7 +71,7 @@ void main() {
               destination: 'Madrid (MAD)',
               dateRangeLabel: 'Jan 13 - Jan 30, 2026',
               passengersLabel: '1 Adult, Economy',
-              searchLabel: 'Search Flights',
+              searchLabel: 'Buscar voos',
               extraContent: [Text('Flight 2 section')],
             ),
           ),
@@ -88,7 +88,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(Card),
-          matching: find.text('Search Flights'),
+          matching: find.text('Buscar voos'),
         ),
         findsOneWidget,
       );
@@ -110,15 +110,15 @@ void main() {
               destination: 'Madrid (MAD)',
               dateRangeLabel: 'Jan 13 - Jan 30, 2026',
               passengersLabel: '1 Adult, Economy',
-              searchLabel: 'Search Flights',
+              searchLabel: 'Buscar voos',
               onSearch: () => searchTaps++,
             ),
           ),
         ),
       );
 
-      expect(find.text('Search Flights'), findsOneWidget);
-      await tester.tap(find.text('Search Flights'));
+      expect(find.text('Buscar voos'), findsOneWidget);
+      await tester.tap(find.text('Buscar voos'));
 
       expect(searchTaps, 1);
     },
@@ -173,4 +173,32 @@ void main() {
       expect(tapCount, 1);
     },
   );
+
+  testWidgets('given a stay configuration when built then shows a single '
+      'destination, stay dates and guests', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: DbookTheme.light,
+        home: Scaffold(
+          body: DbookTripSummaryCard(
+            showOrigin: false,
+            origin: '',
+            destination: 'Lisboa (LIS)',
+            dateRangeLabel: '15/01',
+            returnDateLabel: '18/01',
+            passengersLabel: '2 hóspedes',
+            startDateLabel: 'Entrada',
+            endDateLabel: 'Saída',
+            passengersFieldLabel: 'Hóspedes',
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Origem'), findsNothing);
+    expect(find.byIcon(Icons.swap_vert), findsNothing);
+    expect(find.text('Entrada'), findsOneWidget);
+    expect(find.text('Saída'), findsOneWidget);
+    expect(find.text('Hóspedes'), findsOneWidget);
+  });
 }

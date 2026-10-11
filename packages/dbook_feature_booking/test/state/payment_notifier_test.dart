@@ -38,6 +38,7 @@ class _FakePaymentRepository implements PaymentRepository {
     required String cardLast4,
     required String cardholderName,
     required String idempotencyKey,
+    String? promoCode,
   }) async {
     capturedBookingIds = bookingIds;
     capturedCardLast4 = cardLast4;

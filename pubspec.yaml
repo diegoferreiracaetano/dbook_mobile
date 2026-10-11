@@ -21,6 +21,19 @@ workspace:
   - packages/dbook_feature_booking
   - packages/dbook_feature_realtime
   - packages/dbook_feature_ai
+  - packages/dbook_feature_notifications
+  - packages/dbook_feature_stays
+  - packages/dbook_admin_data
+  - packages/dbook_admin_l10n
+  - packages/dbook_admin_session
+  - packages/dbook_feature_admin_auth
+  - packages/dbook_feature_admin_team
+  - packages/dbook_feature_admin_customers
+  - packages/dbook_feature_admin_bookings
+  - packages/dbook_feature_admin_catalog
+  - packages/dbook_feature_admin_dashboard
+  - packages/dbook_feature_admin_governance
+  - apps/dbook_admin
 
 melos:
   name: dbook_mobile

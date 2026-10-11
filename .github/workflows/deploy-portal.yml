@@ -1,0 +1,140 @@
+name: Deploy do portal
+
+# Publica o portal (Flutter Web) em S3 + CloudFront, ou volta para uma versão
+# anterior. Sem credenciais da AWS no repositório o pipeline só VALIDA e gera
+# o artefato (gate `check-aws`, igual ao do backend): nada tenta falar com a
+# AWS, e o job não falha por isso.
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Ambiente
+        type: choice
+        options: [staging, production]
+        default: staging
+      rollback_to:
+        description: Versão anterior para restaurar (deixe vazio para publicar o código atual)
+        required: false
+        type: string
+  push:
+    tags: ["portal-v*"]
+
+concurrency:
+  group: deploy-portal-${{ inputs.environment || 'staging' }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'staging' }}
+    permissions:
+      id-token: write
+      contents: read
+
+    env:
+      TARGET_ENV: ${{ inputs.environment || 'staging' }}
+      # valores PÚBLICOS por ambiente (variáveis do GitHub, não secrets): vão
+      # para dentro do bundle, que é de quem o baixar
+      API_BASE_URL: ${{ vars.PORTAL_API_BASE_URL }}
+      # o gate: só publica se o papel da AWS estiver configurado
+      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+      PORTAL_BUCKET: ${{ vars.PORTAL_BUCKET }}
+      PORTAL_DISTRIBUTION_ID: ${{ vars.PORTAL_DISTRIBUTION_ID }}
+      AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Versão
+        id: version
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then v="${GITHUB_REF_NAME#portal-v}"; else v="0.0.0+${GITHUB_SHA::7}"; fi
+          echo "value=$v" >> "$GITHUB_OUTPUT"
+
+      - name: Gate check-aws
+        id: aws
+        run: |
+          if [ -n "$AWS_ROLE_ARN" ] && [ -n "$PORTAL_BUCKET" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Sem AWS_ROLE_ARN/PORTAL_BUCKET: o pipeline só valida e gera o artefato."
+          fi
+
+      # --- publicar o código atual ----------------------------------------
+      - uses: subosito/flutter-action@v2
+        if: ${{ inputs.rollback_to == '' }}
+        with:
+          channel: stable
+
+      - name: Bootstrap workspace
+        if: ${{ inputs.rollback_to == '' }}
+        run: flutter pub get
+
+      - name: Guardas de segurança do código do portal
+        if: ${{ inputs.rollback_to == '' }}
+        run: ./tool/check_portal_source.sh
+
+      - name: Build com a configuração do ambiente
+        if: ${{ inputs.rollback_to == '' }}
+        working-directory: apps/dbook_admin
+        run: |
+          flutter build web --release --no-web-resources-cdn \
+            --dart-define=API_BASE_URL="${API_BASE_URL:-https://api.invalido.local/v1}" \
+            --dart-define=APP_ENV="$TARGET_ENV" \
+            --dart-define=APP_VERSION="${{ steps.version.outputs.value }}"
+
+      - name: Orçamento de tamanho do bundle
+        if: ${{ inputs.rollback_to == '' }}
+        run: ./tool/check_bundle_size.sh apps/dbook_admin/build/web 1500
+
+      - name: Guardar o artefato
+        if: ${{ inputs.rollback_to == '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbook_admin-web-${{ steps.version.outputs.value }}
+          path: apps/dbook_admin/build/web
+
+      # --- AWS (só com o gate aberto) -------------------------------------
+      - name: Credenciais da AWS (OIDC)
+        if: ${{ steps.aws.outputs.enabled == 'true' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # Cada versão fica guardada em releases/<versão>/: voltar é copiar de lá.
+      - name: Guardar a versão em releases/
+        if: ${{ steps.aws.outputs.enabled == 'true' && inputs.rollback_to == '' }}
+        run: |
+          aws s3 sync apps/dbook_admin/build/web \
+            "s3://${PORTAL_BUCKET}/releases/${{ steps.version.outputs.value }}/" --delete
+
+      - name: Restaurar uma versão anterior
+        if: ${{ steps.aws.outputs.enabled == 'true' && inputs.rollback_to != '' }}
+        run: |
+          aws s3 ls "s3://${PORTAL_BUCKET}/releases/${{ inputs.rollback_to }}/" >/dev/null
+          mkdir -p restore
+          aws s3 sync "s3://${PORTAL_BUCKET}/releases/${{ inputs.rollback_to }}/" restore/
+
+      - name: Publicar na raiz do bucket
+        if: ${{ steps.aws.outputs.enabled == 'true' }}
+        run: |
+          SRC=apps/dbook_admin/build/web
+          [ -d restore ] && SRC=restore
+          # tudo que NÃO tem hash no nome: o navegador sempre confere (index.html,
+          # service worker, bootstrap, manifesto e o próprio JavaScript do app)
+          aws s3 sync "$SRC" "s3://${PORTAL_BUCKET}/" --delete \
+            --exclude "releases/*" \
+            --cache-control "public, max-age=0, must-revalidate"
+          # assets, fontes, ícones e CanvasKit: conteúdo que só muda com a versão
+          for dir in assets canvaskit icons; do
+            [ -d "$SRC/$dir" ] && aws s3 cp "$SRC/$dir" "s3://${PORTAL_BUCKET}/$dir" --recursive \
+              --cache-control "public, max-age=31536000, immutable"
+          done
+
+      - name: Invalidar o CloudFront
+        if: ${{ steps.aws.outputs.enabled == 'true' && env.PORTAL_DISTRIBUTION_ID != '' }}
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "$PORTAL_DISTRIBUTION_ID" --paths "/*"

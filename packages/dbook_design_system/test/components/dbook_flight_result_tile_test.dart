@@ -27,7 +27,7 @@ void main() {
       expect(find.text('Iberia · IB 6821'), findsOneWidget);
       expect(find.text('10:30'), findsOneWidget);
       expect(find.text('06:45'), findsOneWidget);
-      expect(find.text('Nonstop'), findsOneWidget);
+      expect(find.text('Direto'), findsOneWidget);
       expect(find.text('\$450'), findsOneWidget);
     },
   );

@@ -85,7 +85,7 @@ class DbookOnboardingSlide extends StatelessWidget {
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.white,
                           ),
-                          child: const Text('Skip'),
+                          child: const Text('Pular'),
                         )
                       else
                         const SizedBox.shrink(),

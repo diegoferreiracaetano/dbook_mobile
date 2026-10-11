@@ -29,6 +29,12 @@ class DbookTextField extends StatelessWidget {
     this.maxLines = 1,
     this.maxLength,
     this.autovalidateMode = AutovalidateMode.onUserInteraction,
+    this.autofocus = false,
+    this.onSubmitted,
+    this.textInputAction,
+    this.autofillHints,
+    this.focusNode,
+    this.suffix,
   });
 
   final String label;
@@ -43,12 +49,25 @@ class DbookTextField extends StatelessWidget {
   final int? maxLines;
   final int? maxLength;
   final AutovalidateMode autovalidateMode;
+  final bool autofocus;
+  final ValueChanged<String>? onSubmitted;
+  final TextInputAction? textInputAction;
+  final Iterable<String>? autofillHints;
+  final FocusNode? focusNode;
+
+  /// Controle à direita do campo (ex.: mostrar/ocultar senha).
+  final Widget? suffix;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
       initialValue: controller == null ? initialValue : null,
+      autofocus: autofocus,
+      onFieldSubmitted: onSubmitted,
+      textInputAction: textInputAction,
+      autofillHints: autofillHints,
+      focusNode: focusNode,
       validator: validator,
       onChanged: onChanged,
       keyboardType: keyboardType,
@@ -57,7 +76,11 @@ class DbookTextField extends StatelessWidget {
       maxLines: obscureText ? 1 : maxLines,
       maxLength: maxLength,
       autovalidateMode: autovalidateMode,
-      decoration: InputDecoration(labelText: label, helperText: helperText),
+      decoration: InputDecoration(
+        labelText: label,
+        helperText: helperText,
+        suffixIcon: suffix,
+      ),
       errorBuilder: _liveError,
     );
   }

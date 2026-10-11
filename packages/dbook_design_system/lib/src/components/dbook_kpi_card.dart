@@ -27,6 +27,7 @@ class DbookKpiCard extends StatelessWidget {
     this.isLoading = false,
     this.errorMessage,
     this.onRetry,
+    this.info,
   });
 
   final String label;
@@ -37,6 +38,9 @@ class DbookKpiCard extends StatelessWidget {
   final bool isLoading;
   final String? errorMessage;
   final VoidCallback? onRetry;
+
+  /// Definição da métrica, num tooltip ao lado do rótulo (e no leitor de tela).
+  final String? info;
 
   @override
   Widget build(BuildContext context) {
@@ -54,11 +58,30 @@ class DbookKpiCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              label,
-              style: theme.textTheme.labelMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+            Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    label,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+                if (info != null) ...[
+                  const SizedBox(width: DbookSpacing.xs),
+                  Tooltip(
+                    message: info,
+                    triggerMode: TooltipTriggerMode.tap,
+                    child: Icon(
+                      Icons.info_outline,
+                      size: 14,
+                      semanticLabel: info,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ],
             ),
             const SizedBox(height: DbookSpacing.sm),
             _body(context),

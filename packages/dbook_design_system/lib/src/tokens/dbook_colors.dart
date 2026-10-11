@@ -4,15 +4,19 @@ import 'package:flutter/material.dart';
 /// semântico. Só [DbookColorScheme] e [DbookStatusColors] deveriam
 /// referenciar isto diretamente; features consomem cor só através do tema.
 abstract final class DbookPalette {
-  static const primary = Color(0xFF0085FF);
-  static const primaryHover = Color(0xFF0071E0);
-  static const primaryPressed = Color(0xFF005BBB);
+  static const primary = Color(0xFF0B66D6);
+  static const primaryHover = Color(0xFF0956B8);
+  static const primaryPressed = Color(0xFF074599);
   static const primaryLight = Color(0xFFE6F3FF);
+
+  /// Azul da marca para o tema escuro: o `primary` não tem contraste sobre
+  /// `n900`, este tem (6,4:1).
+  static const primaryBright = Color(0xFF4DA3FF);
 
   static const secondary = Color(0xFF00C2D6);
   static const secondaryHover = Color(0xFF00A7B8);
   static const secondaryLight = Color(0xFFE6F9FB);
-  static const secondaryDark = Color(0xFF00899A);
+  static const secondaryDark = Color(0xFF00707F);
 
   static const success = Color(0xFF1E7A34);
   static const successBg = Color(0xFFE3F3E6);
@@ -58,7 +62,7 @@ abstract final class DbookColorScheme {
         primaryContainer: DbookPalette.primaryLight,
         onPrimaryContainer: DbookPalette.primaryPressed,
         secondary: DbookPalette.secondary,
-        onSecondary: DbookPalette.white,
+        onSecondary: DbookPalette.n900,
         secondaryContainer: DbookPalette.secondaryLight,
         onSecondaryContainer: DbookPalette.secondaryDark,
         surface: DbookPalette.white,
@@ -77,8 +81,8 @@ abstract final class DbookColorScheme {
         seedColor: DbookPalette.primary,
         brightness: Brightness.dark,
       ).copyWith(
-        primary: DbookPalette.primaryHover,
-        onPrimary: DbookPalette.white,
+        primary: DbookPalette.primaryBright,
+        onPrimary: DbookPalette.n900,
         primaryContainer: DbookPalette.primaryPressed,
         onPrimaryContainer: DbookPalette.primaryLight,
         secondary: DbookPalette.secondary,
@@ -203,6 +207,63 @@ class DbookStatusColors extends ThemeExtension<DbookStatusColors> {
       info: mix(info, other.info),
       infoContainer: mix(infoContainer, other.infoContainer),
       infoBorder: mix(infoBorder, other.infoBorder),
+    );
+  }
+}
+
+/// A cor de marca usada como **superfície grande** (a faixa azul da Home, o
+/// cabeçalho): `primary` serve para botões e texto, mas no tema escuro ele é o
+/// azul claro, e uma faixa inteira dele com texto claro por cima não tem
+/// contraste. Aqui o claro usa o azul da marca e o escuro, o azul profundo;
+/// em ambos o texto branco cumpre AA, o que `dbook_theme_contrast_test.dart`
+/// garante. Em `Theme.of(context).extension<DbookBrandColors>()`.
+@immutable
+class DbookBrandColors extends ThemeExtension<DbookBrandColors> {
+  const DbookBrandColors({
+    required this.surface,
+    required this.onSurface,
+    required this.onSurfaceMuted,
+  });
+
+  /// Fundo da faixa de marca.
+  final Color surface;
+
+  /// Texto e ícone sobre a faixa.
+  final Color onSurface;
+
+  /// Texto secundário sobre a faixa (sem transparência: cor sólida).
+  final Color onSurfaceMuted;
+
+  static const light = DbookBrandColors(
+    surface: DbookPalette.primary,
+    onSurface: DbookPalette.white,
+    onSurfaceMuted: Color(0xFFE3EEFB),
+  );
+
+  static const dark = DbookBrandColors(
+    surface: DbookPalette.primaryPressed,
+    onSurface: DbookPalette.white,
+    onSurfaceMuted: Color(0xFFD3E4FA),
+  );
+
+  @override
+  DbookBrandColors copyWith({
+    Color? surface,
+    Color? onSurface,
+    Color? onSurfaceMuted,
+  }) => DbookBrandColors(
+    surface: surface ?? this.surface,
+    onSurface: onSurface ?? this.onSurface,
+    onSurfaceMuted: onSurfaceMuted ?? this.onSurfaceMuted,
+  );
+
+  @override
+  DbookBrandColors lerp(ThemeExtension<DbookBrandColors>? other, double t) {
+    if (other is! DbookBrandColors) return this;
+    return DbookBrandColors(
+      surface: Color.lerp(surface, other.surface, t)!,
+      onSurface: Color.lerp(onSurface, other.onSurface, t)!,
+      onSurfaceMuted: Color.lerp(onSurfaceMuted, other.onSurfaceMuted, t)!,
     );
   }
 }

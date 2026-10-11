@@ -85,7 +85,7 @@ void main() {
         _wrap(const LoginPage(), authRepository: _FakeAuthRepository()),
       );
 
-      await tester.tap(find.text('Sign In'));
+      await tester.tap(find.text('Entrar'));
       await tester.pump();
 
       expect(find.text('Digite seu e-mail'), findsOneWidget);
@@ -115,7 +115,7 @@ void main() {
         find.widgetWithText(TextFormField, 'Senha'),
         'hunter2',
       );
-      await tester.tap(find.text('Sign In'));
+      await tester.tap(find.text('Entrar'));
       await tester.pumpAndSettle();
 
       expect(authRepository.loginCallCount, 1);
@@ -144,9 +144,19 @@ void main() {
       find.widgetWithText(TextFormField, 'Senha'),
       'wrongpass',
     );
-    await tester.tap(find.text('Sign In'));
+    await tester.tap(find.text('Entrar'));
     await tester.pumpAndSettle();
 
     expect(find.text('Invalid credentials'), findsOneWidget);
+  });
+
+  testWidgets('given the login screen when built then offers no social login '
+      'buttons that do nothing', (tester) async {
+    await tester.pumpWidget(
+      _wrap(const LoginPage(), authRepository: _FakeAuthRepository()),
+    );
+
+    expect(find.byType(DbookSocialLoginButton), findsNothing);
+    expect(find.text('ou continue com'), findsNothing);
   });
 }

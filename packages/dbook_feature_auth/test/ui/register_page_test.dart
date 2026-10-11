@@ -91,7 +91,7 @@ void main() {
         find.widgetWithText(TextFormField, 'Confirmar senha'),
         'hunter2',
       );
-      await tester.tap(find.text('Create Account'));
+      await tester.tap(find.text('Criar conta'));
       await tester.pumpAndSettle();
 
       expect(authRepository.registerCallCount, 0);
@@ -128,7 +128,7 @@ void main() {
     );
     await tester.tap(find.byType(CheckboxListTile));
     await tester.pump();
-    await tester.tap(find.text('Create Account'));
+    await tester.tap(find.text('Criar conta'));
     await tester.pumpAndSettle();
 
     expect(authRepository.registerCallCount, 1);
@@ -157,7 +157,7 @@ void main() {
       );
       await tester.tap(find.byType(CheckboxListTile));
       await tester.pump();
-      await tester.tap(find.text('Create Account'));
+      await tester.tap(find.text('Criar conta'));
       await tester.pump();
 
       expect(find.text('As senhas não coincidem'), findsOneWidget);

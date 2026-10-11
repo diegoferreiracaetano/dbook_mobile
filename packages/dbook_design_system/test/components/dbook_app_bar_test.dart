@@ -48,7 +48,7 @@ void main() {
           theme: DbookTheme.light,
           home: Scaffold(
             appBar: const DbookAppBar(
-              title: 'Flight Details',
+              title: 'Detalhes do voo',
               transparent: true,
             ),
             body: const SizedBox(),

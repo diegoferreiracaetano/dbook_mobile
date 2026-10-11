@@ -1,0 +1,1235 @@
+{
+  "@@locale": "pt",
+  "appTitle": "DBook Admin",
+  "commonRetry": "Tentar de novo",
+  "commonCancel": "Cancelar",
+  "commonConfirm": "Confirmar",
+  "commonSave": "Salvar",
+  "commonClose": "Fechar",
+  "commonBack": "Voltar",
+  "commonLoading": "Carregando…",
+  "commonSearch": "Buscar",
+  "commonClear": "Limpar",
+  "commonNone": "—",
+  "commonYes": "Sim",
+  "commonNo": "Não",
+  "commonCopy": "Copiar",
+  "commonCopied": "Copiado",
+  "commonDownload": "Baixar",
+  "commonNext": "Próximo",
+  "commonEdit": "Editar",
+  "commonDelete": "Apagar",
+  "commonCreate": "Criar",
+  "commonSending": "Enviando…",
+  "commonDismiss": "Dispensar",
+  "commonTryOtherFilters": "Ajuste os filtros e tente de novo.",
+  "commonNoResults": "Nenhum resultado",
+  "commonSomethingWrong": "Algo deu errado",
+  "errInvalidCredentials": "E-mail ou senha incorretos.",
+  "errAccountBlocked": "Esta conta está bloqueada. Fale com um administrador.",
+  "errInvalidTwoFactorCode": "Código incorreto ou já usado. Confira o autenticador e tente de novo.",
+  "errInvalidInvitation": "Este convite não é válido. Peça um novo a um administrador.",
+  "errForbidden": "Você não tem permissão para fazer isso.",
+  "errUnauthorized": "Sua sessão terminou. Entre de novo.",
+  "errNotFound": "Não encontramos o que você procura.",
+  "errConflict": "A situação mudou desde que você abriu esta tela. Recarregue e tente de novo.",
+  "errStaleVersion": "Outra pessoa alterou este registro antes de você.",
+  "errValidation": "Confira os dados informados.",
+  "errPayloadTooLarge": "O arquivo ou o pedido é grande demais.",
+  "errUnprocessable": "O pedido não pôde ser concluído com esses dados.",
+  "errIdempotencyKeyReused": "Esta tentativa já foi usada para outro pedido. Comece de novo.",
+  "errServer": "O servidor não conseguiu responder. Tente de novo em instantes.",
+  "errNetwork": "Sem conexão com o servidor. Confira a rede e tente de novo.",
+  "errGeneric": "Não foi possível concluir. Tente de novo.",
+  "errRefundWindowClosed": "Faltam menos de 24 horas para a partida: o reembolso não é mais possível.",
+  "errTooManyAttempts": "Muitas tentativas. Tente de novo em {seconds} s.",
+  "@errTooManyAttempts": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "errRateLimited": "Muitas chamadas em pouco tempo. Tente de novo em {seconds} s.",
+  "@errRateLimited": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "navDashboard": "Painel",
+  "navCustomers": "Clientes",
+  "navBookings": "Reservas",
+  "navRefunds": "Reembolsos",
+  "navFlights": "Voos",
+  "navAirlines": "Companhias",
+  "navAirports": "Aeroportos",
+  "navTeam": "Equipe",
+  "navAudit": "Auditoria",
+  "navReviews": "Avaliações",
+  "navPromos": "Promoções",
+  "navAccount": "Minha conta",
+  "navMenu": "Menu",
+  "navLogout": "Sair",
+  "navCatalog": "Catálogo",
+  "notFoundTitle": "Página não encontrada",
+  "notFoundMessage": "O endereço não existe ou foi movido.",
+  "forbiddenTitle": "Sem acesso a esta área",
+  "forbiddenMessage": "Seu papel não inclui esta página. Se você precisa dela, fale com um administrador.",
+  "goHome": "Ir para o início",
+  "offlineBanner": "Sem conexão com a API. Algumas telas podem não atualizar.",
+  "crashTitle": "Algo quebrou nesta tela",
+  "crashMessage": "O erro foi registrado. Recarregue a página para continuar.",
+  "crashReload": "Recarregar",
+  "homeWelcomeTitle": "Bem-vindo ao portal",
+  "homeWelcomeMessage": "Escolha uma área no menu. O que você vê depende do seu papel.",
+  "envBanner": "Ambiente de {environment}: os dados desta tela não são de produção.",
+  "@envBanner": {
+    "placeholders": {
+      "environment": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGreeting": "Olá, {name}",
+  "@homeGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "loginTitle": "Entrar no portal",
+  "loginSubtitle": "Acesso restrito à equipe do DBook.",
+  "loginEmail": "E-mail",
+  "loginPassword": "Senha",
+  "loginSubmit": "Entrar",
+  "loginRequired": "Preencha este campo.",
+  "loginShowPassword": "Mostrar senha",
+  "loginHidePassword": "Ocultar senha",
+  "loginRestoring": "Restaurando sua sessão…",
+  "idleTitle": "Você ainda está aí?",
+  "idleStay": "Continuar conectado",
+  "idleLogout": "Sair agora",
+  "idleMessage": "Por segurança, a sessão termina em {seconds} s sem atividade.",
+  "@idleMessage": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionExpiredMessage": "Sua sessão terminou por inatividade. Entre de novo; o que estava aberto foi guardado.",
+  "draftRestoreTitle": "Recuperar o que você estava escrevendo?",
+  "draftRestore": "Recuperar",
+  "draftDiscard": "Descartar",
+  "passwordChangeTitle": "Trocar a senha",
+  "passwordCurrent": "Senha atual",
+  "passwordNew": "Nova senha",
+  "passwordConfirm": "Repita a nova senha",
+  "passwordChangeSubmit": "Trocar senha",
+  "passwordChanged": "Senha trocada. Entre de novo.",
+  "passwordMismatch": "As senhas não são iguais.",
+  "passwordRequirementsTitle": "A senha precisa ter:",
+  "passwordReqLength": "Pelo menos 12 caracteres",
+  "passwordStrengthWeak": "Fraca",
+  "passwordStrengthMedium": "Razoável",
+  "passwordStrengthStrong": "Forte",
+  "passwordMustChange": "Por segurança, troque a senha antes de continuar.",
+  "inviteAcceptTitle": "Aceitar convite",
+  "inviteAcceptSubtitle": "Escolha seu nome e uma senha para entrar na equipe.",
+  "inviteName": "Seu nome",
+  "inviteAcceptSubmit": "Criar minha conta",
+  "inviteAccepted": "Conta criada. Agora é só entrar.",
+  "inviteMissingToken": "O link do convite está incompleto.",
+  "inviteInvalid": "Este convite não é válido: pode ter vencido, já ter sido usado ou ter sido cancelado. Peça um novo a um administrador.",
+  "inviteGoToLogin": "Ir para o login",
+  "twoFactorTitle": "Verificação em duas etapas",
+  "twoFactorSubtitle": "Digite o código de 6 dígitos do seu autenticador.",
+  "twoFactorVerify": "Verificar",
+  "twoFactorUseRecovery": "Usar um código de recuperação",
+  "twoFactorUseApp": "Usar o código do autenticador",
+  "twoFactorRecoveryLabel": "Código de recuperação",
+  "twoFactorEnrollTitle": "Ative a verificação em duas etapas",
+  "twoFactorEnrollSteps": "1. Abra um app autenticador (Google Authenticator, 1Password, Authy).\n2. Leia o QR code ou digite a chave.\n3. Informe o código de 6 dígitos que o app mostrar.",
+  "twoFactorManualKey": "Não consegue ler o QR? Digite esta chave:",
+  "twoFactorConfirm": "Confirmar e ativar",
+  "twoFactorRecoveryTitle": "Guarde seus códigos de recuperação",
+  "twoFactorRecoveryMessage": "Cada código vale uma vez e serve se você perder o autenticador. Eles aparecem só agora: guarde em lugar seguro.",
+  "twoFactorRecoveryDone": "Guardei os códigos",
+  "twoFactorRecoveryFile": "codigos-de-recuperacao-dbook.txt",
+  "twoFactorDigit": "Dígito {n}",
+  "@twoFactorDigit": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "twoFactorEnabled": "Verificação em duas etapas ativa",
+  "twoFactorDisabled": "Verificação em duas etapas desligada",
+  "accountTitle": "Minha conta",
+  "accountRole": "Papel",
+  "accountEmail": "E-mail",
+  "accountChangePassword": "Trocar a senha",
+  "accountTwoFactor": "Verificação em duas etapas",
+  "accountEnableTwoFactor": "Ativar",
+  "accountDisableTwoFactor": "Desligar",
+  "accountPermissions": "O que você pode fazer",
+  "roleClient": "Cliente",
+  "roleSupport": "Suporte",
+  "roleCatalogManager": "Catálogo",
+  "roleSuperAdmin": "Administrador",
+  "roleUnknown": "Papel desconhecido",
+  "passwordReqMax": "No máximo 72 caracteres",
+  "passwordReqNotEmail": "Diferente do seu e-mail",
+  "passwordReqNotCommon": "Fora das listas de senhas comuns (o servidor confere)",
+  "loginReasonIdle": "Sua sessão terminou por inatividade. Entre de novo; o que você estava escrevendo foi guardado nesta aba.",
+  "loginReasonExpired": "Sua sessão expirou. Entre de novo.",
+  "loginReasonLoggedOut": "Você saiu do portal.",
+  "twoFactorBack": "Voltar ao login",
+  "twoFactorDisableTitle": "Desligar a verificação em duas etapas",
+  "twoFactorDisablePassword": "Sua senha",
+  "twoFactorDisableCode": "Código do autenticador",
+  "twoFactorDisableSubmit": "Desligar",
+  "twoFactorRequiredByRole": "Seu papel exige a verificação em duas etapas, então ela não pode ser desligada.",
+  "twoFactorEnrollLoading": "Preparando o cadastro…",
+  "twoFactorRecoveryAck": "Guardei os códigos em um lugar seguro",
+  "passwordRepeatHint": "Digite a mesma senha de novo",
+  "passwordShow": "Mostrar senha",
+  "passwordHide": "Ocultar senha",
+  "inviteSuccessTitle": "Tudo certo",
+  "commonContinue": "Continuar",
+  "accountSessionNote": "Trocar a senha encerra todas as suas sessões.",
+  "accountNoPermissions": "Seu papel não inclui permissões de gestão.",
+  "accountPermissionCount": "{count} permissões",
+  "@accountPermissionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "envNameLocal": "desenvolvimento local",
+  "envNameStaging": "homologação",
+  "navSkipToContent": "Pular para o conteúdo",
+  "roleDescSupport": "Atende clientes: consulta clientes e reservas, cancela, reembolsa, modera avaliações e vê o painel.",
+  "roleDescCatalogManager": "Cuida do catálogo: voos, companhias, aeroportos, promoções e vê o painel.",
+  "roleDescSuperAdmin": "Acesso total, inclusive equipe, auditoria, exportação e anonimização de dados de clientes.",
+  "teamTitle": "Equipe",
+  "teamTabStaff": "Pessoas",
+  "teamTabInvitations": "Convites",
+  "teamInvite": "Convidar pessoa",
+  "teamColName": "Nome",
+  "teamColRole": "Papel",
+  "teamColStatus": "Situação",
+  "teamColLastAccess": "Último acesso",
+  "teamColActions": "Ações",
+  "teamNeverAccessed": "Nunca entrou",
+  "teamStatusActive": "Ativa",
+  "teamStatusBlocked": "Bloqueada",
+  "teamStatusUnknown": "Desconhecida",
+  "teamEmpty": "Ninguém na equipe ainda",
+  "teamEmptyMessage": "Convide a primeira pessoa.",
+  "teamChangeRole": "Alterar papel",
+  "teamBlock": "Bloquear",
+  "teamUnblock": "Desbloquear",
+  "teamActionsFor": "Ações para {name}",
+  "teamSelfReason": "Você não pode alterar a si mesmo. Peça a outro administrador.",
+  "teamLastSuperAdminReason": "Esta é a última pessoa com acesso total ativa. Dê o papel a outra antes.",
+  "teamChangeRoleTitle": "Alterar o papel de {name}",
+  "teamChangeRoleConsequence": "As sessões de {name} serão encerradas e ela entra de novo já com o novo papel.",
+  "teamChangeRoleSubmit": "Alterar papel",
+  "teamRoleChanged": "Papel alterado.",
+  "teamBlockTitle": "Bloquear {name}",
+  "teamBlockConsequence": "{name} perde o acesso agora e as sessões abertas são encerradas. Dá para desbloquear depois.",
+  "teamBlockReason": "Motivo do bloqueio",
+  "teamBlocked": "Pessoa bloqueada.",
+  "teamUnblocked": "Pessoa desbloqueada.",
+  "teamUnblockTitle": "Desbloquear {name}",
+  "teamUnblockMessage": "{name} volta a poder entrar no portal.",
+  "inviteTitle": "Convidar pessoa para a equipe",
+  "inviteEmail": "E-mail",
+  "inviteRole": "Papel",
+  "inviteSubmit": "Enviar convite",
+  "inviteSent": "Convite enviado.",
+  "inviteResent": "Novo link enviado; o anterior parou de valer.",
+  "inviteRevoked": "Convite cancelado.",
+  "inviteColEmail": "E-mail",
+  "inviteColRole": "Papel",
+  "inviteColStatus": "Situação",
+  "inviteColExpires": "Vale até",
+  "inviteStatusPending": "Válido",
+  "inviteStatusAccepted": "Aceito",
+  "inviteStatusExpired": "Vencido",
+  "inviteStatusRevoked": "Cancelado",
+  "inviteStatusUnknown": "Desconhecido",
+  "inviteResend": "Reenviar",
+  "inviteRevoke": "Cancelar convite",
+  "inviteRevokeTitle": "Cancelar o convite de {email}?",
+  "inviteRevokeMessage": "O link deixa de funcionar na hora. Dá para convidar de novo depois.",
+  "inviteEmpty": "Nenhum convite",
+  "inviteEmptyMessage": "Os convites enviados aparecem aqui, com a situação de cada um.",
+  "inviteInvalidEmail": "Informe um e-mail válido.",
+  "inviteAlreadyHasAccount": "Já existe uma conta com este e-mail.",
+  "@teamActionsFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@teamChangeRoleTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@teamChangeRoleConsequence": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@teamBlockTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@teamBlockConsequence": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@teamUnblockTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@teamUnblockMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@inviteRevokeTitle": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "customersTitle": "Clientes",
+  "customersSearchHint": "Buscar por nome ou e-mail",
+  "customersColName": "Cliente",
+  "customersColStatus": "Situação",
+  "customersColBookings": "Reservas",
+  "customersColCreated": "Cliente desde",
+  "customersColLastLogin": "Último acesso",
+  "customersFilterActive": "Ativos",
+  "customersFilterBlocked": "Bloqueados",
+  "customersFilterWithBookings": "Com reservas",
+  "customersFilterWithoutBookings": "Sem reservas",
+  "customersEmpty": "Nenhum cliente encontrado",
+  "customersEmptyMessage": "Tente outra busca ou limpe os filtros.",
+  "customerStatusActive": "Ativo",
+  "customerStatusBlocked": "Bloqueado",
+  "customerStatusUnknown": "Desconhecido",
+  "customerAnonymizedBadge": "Anonimizado",
+  "customerNeverAccessed": "Nunca acessou",
+  "customerBackToList": "Clientes",
+  "kpiBookings": "Reservas",
+  "kpiTotalPaid": "Total pago",
+  "kpiAverageRating": "Nota média",
+  "kpiNoRating": "Sem avaliações",
+  "tabBookings": "Reservas",
+  "tabPayments": "Pagamentos",
+  "tabReviews": "Avaliações",
+  "tabNotes": "Notas",
+  "tabHistory": "Histórico",
+  "customerBlock": "Bloquear cliente",
+  "customerUnblock": "Desbloquear cliente",
+  "customerAnonymize": "Anonimizar dados",
+  "customerExport": "Exportar CSV",
+  "customerBlockMessage": "O cliente não consegue mais entrar nem reservar. Dá para desbloquear depois.",
+  "customerBlockReason": "Motivo (obrigatório)",
+  "customerBlockSubmit": "Bloquear",
+  "customerBlocked": "Cliente bloqueado.",
+  "customerUnblocked": "Cliente desbloqueado.",
+  "customerUnblockMessage": "O cliente volta a poder entrar e reservar.",
+  "noteTitle": "Notas internas",
+  "noteLabel": "Nota interna (só a equipe vê)",
+  "noteAdd": "Adicionar nota",
+  "notePin": "Fixar",
+  "noteUnpin": "Desafixar",
+  "notePinned": "Fixada",
+  "noteEdited": "editada",
+  "noteEdit": "Editar nota",
+  "noteDelete": "Apagar nota",
+  "noteDeleteTitle": "Apagar esta nota?",
+  "noteDeleteMessage": "A nota some para toda a equipe.",
+  "noteSaved": "Nota salva.",
+  "noteDeleted": "Nota apagada.",
+  "notesEmpty": "Nenhuma nota ainda",
+  "notesEmptyMessage": "Registre aqui o que a equipe precisa saber sobre este cliente.",
+  "customerAnonymizeConsequence": "Nome, e-mail e dados pessoais deste cliente serão apagados de forma definitiva. As reservas e os pagamentos ficam, sem identificação. Não dá para desfazer.",
+  "customerAnonymizeReason": "Motivo (obrigatório)",
+  "customerAnonymizeSubmit": "Anonimizar para sempre",
+  "customerAnonymizedDone": "Dados anonimizados.",
+  "exportTitle": "Exportar clientes",
+  "exportCeiling": "O arquivo tem no máximo 50.000 linhas.",
+  "exportContents": "Colunas: id, nome, e-mail, situação, cadastro, último acesso e total de reservas. A exportação fica registrada na auditoria.",
+  "exportStart": "Exportar",
+  "exportRunning": "Gerando o arquivo…",
+  "exportDone": "Arquivo baixado.",
+  "exportAllCustomers": "todos os clientes",
+  "exportNotAvailable": "O download só funciona no navegador.",
+  "bookingColId": "Reserva",
+  "bookingColItem": "Item",
+  "bookingColStatus": "Situação",
+  "bookingColPrice": "Valor",
+  "bookingColDeparture": "Partida",
+  "bookingColCustomer": "Cliente",
+  "bookingColCreated": "Criada em",
+  "paymentColId": "Pagamento",
+  "paymentColAmount": "Valor",
+  "paymentColCard": "Cartão",
+  "paymentColDate": "Data",
+  "reviewColRating": "Nota",
+  "reviewColComment": "Comentário",
+  "reviewColDate": "Data",
+  "tabEmptyBookings": "Sem reservas",
+  "tabEmptyPayments": "Sem pagamentos",
+  "tabEmptyReviews": "Sem avaliações",
+  "tabEmptyHistory": "Sem registros",
+  "tabEmptyHint": "Nada para mostrar aqui ainda.",
+  "bookingStatusPending": "Pendente",
+  "bookingStatusConfirmed": "Confirmada",
+  "bookingStatusCancelled": "Cancelada",
+  "bookingStatusExpired": "Expirada",
+  "bookingStatusRefunded": "Reembolsada",
+  "bookingStatusUnknown": "Desconhecida",
+  "auditColWhen": "Quando",
+  "auditColAction": "Ação",
+  "auditColActor": "Quem",
+  "auditColOutcome": "Resultado",
+  "auditColTarget": "Alvo",
+  "auditOutcomeSuccess": "Feito",
+  "auditOutcomeDenied": "Negado",
+  "customerSince": "Cliente desde {date}",
+  "@customerSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "customerLastAccess": "Último acesso {date}",
+  "@customerLastAccess": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "customerBlockedBanner": "Cliente bloqueado desde {date}. Motivo: {reason}",
+  "@customerBlockedBanner": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "customerAnonymizedBanner": "Dados anonimizados em {date}. Esta conta não pode ser reativada.",
+  "@customerAnonymizedBanner": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "customerBlockTitle": "Bloquear {name}",
+  "@customerBlockTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "customerUnblockTitle": "Desbloquear {name}",
+  "@customerUnblockTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "customerBlockReasonCounter": "Mínimo de {min} caracteres ({count} escritos)",
+  "@customerBlockReasonCounter": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "customerAnonymizeTitle": "Anonimizar {name}",
+  "@customerAnonymizeTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "customerAnonymizePhrase": "Para confirmar, digite {phrase}",
+  "@customerAnonymizePhrase": {
+    "placeholders": {
+      "phrase": {
+        "type": "String"
+      }
+    }
+  },
+  "noteBy": "por {author} em {date}",
+  "@noteBy": {
+    "placeholders": {
+      "author": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "exportMessage": "Será gerado um CSV com o que os filtros atuais mostram: {filters}.",
+  "@exportMessage": {
+    "placeholders": {
+      "filters": {
+        "type": "String"
+      }
+    }
+  },
+  "customersChipStatus": "Situação: {value}",
+  "@customersChipStatus": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "customersChipBookings": "Reservas: {value}",
+  "@customersChipBookings": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "customersChipSort": "Ordem: {value}",
+  "@customersChipSort": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "auditActionFlightCreated": "Voo cadastrado",
+  "auditActionBookingCancelledByStaff": "Reserva cancelada pela equipe",
+  "auditActionAccessDenied": "Acesso negado",
+  "auditActionStaffInvited": "Convite enviado",
+  "auditActionStaffInvitationResent": "Convite reenviado",
+  "auditActionStaffInvitationRevoked": "Convite cancelado",
+  "auditActionStaffInvitationAccepted": "Convite aceito",
+  "auditActionStaffRoleChanged": "Papel alterado",
+  "auditActionStaffBlocked": "Pessoa da equipe bloqueada",
+  "auditActionStaffUnblocked": "Pessoa da equipe desbloqueada",
+  "auditActionCustomerViewed": "Cliente consultado",
+  "auditActionCustomerBlocked": "Cliente bloqueado",
+  "auditActionCustomerUnblocked": "Cliente desbloqueado",
+  "auditActionCustomerNoteAdded": "Nota adicionada",
+  "auditActionCustomerNoteEdited": "Nota editada",
+  "auditActionCustomerNoteDeleted": "Nota apagada",
+  "auditActionCustomerExported": "Clientes exportados",
+  "auditActionCustomerAnonymized": "Cliente anonimizado",
+  "auditActionCustomerDataExported": "Dados do cliente exportados",
+  "auditActionFlightUpdated": "Voo alterado",
+  "auditActionFlightCancelled": "Voo cancelado",
+  "auditActionFlightsImported": "Voos importados",
+  "auditActionAirlineCreated": "Companhia criada",
+  "auditActionAirlineUpdated": "Companhia alterada",
+  "auditActionAirlineDeleted": "Companhia removida",
+  "auditActionAirportCreated": "Aeroporto criado",
+  "auditActionAirportUpdated": "Aeroporto alterado",
+  "auditActionAirportDeleted": "Aeroporto removido",
+  "auditActionRefundRequested": "Reembolso pedido",
+  "auditActionRefundRetried": "Reembolso tentado de novo",
+  "auditActionRefundCompleted": "Reembolso concluído",
+  "auditActionRefundFailed": "Reembolso falhou",
+  "auditActionReviewHidden": "Avaliação ocultada",
+  "auditActionReviewRestored": "Avaliação restaurada",
+  "auditActionReviewReportsDismissed": "Denúncias dispensadas",
+  "auditActionPromoCreated": "Promoção criada",
+  "auditActionPromoUpdated": "Promoção alterada",
+  "auditActionPromoActivated": "Promoção ativada",
+  "auditActionPromoDeactivated": "Promoção desativada",
+  "auditActionAccommodationCreated": "Hotel criado",
+  "auditActionAccommodationUpdated": "Hotel alterado",
+  "auditActionAccommodationActivated": "Hotel ativado",
+  "auditActionAccommodationDeactivated": "Hotel desativado",
+  "auditActionRoomTypeChanged": "Quarto alterado",
+  "auditActionTwoFactorEnabled": "Segundo fator ligado",
+  "auditActionTwoFactorDisabled": "Segundo fator desligado",
+  "auditActionTwoFactorReset": "Segundo fator removido",
+  "bookingsTitle": "Reservas",
+  "bookingsEmpty": "Nenhuma reserva encontrada",
+  "bookingsEmptyMessage": "Ajuste os filtros ou limpe-os para ver todas.",
+  "bookingsFilterPaid": "Pagas",
+  "bookingsFilterUnpaid": "Não pagas",
+  "bookingsFilterStatusAll": "Todas as situações",
+  "bookingsFilterStatus": "Situação",
+  "bookingColPaid": "Pagamento",
+  "bookingPaidYes": "Pago",
+  "bookingPaidNo": "Em aberto",
+  "bookingTimelineTitle": "Linha do tempo",
+  "bookingTimelineCreated": "Reserva criada",
+  "bookingTimelineBySystem": "pelo sistema",
+  "bookingPaymentTitle": "Pagamento",
+  "bookingRefundTitle": "Reembolso",
+  "bookingNoPayment": "Ainda não foi paga.",
+  "bookingNoRefund": "Sem reembolso.",
+  "bookingCustomerLink": "Abrir cliente",
+  "bookingPaidAmount": "Valor pago",
+  "bookingDiscount": "Desconto",
+  "bookingFrozenPrice": "Valor da reserva",
+  "bookingCard": "Cartão",
+  "bookingItem": "Item",
+  "bookingSeat": "Assento",
+  "bookingRoute": "Trajeto",
+  "bookingCustomer": "Cliente",
+  "bookingCancel": "Cancelar reserva",
+  "bookingCancelMessage": "O assento volta a ficar livre. Só reservas pendentes podem ser canceladas.",
+  "bookingCancelDone": "Reserva cancelada.",
+  "bookingRefund": "Reembolsar",
+  "bookingsBackToList": "Reservas",
+  "refundReasonLabel": "Motivo",
+  "refundReasonCustomerRequest": "Pedido do cliente",
+  "refundReasonFlightCancelled": "Voo cancelado",
+  "refundReasonDuplicate": "Cobrança duplicada",
+  "refundReasonOther": "Outro motivo",
+  "refundNoteLabel": "Observação",
+  "refundNoteRequired": "A observação é obrigatória para uma exceção de política.",
+  "refundOverride": "Exceção de política (ignorar o prazo)",
+  "refundOverrideHelp": "Só administradores. Exige uma observação e fica registrada na auditoria.",
+  "refundSubmit": "Reembolsar",
+  "refundProcessing": "Processando…",
+  "refundDone": "Reembolso concluído.",
+  "refundFailedTitle": "O reembolso falhou",
+  "refundFailedMessage": "O dinheiro não saiu. Você pode tentar de novo: nada será devolvido em duplicidade.",
+  "refundRetry": "Tentar de novo",
+  "refundRequestedNote": "O pedido foi registrado e ainda não terminou. Tente de novo para concluir.",
+  "refundStatusRequested": "Pedido",
+  "refundStatusCompleted": "Concluído",
+  "refundStatusFailed": "Falhou",
+  "refundStatusUnknown": "Desconhecido",
+  "refundsTitle": "Reembolsos",
+  "refundsFilterAll": "Todos",
+  "refundColId": "Reembolso",
+  "refundColBooking": "Reserva",
+  "refundColAmount": "Valor",
+  "refundColStatus": "Situação",
+  "refundColReason": "Motivo",
+  "refundColDate": "Pedido em",
+  "refundOpenBooking": "Abrir reserva",
+  "refundsEmpty": "Nenhum reembolso",
+  "refundsEmptyMessage": "Os reembolsos aparecem aqui, com a situação de cada um.",
+  "refundConflict": "Outra pessoa mexeu nesta reserva agora. Recarreguei os dados: confira e tente de novo.",
+  "bookingsChipCustomer": "Cliente #{id}",
+  "@bookingsChipCustomer": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "bookingsChipFlight": "Voo #{id}",
+  "@bookingsChipFlight": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "bookingsChipStatus": "Situação: {value}",
+  "@bookingsChipStatus": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "bookingsChipPaid": "Pagamento: {value}",
+  "@bookingsChipPaid": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "bookingDetailTitle": "Reserva #{id}",
+  "@bookingDetailTitle": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "bookingTimelineChanged": "{from} → {to}",
+  "@bookingTimelineChanged": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "bookingTimelineBy": "por pessoa #{actor}",
+  "@bookingTimelineBy": {
+    "placeholders": {
+      "actor": {
+        "type": "int"
+      }
+    }
+  },
+  "bookingCancelTitle": "Cancelar a reserva #{id}?",
+  "@bookingCancelTitle": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "refundTitle": "Reembolsar a reserva #{id}",
+  "@refundTitle": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "refundSummaryAmount": "Valor a devolver: {amount}",
+  "@refundSummaryAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "refundPolicy": "O reembolso é do valor pago, por inteiro. Só é possível até 24 horas antes da partida.",
+  "refundPolicyDeadline": "O reembolso é do valor pago, por inteiro. Só é possível até 24 horas antes da partida (limite: {date}).",
+  "@refundPolicyDeadline": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "flightsTitle": "Voos",
+  "flightsNew": "Novo voo",
+  "flightsImport": "Importar CSV",
+  "flightsEmpty": "Nenhum voo encontrado",
+  "flightsEmptyMessage": "Ajuste os filtros ou cadastre um voo.",
+  "flightsFilterOrigin": "Origem (IATA)",
+  "flightsFilterDestination": "Destino (IATA)",
+  "flightsFilterAirline": "Companhia (IATA)",
+  "flightsFilterStatus": "Situação",
+  "flightsFilterStatusAll": "Todas",
+  "flightStatusScheduled": "Programado",
+  "flightStatusCancelled": "Cancelado",
+  "flightStatusUnknown": "Desconhecido",
+  "flightColNumber": "Voo",
+  "flightColRoute": "Trajeto",
+  "flightColDeparture": "Partida",
+  "flightColArrival": "Chegada",
+  "flightColPrice": "Preço",
+  "flightColSeats": "Assentos",
+  "flightColStatus": "Situação",
+  "flightColClass": "Classe",
+  "flightSeatsFree": "livres",
+  "flightSeatsReserved": "reservados",
+  "seatClassEconomy": "Econômica",
+  "seatClassPremiumEconomy": "Econômica premium",
+  "seatClassBusiness": "Executiva",
+  "seatClassFirst": "Primeira classe",
+  "seatClassUnknown": "Desconhecida",
+  "flightFormNewTitle": "Novo voo",
+  "flightFormNumber": "Número do voo",
+  "flightFormAirline": "Companhia",
+  "flightFormOrigin": "Origem",
+  "flightFormDestination": "Destino",
+  "flightFormDeparture": "Partida",
+  "flightFormArrival": "Chegada",
+  "flightFormClass": "Classe",
+  "flightFormPrice": "Preço (R$)",
+  "flightFormCapacity": "Capacidade",
+  "flightFormAircraft": "Avião",
+  "flightFormPickDateTime": "Escolher data e hora",
+  "flightFormSave": "Salvar voo",
+  "flightFormSaved": "Voo salvo.",
+  "flightFormCreated": "Voo cadastrado.",
+  "flightFormRequired": "Preencha este campo.",
+  "flightFormArrivalAfterDeparture": "A chegada precisa ser depois da partida.",
+  "flightFormSameAirport": "Origem e destino não podem ser o mesmo aeroporto.",
+  "flightFormPriceInvalid": "Informe um preço maior que zero.",
+  "flightFormCapacityInvalid": "Informe uma capacidade inteira maior que zero.",
+  "flightFormCancelledReadOnly": "Este voo está cancelado e não pode mais ser editado.",
+  "flightFormAircraftLocked": "O avião não pode mudar: já há assentos reservados neste voo.",
+  "flightFormBackToList": "Voos",
+  "flightCancel": "Cancelar voo",
+  "flightCancelDone": "Voo cancelado.",
+  "flightCancelBlocked": "Este voo tem reservas ativas. Reembolse ou cancele cada uma antes de cancelar o voo.",
+  "flightCancelMessage": "O voo sai da busca e não pode mais ser reservado nem editado. Não dá para desfazer.",
+  "conflictTitle": "Outro administrador alterou este voo",
+  "conflictMessage": "Enquanto você editava, o voo mudou. Veja abaixo o que é diferente e escolha o que fazer.",
+  "conflictColField": "Campo",
+  "conflictColMine": "Sua versão",
+  "conflictColTheirs": "No servidor agora",
+  "conflictReload": "Recarregar e descartar minhas mudanças",
+  "conflictKeepMine": "Salvar as minhas mudanças por cima",
+  "conflictNoDifferences": "Nada que você editou difere do que está salvo. Dá para recarregar com segurança.",
+  "airlinesTitle": "Companhias",
+  "airlinesNew": "Nova companhia",
+  "airlineColCode": "Código IATA",
+  "airlineColName": "Nome",
+  "airlineSaved": "Companhia salva.",
+  "airlineDeleted": "Companhia removida.",
+  "airlineFormTitleNew": "Nova companhia",
+  "airlineFormTitleEdit": "Editar companhia",
+  "airlineFormCode": "Código IATA (2 letras ou números)",
+  "airlineFormName": "Nome",
+  "airlineFormLogo": "Logo (endereço https, opcional)",
+  "airlineLogoInvalid": "Use um endereço que comece com https://",
+  "airlineCodeInvalid": "São 2 letras ou números (por exemplo LA ou G3).",
+  "airportsTitle": "Aeroportos",
+  "airportsNew": "Novo aeroporto",
+  "airportColCode": "Código IATA",
+  "airportColName": "Nome",
+  "airportColCity": "Cidade",
+  "airportColCountry": "País",
+  "airportColRegion": "Região",
+  "airportColPopular": "Destaque",
+  "airportSaved": "Aeroporto salvo.",
+  "airportDeleted": "Aeroporto removido.",
+  "airportFormTitleNew": "Novo aeroporto",
+  "airportFormTitleEdit": "Editar aeroporto",
+  "airportFormCode": "Código IATA (3 letras)",
+  "airportFormName": "Nome",
+  "airportFormCity": "Cidade",
+  "airportFormCountry": "País",
+  "airportFormPhoto": "Endereço da foto",
+  "airportFormRegion": "Região",
+  "airportFormPopular": "Aparece nos destinos em destaque",
+  "airportCodeInvalid": "São 3 letras (por exemplo GRU).",
+  "catalogEdit": "Editar",
+  "catalogDelete": "Remover",
+  "catalogDeleteInUse": "Só dá para remover o que nenhum voo usa.",
+  "catalogDeleteMessage": "Esta ação não pode ser desfeita.",
+  "importTitle": "Importar voos por CSV",
+  "importIntro": "Escolha um arquivo CSV. Primeiro conferimos tudo sem gravar nada; só depois de você confirmar os voos são criados.",
+  "importColumns": "Colunas: flightNumber, airlineIataCode, originIataCode, destinationIataCode, departureTime, arrivalTime, seatClass, price, totalCapacity, aircraftType. Máximo de 5.000 linhas.",
+  "importChoose": "Escolher arquivo",
+  "importChooseAnother": "Escolher outro arquivo",
+  "importChecking": "Conferindo o arquivo…",
+  "importConfirm": "Confirmar importação",
+  "importConfirming": "Importando…",
+  "importErrorsTitle": "Há linhas com erro. Nada foi gravado.",
+  "importErrorsHint": "Corrija o arquivo e escolha-o de novo. Todas as linhas com erro estão destacadas abaixo.",
+  "importOkTitle": "O arquivo está certo.",
+  "importDoneTitle": "Importação concluída",
+  "importColLine": "Linha",
+  "importColProblem": "Problema",
+  "importPreviewTitle": "Pré-visualização",
+  "importPreviewTruncated": "Mostrando só as primeiras linhas do arquivo.",
+  "importNotAvailable": "Escolher arquivo só funciona no navegador.",
+  "flightFormEditTitle": "Editar voo {number}",
+  "@flightFormEditTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "flightFormReserved": "{count} assentos reservados: a capacidade não pode ficar abaixo disso.",
+  "@flightFormReserved": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "flightCancelTitle": "Cancelar o voo {number}?",
+  "@flightCancelTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "flightCancelActive": "{count} reservas ativas",
+  "@flightCancelActive": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "airlinesDeleteTitle": "Remover a companhia {name}?",
+  "@airlinesDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "airportsDeleteTitle": "Remover o aeroporto {name}?",
+  "@airportsDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "importSummaryOk": "{total} linhas: {create} voos serão criados e {existing} já existem.",
+  "@importSummaryOk": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "create": {
+        "type": "int"
+      },
+      "existing": {
+        "type": "int"
+      }
+    }
+  },
+  "importSummaryDone": "{created} voos criados; {existing} já existiam.",
+  "@importSummaryDone": {
+    "placeholders": {
+      "created": {
+        "type": "int"
+      },
+      "existing": {
+        "type": "int"
+      }
+    }
+  },
+  "importLineErrors": "{count} linhas com erro",
+  "@importLineErrors": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "errFlightRule": "O servidor recusou a alteração por uma regra do voo: capacidade abaixo dos assentos reservados, assento com histórico ou avião bloqueado. Confira os campos.",
+  "dashboardTitle": "Painel",
+  "dashboardRefresh": "Atualizar agora",
+  "dashboardNow": "agora",
+  "kpiNetRevenue": "Receita líquida",
+  "kpiGrossRevenue": "Receita bruta",
+  "kpiRefunded": "Reembolsado",
+  "kpiCreatedBookings": "Reservas criadas",
+  "kpiNewCustomers": "Clientes novos",
+  "kpiConversion": "Conversão",
+  "kpiExpiration": "Expiração",
+  "kpiOccupancy": "Ocupação",
+  "kpiNotApplicable": "Sem reservas no período",
+  "kpiVsPrevious": "vs. período anterior",
+  "glossNetRevenue": "Receita bruta menos o que foi reembolsado, no período.",
+  "glossGrossRevenue": "Soma do valor das reservas pagas no período. Conta o dia do pagamento, não o da criação.",
+  "glossRefunded": "Soma dos reembolsos concluídos no período, no dia em que concluíram.",
+  "glossBookings": "Reservas criadas no período, pela situação de agora.",
+  "glossNewCustomers": "Contas de cliente criadas no período (a equipe não conta).",
+  "glossConversion": "Das reservas criadas no período, quantas foram pagas alguma vez (mesmo reembolsadas depois).",
+  "glossExpiration": "Das reservas criadas no período, quantas o sistema cancelou por falta de pagamento.",
+  "glossOccupancy": "Assentos reservados dos voos que partem no período, sobre a capacidade deles. Só voos à venda; reserva pendente também ocupa assento.",
+  "seriesTitle": "Evolução",
+  "metricRevenue": "Receita líquida",
+  "metricBookings": "Reservas",
+  "metricNewCustomers": "Clientes novos",
+  "granularityDay": "Por dia",
+  "granularityWeek": "Por semana",
+  "chartAsTable": "Ver como tabela",
+  "chartAsChart": "Ver como gráfico",
+  "chartColDate": "Data",
+  "chartColValue": "Valor",
+  "chartEmpty": "Sem dados no período.",
+  "topRoutesTitle": "Rotas mais vendidas",
+  "topRoutesColRoute": "Rota",
+  "topRoutesColBookings": "Reservas pagas",
+  "topRoutesColRevenue": "Receita",
+  "topRoutesEmpty": "Nenhuma venda no período.",
+  "periodLabel": "Período",
+  "dashboardUpdated": "Atualizado {ago}",
+  "@dashboardUpdated": {
+    "placeholders": {
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "chartSummary": "{metric}: {count} pontos, de {min} a {max}, total de {total}.",
+  "@chartSummary": {
+    "placeholders": {
+      "metric": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "auditTitle": "Auditoria",
+  "auditFilterAction": "Ação",
+  "auditFilterActionAll": "Todas as ações",
+  "auditFilterOutcome": "Resultado",
+  "auditFilterOutcomeAll": "Todos",
+  "auditFilterActor": "Quem (id)",
+  "auditFilterTargetType": "Tipo do alvo",
+  "auditFilterTargetId": "Id do alvo",
+  "auditApply": "Filtrar",
+  "auditExpand": "Ver antes e depois",
+  "auditCollapse": "Recolher",
+  "auditNoState": "Esta ação não guarda estado antes e depois.",
+  "auditChangeAdded": "Criado",
+  "auditChangeChanged": "Alterado",
+  "auditChangeRemoved": "Removido",
+  "auditChangeUnchanged": "Igual",
+  "auditColField": "Campo",
+  "auditColBefore": "Antes",
+  "auditColAfter": "Depois",
+  "auditLoadMore": "Carregar mais",
+  "auditLoadingMore": "Carregando…",
+  "auditEmpty": "Nenhum registro",
+  "auditEmptyMessage": "Ajuste os filtros: nada na trilha combina com eles.",
+  "auditShowUnchanged": "Mostrar campos iguais",
+  "auditReasonLabel": "Motivo",
+  "auditRequestLabel": "Requisição",
+  "auditIpLabel": "IP",
+  "reviewsTitle": "Avaliações",
+  "reviewsQueueReported": "Denunciadas",
+  "reviewsQueueHidden": "Ocultas",
+  "reviewsQueueVisible": "Visíveis",
+  "reviewColCustomer": "Cliente",
+  "reviewColDestination": "Destino",
+  "reviewColReports": "Denúncias",
+  "reviewColStatus": "Situação",
+  "reviewColText": "Avaliação",
+  "reviewHide": "Ocultar",
+  "reviewRestore": "Restaurar",
+  "reviewDismiss": "Dispensar denúncias",
+  "reviewHideReason": "Motivo (10 a 500 caracteres)",
+  "reviewHideSubmit": "Ocultar avaliação",
+  "reviewHiddenDone": "Avaliação ocultada.",
+  "reviewRestoredDone": "Avaliação restaurada.",
+  "reviewDismissedDone": "Denúncias dispensadas.",
+  "reviewsEmpty": "Nada por aqui",
+  "reviewsEmptyMessage": "Nenhuma avaliação nesta fila.",
+  "reviewStatusHidden": "Oculta",
+  "reviewStatusVisible": "Visível",
+  "reviewDismissMessage": "As denúncias abertas são encerradas e a avaliação continua visível.",
+  "reviewHideMessage": "A avaliação some da tela dos clientes e da média do destino. Dá para restaurar depois.",
+  "promosTitle": "Promoções",
+  "promosNew": "Novo código",
+  "promoColCode": "Código",
+  "promoColRule": "Regra",
+  "promoColUsage": "Usos",
+  "promoColWindow": "Validade",
+  "promoColStatus": "Situação",
+  "promoStatusActive": "Ativo",
+  "promoStatusOff": "Desligado",
+  "promoEdit": "Editar",
+  "promoActivate": "Ativar",
+  "promoDeactivate": "Desligar",
+  "promoRedemptionsAction": "Ver resgates",
+  "promoFormTitleNew": "Novo código promocional",
+  "promoFormTitleEdit": "Editar código",
+  "promoFormCode": "Código (3 a 32 letras, números, - ou _)",
+  "promoFormType": "Tipo",
+  "promoTypePercent": "Percentual",
+  "promoTypeFixed": "Valor fixo",
+  "promoFormValue": "Valor",
+  "promoFormValuePercent": "Percentual (menor que 100)",
+  "promoFormValueFixed": "Valor do desconto (R$)",
+  "promoFormMin": "Compra mínima (R$, opcional)",
+  "promoFormFrom": "Válido a partir de",
+  "promoFormUntil": "Válido até",
+  "promoFormMaxTotal": "Limite de usos (vazio = sem limite)",
+  "promoFormMaxPerUser": "Usos por cliente (padrão 1)",
+  "promoFormImmutable": "Código, tipo e valor não mudam depois de criado: outro desconto é outro código.",
+  "promoCodeInvalid": "De 3 a 32 letras, números, - ou _.",
+  "promoValueInvalid": "Informe um valor maior que zero (percentual abaixo de 100).",
+  "promoWindowInvalid": "O fim precisa ser depois do início.",
+  "promoSaved": "Código salvo.",
+  "promoActivated": "Código ativado.",
+  "promoDeactivated": "Código desligado.",
+  "promosEmpty": "Nenhum código",
+  "promosEmptyMessage": "Crie o primeiro código promocional.",
+  "promoFilterAll": "Todos",
+  "promoFilterActive": "Ativos",
+  "promoFilterOff": "Desligados",
+  "promoRedeemColCustomer": "Cliente",
+  "promoRedeemColPayment": "Pagamento",
+  "promoRedeemColDiscount": "Desconto",
+  "promoRedeemColDate": "Quando",
+  "promoRedemptionsEmpty": "Ninguém usou este código ainda.",
+  "promoDeactivateMessage": "Os clientes deixam de poder usar o código. Os pagamentos que já o usaram não mudam. Dá para ligar de novo.",
+  "promoNoLimit": "sem limite",
+  "promoUsageUnlimited": "{used} usos",
+  "auditOpenTarget": "Abrir {type} {id}",
+  "@auditOpenTarget": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewHideTitle": "Ocultar a avaliação de {name}?",
+  "@reviewHideTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewReportedReason": "Última denúncia: {reason}",
+  "@reviewReportedReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewHiddenReason": "Ocultada: {reason}",
+  "@reviewHiddenReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewOpenReports": "{count} denúncias abertas",
+  "@reviewOpenReports": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "promoDeactivateTitle": "Desligar o código {code}?",
+  "@promoDeactivateTitle": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "promoRedemptionsTitle": "Resgates de {code}",
+  "@promoRedemptionsTitle": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "promoRulePercent": "{value}% de desconto",
+  "@promoRulePercent": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "promoRuleFixed": "{value} de desconto",
+  "@promoRuleFixed": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "promoRuleMin": "em compras a partir de {min}",
+  "@promoRuleMin": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "promoRuleMax": "até {max} usos",
+  "@promoRuleMax": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "promoRulePerUser": "{n} por cliente",
+  "@promoRulePerUser": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "promoUsage": "{used} de {max}",
+  "@promoUsage": {
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "promoWindow": "{from} a {until}",
+  "@promoWindow": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "until": {
+        "type": "String"
+      }
+    }
+  }
+}

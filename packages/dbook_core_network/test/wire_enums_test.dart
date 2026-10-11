@@ -16,6 +16,8 @@ void main() {
       expect(bookingStatusFromWire('PENDING'), BookingStatus.pending);
       expect(bookingStatusFromWire('CONFIRMED'), BookingStatus.confirmed);
       expect(bookingStatusFromWire('CANCELLED'), BookingStatus.cancelled);
+      expect(bookingStatusFromWire('EXPIRED'), BookingStatus.expired);
+      expect(bookingStatusFromWire('REFUNDED'), BookingStatus.refunded);
     },
   );
 
@@ -27,8 +29,8 @@ void main() {
           reported.add('$enumName:$value');
 
       expect(seatClassFromWire('ECONOMY_PLUS'), SeatClass.unknown);
-      expect(bookingStatusFromWire('REFUNDED'), BookingStatus.unknown);
-      expect(reported, ['SeatClass:ECONOMY_PLUS', 'BookingStatus:REFUNDED']);
+      expect(bookingStatusFromWire('ON_HOLD'), BookingStatus.unknown);
+      expect(reported, ['SeatClass:ECONOMY_PLUS', 'BookingStatus:ON_HOLD']);
 
       onUnknownWireValue = (_, _) {};
     },

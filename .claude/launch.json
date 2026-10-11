@@ -1,0 +1,41 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dbook_mobile",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "cd apps/dbook_mobile && flutter run -d web-server --web-port 5959"
+      ],
+      "port": 5959
+    },
+    {
+      "name": "dbook_design_system_widgetbook",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "cd packages/dbook_design_system/widgetbook && flutter run -d web-server --web-port 5960"
+      ],
+      "port": 5960
+    },
+    {
+      "name": "dbook_design_system_sample",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "cd packages/dbook_design_system/sample && flutter run -d web-server --web-port 5961"
+      ],
+      "port": 5961
+    },
+    {
+      "name": "dbook_design_system_sample_release",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "cd packages/dbook_design_system/sample/build/web && python3 -m http.server 5962"
+      ],
+      "port": 5962
+    }
+  ]
+}

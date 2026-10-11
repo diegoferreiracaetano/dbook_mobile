@@ -610,7 +610,11 @@ class _CardsSection extends StatelessWidget {
   static const _madridSky = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0xFF0B3D91), Color(0xFF0085FF), Color(0xFFFF9D6C)],
+    colors: [
+      DbookPalette.primaryPressed,
+      DbookPalette.primary,
+      DbookPalette.secondary,
+    ],
   );
 
   static const _romeSky = LinearGradient(
@@ -885,7 +889,7 @@ class _OnboardingSlideSection extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Color(0xFF0B3D91), Color(0xFF0085FF)],
+                  colors: [DbookPalette.primaryPressed, DbookPalette.primary],
                 ),
               ),
             ),

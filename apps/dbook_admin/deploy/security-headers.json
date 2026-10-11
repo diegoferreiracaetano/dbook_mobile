@@ -1,0 +1,27 @@
+{
+  "_comment": "Política de cabeçalhos de segurança do portal (CloudFront Response Headers Policy). Substitua API_ORIGIN pela origem da API do ambiente (ex.: https://api.exemplo.com). Ver docs/portal-seguranca.md.",
+  "SecurityHeadersConfig": {
+    "ContentSecurityPolicy": {
+      "Override": true,
+      "ContentSecurityPolicy": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' API_ORIGIN; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'"
+    },
+    "ContentTypeOptions": { "Override": true },
+    "FrameOptions": { "Override": true, "FrameOption": "DENY" },
+    "ReferrerPolicy": { "Override": true, "ReferrerPolicy": "no-referrer" },
+    "StrictTransportSecurity": {
+      "Override": true,
+      "AccessControlMaxAgeSec": 31536000,
+      "IncludeSubdomains": true,
+      "Preload": false
+    }
+  },
+  "CustomHeadersConfig": {
+    "Items": [
+      {
+        "Header": "Permissions-Policy",
+        "Value": "camera=(), microphone=(), geolocation=(), payment=()",
+        "Override": true
+      }
+    ]
+  }
+}

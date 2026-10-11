@@ -67,11 +67,17 @@ class DbookStatusBadge extends StatelessWidget {
             Icon(icon, size: 14, color: foreground),
             const SizedBox(width: DbookSpacing.xs),
           ],
-          Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: foreground,
-              fontWeight: FontWeight.w700,
+          // Flexible: em coluna estreita (tabela do portal) o rótulo corta com
+          // reticências em vez de estourar a linha.
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: foreground,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         ],

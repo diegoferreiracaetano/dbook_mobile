@@ -49,6 +49,12 @@ class AuthNotifier extends Notifier<AuthState> {
       state = AuthState.loggedIn(tokens: tokens, email: email);
       await _syncProfile();
     } on DbookNetworkException catch (error) {
+      if (error.code == 'ACCOUNT_BLOCKED') {
+        // só depois de a senha estar certa: a tela de conta bloqueada explica
+        ref.read(accountBlockedProvider.notifier).block();
+        state = const AuthState.loggedOut();
+        return;
+      }
       state = AuthState.error(error.message);
     }
   }

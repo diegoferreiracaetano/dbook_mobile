@@ -4,7 +4,7 @@ import 'dbook_spacing.dart';
 /// de clientes não usa isto: lá a escala é a de [DbookSpacing] com alvos de
 /// toque de 48dp.
 abstract final class DbookDensity {
-  static const double rowHeight = 40;
+  static const double rowHeight = 52;
   static const double headerRowHeight = 36;
   static const double cellPaddingH = DbookSpacing.md;
   static const double cellPaddingV = DbookSpacing.sm;

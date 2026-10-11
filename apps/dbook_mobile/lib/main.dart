@@ -8,14 +8,22 @@ import 'package:dbook_feature_auth/dbook_feature_auth.dart';
 import 'package:dbook_feature_ai/dbook_feature_ai.dart';
 import 'package:dbook_feature_booking/dbook_feature_booking.dart';
 import 'package:dbook_feature_flights/dbook_feature_flights.dart';
+import 'package:dbook_feature_notifications/dbook_feature_notifications.dart';
 import 'package:dbook_feature_realtime/dbook_feature_realtime.dart';
+import 'package:dbook_feature_stays/dbook_feature_stays.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'account_blocked_gate.dart';
+import 'account/account_api.dart';
+import 'app_update_gate.dart';
+import 'home_stays_section.dart';
 import 'profile_page.dart';
+import 'theme_mode.dart';
+import 'session_actions.dart';
 
 /// Versão da API de negócio que este app fala. Todos os repositórios usam
 /// caminhos relativos (`/bookings`...) sobre esta base, então trocar de
@@ -49,6 +57,19 @@ Future<void> main() async {
   runApp(
     ProviderScope(
       overrides: [
+        // a ponte entre features: as avaliações do destino precisam saber
+        // quais são "minhas" (vêm das reservas) e se há sessão
+        ownReviewIdsProvider.overrideWith(
+          (ref) => {
+            for (final booking
+                in ref.watch(myBookingsNotifierProvider).value ??
+                    const <MyBooking>[])
+              if (booking.review != null) booking.review!.id,
+          },
+        ),
+        isLoggedInProvider.overrideWith(
+          (ref) => ref.watch(authNotifierProvider) is AuthLoggedIn,
+        ),
         baseUrlProvider.overrideWithValue(_localApiBaseUrl),
         dbookNetworkLoggingProvider.overrideWithValue(kDebugMode),
         appClientProvider.overrideWithValue(
@@ -63,15 +84,19 @@ Future<void> main() async {
   );
 }
 
-class DbookMobileApp extends StatelessWidget {
+class DbookMobileApp extends ConsumerWidget {
   const DbookMobileApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       title: 'DBook',
       theme: DbookTheme.light,
       darkTheme: DbookTheme.dark,
+      themeMode: ref.watch(themeModeProvider),
+      builder: (context, child) => AccountBlockedGate(
+        child: AppUpdateGate(child: child ?? const SizedBox.shrink()),
+      ),
       home: const _AppRoot(),
     );
   }
@@ -339,6 +364,30 @@ class _AppShellState extends ConsumerState<_AppShell> {
     );
   }
 
+  /// Uma reserva a pagar (hotel recém-criado ou reserva pendente de "Trips"):
+  /// segue para a mesma revisão e pagamento do voo. As features entregam só o
+  /// necessário (id, rótulo e valor); a ponte com a de reserva fica aqui, que
+  /// já importa as duas.
+  void _payItem(
+    BuildContext context,
+    ({int bookingId, String label, double price}) item,
+  ) {
+    Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute<void>(
+        builder: (_) => PaymentPage(
+          items: [item],
+          onPaid: (paid) =>
+              Navigator.of(context, rootNavigator: true).pushReplacement(
+                MaterialPageRoute<void>(
+                  builder: (_) =>
+                      PaymentSuccessPage(payment: paid.payment, items: [item]),
+                ),
+              ),
+        ),
+      ),
+    );
+  }
+
   /// Tocar um destino na aba Explore leva direto pros resultados reais
   /// daquela rota (origem+data já escolhidas na Home, via
   /// [searchOriginProvider] — Google Flights "Explore" e Skyscanner
@@ -406,18 +455,52 @@ class _AppShellState extends ConsumerState<_AppShell> {
     );
   }
 
+  void _openNotifications(BuildContext context) {
+    final navigator = Navigator.of(context, rootNavigator: true);
+    navigator.push(
+      MaterialPageRoute<void>(
+        builder: (_) => NotificationsPage(
+          // todas as notificações de hoje falam de uma viagem: levam à aba Trips
+          onOpen: (notification) {
+            switch (notification.target) {
+              case NotificationTarget.trips:
+                navigator.popUntil((route) => route.isFirst);
+                setState(() => _tabIndex = 2);
+              case NotificationTarget.priceAlerts:
+                navigator.popUntil((route) => route.isFirst);
+                navigator.push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const PriceAlertsPage(),
+                  ),
+                );
+              case NotificationTarget.none:
+                break;
+            }
+          },
+          onOpenPreferences: () => navigator.push(
+            MaterialPageRoute<void>(
+              builder: (_) => const NotificationPreferencesPage(),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   List<Widget> _homeActions(BuildContext context, {required bool isLoggedIn}) {
     return [
+      if (isLoggedIn)
+        NotificationBell(onPressed: () => _openNotifications(context)),
       IconButton(
         icon: const Icon(Icons.auto_awesome_outlined),
-        tooltip: 'Ask DBook AI',
+        tooltip: 'Perguntar à IA do DBook',
         onPressed: () => _openAiSuggestions(context, isLoggedIn: isLoggedIn),
       ),
       isLoggedIn
           ? IconButton(
               icon: const Icon(Icons.logout),
               tooltip: 'Sair',
-              onPressed: () => ref.read(authNotifierProvider.notifier).logout(),
+              onPressed: () => signOut(ref),
             )
           : IconButton(
               icon: const Icon(Icons.login),
@@ -449,6 +532,19 @@ class _AppShellState extends ConsumerState<_AppShell> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
     final isLoggedIn = authState is AuthLoggedIn;
+    // A origem das preferências da conta pré-preenche a busca da Home.
+    if (isLoggedIn) {
+      ref.listen(preferencesProvider, (_, next) {
+        ref.read(homeAirportProvider.notifier).set(next.value?.homeAirport);
+      });
+    }
+    // O aparelho se registra para *push* assim que a sessão começa (inclusive
+    // quando ela é restaurada ao abrir o app).
+    ref.listen(authNotifierProvider, (previous, next) {
+      if (next is AuthLoggedIn && previous is! AuthLoggedIn) {
+        ref.read(deviceRegistrarProvider).register();
+      }
+    });
     // Mesma lista já carregada pela Home/Explore — repassada pra
     // `MyBookingsPage` cruzar a foto do destino sem um fetch novo (as
     // duas features não podem importar uma à outra, então essa ponte só
@@ -472,6 +568,26 @@ class _AppShellState extends ConsumerState<_AppShell> {
         ),
         onSelectRegion: (region) =>
             _openRegionDestinations(context, region, isLoggedIn: isLoggedIn),
+        hotelPanelBuilder: (context, destinations) => StaySearchCard(
+          destinations: destinations,
+          pickDestination: showAirportPickerSheet,
+        ),
+        hotelResultsBuilder: (context) => StaySearchResults(
+          isLoggedIn: isLoggedIn,
+          onRequireLogin: () => pushAuthGate(context),
+          onCheckout: (stay) => _payItem(context, stay),
+        ),
+        extrasBuilder: (context, destinations) => HomeStaysSection(
+          destinations: destinations,
+          isLoggedIn: isLoggedIn,
+          onRequireLogin: () => pushAuthGate(context),
+          onCheckout: (stay) => _payItem(context, stay),
+          onSearchFlights: (destination) => _openExploreDestination(
+            context,
+            destination,
+            isLoggedIn: isLoggedIn,
+          ),
+        ),
       ),
       ExplorePage(
         onSelectDestination: (destination) => _openExploreDestination(
@@ -481,17 +597,21 @@ class _AppShellState extends ConsumerState<_AppShell> {
         ),
       ),
       isLoggedIn
-          ? MyBookingsPage(destinations: destinations)
+          ? MyBookingsPage(
+              destinations: destinations,
+              onPay: (item) => _payItem(context, item),
+              staysView: MyStaysList(onPay: (stay) => _payItem(context, stay)),
+            )
           : _guestGate(
               context,
-              title: 'Trips',
+              title: 'Viagens',
               message: 'Faça login para ver suas reservas.',
             ),
       isLoggedIn
           ? const ProfilePage()
           : _guestGate(
               context,
-              title: 'Profile',
+              title: 'Perfil',
               message: 'Faça login para ver seu perfil.',
             ),
     ];
@@ -505,22 +625,22 @@ class _AppShellState extends ConsumerState<_AppShell> {
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
-            label: 'Home',
+            label: 'Início',
           ),
           NavigationDestination(
             icon: Icon(Icons.explore_outlined),
             selectedIcon: Icon(Icons.explore),
-            label: 'Explore',
+            label: 'Explorar',
           ),
           NavigationDestination(
             icon: Icon(Icons.confirmation_number_outlined),
             selectedIcon: Icon(Icons.confirmation_number),
-            label: 'Trips',
+            label: 'Viagens',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person),
-            label: 'Profile',
+            label: 'Perfil',
           ),
         ],
       ),
@@ -561,28 +681,29 @@ class _OnboardingPageState extends State<OnboardingPage> {
         image: AssetImage('assets/images/onboarding/clouds_wing.jpg'),
         fit: BoxFit.cover,
       ),
-      title: 'Discover New Horizons',
+      title: 'Descubra novos horizontes',
       subtitle:
-          'Find and book the best flights to amazing destinations '
-          'around the world.',
+          'Encontre e reserve os melhores voos para destinos incríveis '
+          'em todo o mundo.',
     ),
     _OnboardingSlideData(
       background: Image(
         image: AssetImage('assets/images/onboarding/lakeside_village.jpg'),
         fit: BoxFit.cover,
       ),
-      title: 'Best Prices Everytime',
+      title: 'Os melhores preços, sempre',
       subtitle:
-          'Compare hundreds of airlines and get the best deals for '
-          'your next adventure.',
+          'Compare centenas de companhias e encontre as melhores ofertas '
+          'para a sua próxima aventura.',
     ),
     _OnboardingSlideData(
       background: Image(
         image: AssetImage('assets/images/onboarding/mountain_hiker.jpg'),
         fit: BoxFit.cover,
       ),
-      title: 'Travel Your Way',
-      subtitle: 'Flexible options, secure booking and a seamless experience.',
+      title: 'Viaje do seu jeito',
+      subtitle:
+          'Opções flexíveis, reserva segura e uma experiência sem atrito.',
     ),
   ];
 
@@ -622,7 +743,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
             subtitle: slide.subtitle,
             pageCount: _slides.length,
             currentIndex: _currentIndex,
-            primaryActionLabel: isLast ? 'Get Started' : 'Next',
+            primaryActionLabel: isLast ? 'Começar' : 'Avançar',
             onPrimaryAction: _next,
             onSkip: isLast ? null : _skip,
           );

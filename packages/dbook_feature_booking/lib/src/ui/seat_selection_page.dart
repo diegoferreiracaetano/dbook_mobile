@@ -59,7 +59,7 @@ class _SeatSelectionPageState extends ConsumerState<SeatSelectionPage> {
 
     return Scaffold(
       appBar: DbookAppBar(
-        title: 'Select a Seat',
+        title: 'Escolha o assento',
         subtitle:
             '${widget.flight.originIataCode} → '
             '${widget.flight.destinationIataCode}',
@@ -148,13 +148,13 @@ class _SeatMapBody extends ConsumerWidget {
             spacing: DbookSpacing.lg,
             children: [
               DbookLegendItem(
-                label: 'Available',
+                label: 'Livre',
                 color: colorScheme.outline,
                 outlined: true,
               ),
-              DbookLegendItem(label: 'Selected', color: colorScheme.primary),
+              DbookLegendItem(label: 'Selecionado', color: colorScheme.primary),
               DbookLegendItem(
-                label: 'Occupied',
+                label: 'Ocupado',
                 color: colorScheme.outlineVariant,
               ),
             ],
@@ -309,11 +309,11 @@ class _SeatSelectionFooter extends ConsumerWidget {
 
     final confirmed = await showDbookConfirmationDialog(
       context,
-      title: 'Confirm Booking',
+      title: 'Confirmar reserva',
       message:
-          'Book seat ${seat.label} for '
+          'Reservar o assento ${seat.label} por '
           '${_priceFormat.format(flight.price)}?',
-      confirmLabel: 'Book',
+      confirmLabel: 'Reservar',
     );
     if (!confirmed) return;
     if (!context.mounted) return;
@@ -340,8 +340,8 @@ class _SeatSelectionFooter extends ConsumerWidget {
           ],
           DbookButton(
             label: state.selected == null
-                ? 'Select a seat'
-                : 'Book Seat ${state.selected!.label}',
+                ? 'Escolha um assento'
+                : 'Reservar assento ${state.selected!.label}',
             isLoading: state.isBooking,
             onPressed: state.selected == null
                 ? null

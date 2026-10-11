@@ -15,6 +15,7 @@ abstract class Flight with _$Flight {
     required String flightNumber,
     required String airlineIataCode,
     required String airlineName,
+    String? airlineLogoUrl,
     required String originIataCode,
     required String destinationIataCode,
     required DateTime departureTime,

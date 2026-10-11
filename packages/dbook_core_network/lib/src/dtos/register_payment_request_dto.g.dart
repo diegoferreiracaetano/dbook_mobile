@@ -14,6 +14,7 @@ _RegisterPaymentRequestDto _$RegisterPaymentRequestDtoFromJson(
       .toList(),
   cardLast4: json['cardLast4'] as String,
   cardholderName: json['cardholderName'] as String,
+  promoCode: json['promoCode'] as String?,
 );
 
 Map<String, dynamic> _$RegisterPaymentRequestDtoToJson(
@@ -22,4 +23,5 @@ Map<String, dynamic> _$RegisterPaymentRequestDtoToJson(
   'bookingIds': instance.bookingIds,
   'cardLast4': instance.cardLast4,
   'cardholderName': instance.cardholderName,
+  'promoCode': ?instance.promoCode,
 };

@@ -53,7 +53,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final isLoading = state is AuthLoading;
 
     return Scaffold(
-      appBar: const DbookAppBar(title: 'Welcome Back'),
+      appBar: const DbookAppBar(title: 'Bem-vindo de volta'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(DbookSpacing.lg),
         child: Form(
@@ -97,20 +97,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ],
               const SizedBox(height: DbookSpacing.xl),
               DbookButton(
-                label: 'Sign In',
+                label: 'Entrar',
                 isLoading: isLoading,
                 onPressed: isLoading ? null : _submit,
-              ),
-              const SizedBox(height: DbookSpacing.lg),
-              const DbookSocialLoginRow(
-                dividerLabel: 'ou continue com',
-                buttons: [
-                  DbookSocialLoginButton(
-                    icon: Icons.g_mobiledata,
-                    label: 'Google',
-                  ),
-                  DbookSocialLoginButton(icon: Icons.apple, label: 'Apple'),
-                ],
               ),
               const SizedBox(height: DbookSpacing.lg),
               TextButton(

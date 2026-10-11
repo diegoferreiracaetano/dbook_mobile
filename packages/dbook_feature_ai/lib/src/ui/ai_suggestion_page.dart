@@ -39,7 +39,7 @@ class _AiSuggestionPageState extends ConsumerState<AiSuggestionPage> {
     final state = ref.watch(aiSuggestionNotifierProvider);
 
     return Scaffold(
-      appBar: const DbookAppBar(title: 'Ask DBook AI'),
+      appBar: const DbookAppBar(title: 'Perguntar à IA do DBook'),
       body: Padding(
         padding: const EdgeInsets.all(DbookSpacing.lg),
         child: Column(
@@ -117,7 +117,7 @@ class _SuggestionList extends StatelessWidget {
         return Card(
           child: ListTile(
             leading: const Icon(Icons.auto_awesome),
-            title: Text('Flight #${suggestion.flightId}'),
+            title: Text('Voo #${suggestion.flightId}'),
             subtitle: Text(suggestion.reason),
           ),
         );

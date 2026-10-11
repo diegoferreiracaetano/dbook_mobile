@@ -8,3 +8,5 @@ export 'src/state/auth_state.dart';
 export 'src/ui/auth_validators.dart';
 export 'src/ui/login_page.dart';
 export 'src/ui/register_page.dart';
+export 'src/state/privacy_providers.dart';
+export 'src/ui/privacy_dialogs.dart';

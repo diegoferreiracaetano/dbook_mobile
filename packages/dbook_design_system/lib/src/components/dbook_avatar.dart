@@ -12,11 +12,19 @@ class DbookAvatar extends StatelessWidget {
     this.image,
     this.initials,
     this.size = DbookAvatarSize.medium,
+    this.backgroundColor,
+    this.foregroundColor,
   }) : assert(image != null || initials != null, 'Informe image ou initials.');
 
   final ImageProvider? image;
   final String? initials;
   final DbookAvatarSize size;
+
+  /// Cores próprias para quando o avatar fica sobre uma superfície que já é
+  /// a cor do `primaryContainer` (a faixa de marca do Perfil): sem isso o
+  /// círculo some. Por padrão vêm do tema.
+  final Color? backgroundColor;
+  final Color? foregroundColor;
 
   double get _radius => switch (size) {
     DbookAvatarSize.small => 16,
@@ -30,8 +38,8 @@ class DbookAvatar extends StatelessWidget {
 
     return CircleAvatar(
       radius: _radius,
-      backgroundColor: colorScheme.primaryContainer,
-      foregroundColor: colorScheme.onPrimaryContainer,
+      backgroundColor: backgroundColor ?? colorScheme.primaryContainer,
+      foregroundColor: foregroundColor ?? colorScheme.onPrimaryContainer,
       backgroundImage: image,
       child: image == null && initials != null ? Text(initials!) : null,
     );

@@ -68,13 +68,13 @@ void main() {
       expect(find.text('MAD'), findsOneWidget);
       expect(find.text('10:30'), findsOneWidget);
       expect(find.text('06:45'), findsOneWidget);
-      expect(find.text('Business'), findsOneWidget);
+      expect(find.text('Executiva'), findsOneWidget);
       expect(find.text('Iberia'), findsOneWidget);
       expect(find.text('IB 6821'), findsOneWidget);
       expect(find.text('Airbus A320'), findsOneWidget);
       expect(find.text('4'), findsOneWidget);
       expect(find.text(r'$1,250.00'), findsOneWidget);
-      expect(find.text('Book This Flight'), findsNothing);
+      expect(find.text('Reservar este voo'), findsNothing);
     },
   );
 
@@ -116,7 +116,7 @@ void main() {
       );
       await tester.pump();
 
-      await tester.tap(find.text('Book This Flight'));
+      await tester.tap(find.text('Reservar este voo'));
 
       expect(booked, flight);
     },
@@ -136,7 +136,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.text('Seats available'), findsOneWidget);
+      expect(find.text('Assentos livres'), findsOneWidget);
       expect(find.text('live-availability-widget'), findsOneWidget);
       expect(find.text('4'), findsNothing);
     },

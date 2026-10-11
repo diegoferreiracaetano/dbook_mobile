@@ -1,11 +1,14 @@
+import 'package:dbook_core_network/dbook_core_network.dart';
 import 'package:dbook_design_system/dbook_design_system.dart';
 import 'package:dbook_domain/dbook_domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../state/destination_reviews_notifier.dart' show isLoggedInProvider;
 import '../state/favorite_destinations_notifier.dart';
 import '../state/flight_providers.dart';
+import 'destination_detail_page.dart';
 import 'destination_gradient.dart';
 
 final _priceFormat = NumberFormat.currency(symbol: r'$', decimalDigits: 0);
@@ -85,6 +88,34 @@ class DestinationCard extends ConsumerWidget {
   final Destination destination;
   final VoidCallback? onTap;
 
+  /// Favoritar exige sessão (é do servidor). Sem sessão ou sem rede a mudança
+  /// **não acontece** e uma mensagem explica o motivo: nada é guardado para
+  /// sincronizar depois sem a pessoa saber.
+  Future<void> _toggleFavorite(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+    void say(String text) => messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(text)));
+
+    if (!ref.read(isLoggedInProvider)) {
+      say('Entre na sua conta para salvar destinos favoritos.');
+      return;
+    }
+    try {
+      await ref
+          .read(favoriteDestinationsProvider.notifier)
+          .toggle(destination.iataCode);
+    } on DbookNetworkException catch (error) {
+      say(
+        error.code == 'FAVORITES_LIMIT'
+            ? 'Você atingiu o limite de 200 favoritos. Remova algum para salvar outro.'
+            : error is DbookUnknownNetworkException
+            ? 'Sem conexão: não deu para salvar. Tente de novo quando a rede voltar.'
+            : 'Não foi possível salvar o favorito. Tente de novo.',
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
@@ -121,9 +152,7 @@ class DestinationCard extends ConsumerWidget {
                     right: DbookSpacing.xs,
                     child: _FavoriteButton(
                       isFavorite: isFavorite,
-                      onTap: () => ref
-                          .read(favoriteDestinationsProvider.notifier)
-                          .toggle(destination.iataCode),
+                      onTap: () => _toggleFavorite(context, ref),
                     ),
                   ),
                 ],
@@ -156,20 +185,44 @@ class DestinationCard extends ConsumerWidget {
                         ),
                       ),
                       if (destination.averageRating != null) ...[
-                        Icon(Icons.star, size: 12, color: colorScheme.primary),
-                        const SizedBox(width: 2),
-                        Text(
-                          destination.averageRating!.toStringAsFixed(1),
-                          style: textTheme.bodySmall?.copyWith(
-                            color: colorScheme.primary,
-                            fontWeight: FontWeight.w600,
+                        // a nota abre as avaliações do destino; o resto do
+                        // card segue buscando voos como sempre (M19)
+                        InkWell(
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => DestinationDetailPage(
+                                destination: destination,
+                              ),
+                            ),
+                          ),
+                          child: Semantics(
+                            button: true,
+                            label: 'Ver avaliações de ${destination.city}',
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  size: 12,
+                                  color: colorScheme.primary,
+                                ),
+                                const SizedBox(width: DbookSpacing.xxs),
+                                Text(
+                                  destination.averageRating!.toStringAsFixed(1),
+                                  style: textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                         const SizedBox(width: DbookSpacing.xs),
                       ],
                       if (lowestPrice != null)
                         Text(
-                          'from ${_priceFormat.format(lowestPrice)}',
+                          'a partir de ${_priceFormat.format(lowestPrice)}',
                           style: textTheme.bodySmall?.copyWith(
                             color: colorScheme.primary,
                             fontWeight: FontWeight.w600,
@@ -197,20 +250,28 @@ class _FavoriteButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Material(
-      color: colorScheme.surface.withValues(alpha: 0.9),
-      shape: const CircleBorder(),
-      child: InkWell(
-        onTap: onTap,
-        customBorder: const CircleBorder(),
-        child: Padding(
-          padding: const EdgeInsets.all(DbookSpacing.xs),
-          child: Icon(
-            isFavorite ? Icons.favorite : Icons.favorite_border,
-            size: 18,
-            color: isFavorite
-                ? colorScheme.error
-                : colorScheme.onSurfaceVariant,
+    // Alvo de toque de 44 dp (mínimo de acessibilidade); o círculo visível
+    // continua pequeno para não cobrir a foto.
+    return InkWell(
+      onTap: onTap,
+      customBorder: const CircleBorder(),
+      child: SizedBox(
+        width: 44,
+        height: 44,
+        child: Center(
+          child: Material(
+            color: colorScheme.surface.withValues(alpha: 0.9),
+            shape: const CircleBorder(),
+            child: Padding(
+              padding: const EdgeInsets.all(DbookSpacing.xs),
+              child: Icon(
+                isFavorite ? Icons.favorite : Icons.favorite_border,
+                size: 18,
+                color: isFavorite
+                    ? colorScheme.error
+                    : colorScheme.onSurfaceVariant,
+              ),
+            ),
           ),
         ),
       ),

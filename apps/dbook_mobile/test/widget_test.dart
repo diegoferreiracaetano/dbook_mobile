@@ -4,6 +4,7 @@ import 'package:dbook_domain/dbook_domain.dart';
 import 'package:dbook_feature_auth/dbook_feature_auth.dart';
 import 'package:dbook_feature_booking/dbook_feature_booking.dart';
 import 'package:dbook_feature_flights/dbook_feature_flights.dart';
+import 'package:dbook_feature_stays/dbook_feature_stays.dart';
 import 'package:dbook_mobile/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -142,6 +143,27 @@ class _FakeBookingRepository implements BookingRepository {
   Future<List<MyBooking>> listMine() async => [];
 }
 
+/// Sem hotéis nem estadias: a Home e a aba Trips montam o painel de hotéis.
+class _FakeAccommodationRepository implements AccommodationRepository {
+  @override
+  Future<List<AccommodationResult>> search(StaySearch search) async => [];
+
+  @override
+  Future<AccommodationDetail> detail(int id) => throw UnimplementedError();
+
+  @override
+  Future<int> book({
+    required int accommodationId,
+    required int roomTypeId,
+    required DateTime checkIn,
+    required DateTime checkOut,
+    required int guests,
+  }) => throw UnimplementedError();
+
+  @override
+  Future<List<StayBooking>> myStays() async => [];
+}
+
 Flight _sampleFlight() => Flight(
   id: 1,
   flightNumber: 'IB 6821',
@@ -174,6 +196,9 @@ Widget _app({
         _FakeDestinationRepository(),
       ),
       bookingRepositoryProvider.overrideWithValue(_FakeBookingRepository()),
+      accommodationRepositoryProvider.overrideWithValue(
+        _FakeAccommodationRepository(),
+      ),
       if (authRepository != null)
         authRepositoryProvider.overrideWithValue(authRepository),
       if (loggedIn)
@@ -189,8 +214,22 @@ Widget _app({
 void _skipOnboarding() =>
     SharedPreferences.setMockInitialValues({'has_onboarded': true});
 
+/// A Home nasce sem origem nem destino: escolhe os dois primeiros pelo
+/// seletor, como o usuário faria.
+Future<void> _pickRoute(WidgetTester tester) async {
+  await tester.tap(find.text('Selecionar').first);
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(_destinations[0].label).last);
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('Selecionar').first);
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(_destinations[1].label).last);
+  await tester.pumpAndSettle();
+}
+
 Future<void> _searchAndOpenFlightDetail(WidgetTester tester) async {
-  await tester.tap(find.text('Search Flights'));
+  await _pickRoute(tester);
+  await tester.tap(find.text('Buscar voos'));
   await tester.pumpAndSettle();
   await tester.tap(find.text('Iberia · IB 6821'));
   await tester.pumpAndSettle();
@@ -211,8 +250,8 @@ void main() {
         await tester.pumpWidget(_app());
         await tester.pumpAndSettle();
 
-        expect(find.text('Discover New Horizons'), findsOneWidget);
-        expect(find.text('Skip'), findsOneWidget);
+        expect(find.text('Descubra novos horizontes'), findsOneWidget);
+        expect(find.text('Pular'), findsOneWidget);
       },
     );
 
@@ -224,15 +263,15 @@ void main() {
 
         await tester.pumpWidget(_app());
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Next'));
+        await tester.tap(find.text('Avançar'));
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Next'));
+        await tester.tap(find.text('Avançar'));
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Get Started'));
+        await tester.tap(find.text('Começar'));
         await tester.pumpAndSettle();
 
-        expect(find.text('Search Flights'), findsOneWidget);
-        expect(find.text('Welcome Back'), findsNothing);
+        expect(find.text('Buscar voos'), findsOneWidget);
+        expect(find.text('Bem-vindo de volta'), findsNothing);
       },
     );
 
@@ -245,8 +284,8 @@ void main() {
         await tester.pumpWidget(_app());
         await tester.pumpAndSettle();
 
-        expect(find.text('Search Flights'), findsOneWidget);
-        expect(find.text('Discover New Horizons'), findsNothing);
+        expect(find.text('Buscar voos'), findsOneWidget);
+        expect(find.text('Descubra novos horizontes'), findsNothing);
       },
     );
   });
@@ -276,8 +315,8 @@ void main() {
         await tester.pumpAndSettle();
         await _searchAndOpenFlightDetail(tester);
 
-        expect(find.text('Book This Flight'), findsOneWidget);
-        expect(find.text('Welcome Back'), findsNothing);
+        expect(find.text('Reservar este voo'), findsOneWidget);
+        expect(find.text('Bem-vindo de volta'), findsNothing);
       },
     );
 
@@ -292,7 +331,7 @@ void main() {
         await tester.tap(find.byIcon(Icons.auto_awesome_outlined));
         await tester.pumpAndSettle();
 
-        expect(find.text('Welcome Back'), findsOneWidget);
+        expect(find.text('Bem-vindo de volta'), findsOneWidget);
       },
     );
 
@@ -304,9 +343,9 @@ void main() {
 
         await tester.pumpWidget(_app());
         await tester.pumpAndSettle();
-        await _goToTab(tester, 'Trips');
+        await _goToTab(tester, 'Viagens');
 
-        final tripsGate = find.byKey(const Key('guest_gate_Trips'));
+        final tripsGate = find.byKey(const Key('guest_gate_Viagens'));
         expect(
           find.descendant(
             of: tripsGate,
@@ -320,7 +359,7 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        expect(find.text('Welcome Back'), findsOneWidget);
+        expect(find.text('Bem-vindo de volta'), findsOneWidget);
       },
     );
 
@@ -332,11 +371,11 @@ void main() {
 
         await tester.pumpWidget(_app());
         await tester.pumpAndSettle();
-        await _goToTab(tester, 'Profile');
+        await _goToTab(tester, 'Perfil');
 
         expect(
           find.descendant(
-            of: find.byKey(const Key('guest_gate_Profile')),
+            of: find.byKey(const Key('guest_gate_Perfil')),
             matching: find.text('Faça login para ver seu perfil.'),
           ),
           findsOneWidget,
@@ -355,11 +394,11 @@ void main() {
         await tester.pumpWidget(_app(flights: [_sampleFlight()]));
         await tester.pumpAndSettle();
         await _searchAndOpenFlightDetail(tester);
-        await tester.tap(find.text('Book This Flight'));
+        await tester.tap(find.text('Reservar este voo'));
         await tester.pumpAndSettle();
 
-        expect(find.text('Welcome Back'), findsOneWidget);
-        expect(find.text('Select a Seat'), findsNothing);
+        expect(find.text('Bem-vindo de volta'), findsOneWidget);
+        expect(find.text('Escolha o assento'), findsNothing);
       },
     );
 
@@ -375,7 +414,7 @@ void main() {
         );
         await tester.pumpAndSettle();
         await _searchAndOpenFlightDetail(tester);
-        await tester.tap(find.text('Book This Flight'));
+        await tester.tap(find.text('Reservar este voo'));
         await tester.pumpAndSettle();
 
         await tester.enterText(
@@ -386,7 +425,7 @@ void main() {
           find.widgetWithText(TextFormField, 'Senha'),
           'hunter2',
         );
-        await tester.tap(find.text('Sign In'));
+        await tester.tap(find.text('Entrar'));
         await tester.pumpAndSettle();
 
         expect(authRepository.loginCallCount, 1);
@@ -394,17 +433,17 @@ void main() {
         // não passa pela seleção de assento — primeiro escolhe o voo da
         // volta (mesmo voo fake, dado que o repositório de teste ignora
         // a rota buscada).
-        expect(find.text('Welcome Back'), findsNothing);
-        expect(find.text('Select a Seat'), findsNothing);
+        expect(find.text('Bem-vindo de volta'), findsNothing);
+        expect(find.text('Escolha o assento'), findsNothing);
         expect(find.text('Iberia · IB 6821'), findsOneWidget);
 
         await tester.tap(find.text('Iberia · IB 6821'));
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Book This Flight'));
+        await tester.tap(find.text('Reservar este voo'));
         await tester.pumpAndSettle();
 
         // Voos de ida e volta escolhidos — agora sim, seleção de assento.
-        expect(find.text('Select a Seat'), findsOneWidget);
+        expect(find.text('Escolha o assento'), findsOneWidget);
 
         // Voltar da tela de assento cai no detalhe do voo de volta (a
         // origem mais recente), nunca na Home nem no login —
@@ -412,7 +451,7 @@ void main() {
         await tester.pageBack();
         await tester.pumpAndSettle();
 
-        expect(find.text('Book This Flight'), findsOneWidget);
+        expect(find.text('Reservar este voo'), findsOneWidget);
       },
     );
 
@@ -428,21 +467,21 @@ void main() {
         );
         await tester.pumpAndSettle();
         await _searchAndOpenFlightDetail(tester);
-        await tester.tap(find.text('Book This Flight'));
+        await tester.tap(find.text('Reservar este voo'));
         await tester.pumpAndSettle();
 
         // Sem Auth Gate (já logado) e sem seleção de assento ainda — a
         // volta (Round Trip, padrão) precisa de um voo escolhido primeiro.
-        expect(find.text('Welcome Back'), findsNothing);
-        expect(find.text('Select a Seat'), findsNothing);
+        expect(find.text('Bem-vindo de volta'), findsNothing);
+        expect(find.text('Escolha o assento'), findsNothing);
         expect(find.text('Iberia · IB 6821'), findsOneWidget);
 
         await tester.tap(find.text('Iberia · IB 6821'));
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Book This Flight'));
+        await tester.tap(find.text('Reservar este voo'));
         await tester.pumpAndSettle();
 
-        expect(find.text('Select a Seat'), findsOneWidget);
+        expect(find.text('Escolha o assento'), findsOneWidget);
       },
     );
   });
@@ -470,9 +509,9 @@ void main() {
 
         await tester.pumpWidget(_app(loggedIn: true));
         await tester.pumpAndSettle();
-        await _goToTab(tester, 'Trips');
+        await _goToTab(tester, 'Viagens');
 
-        expect(find.text('My Bookings'), findsOneWidget);
+        expect(find.text('Minhas viagens'), findsOneWidget);
         expect(find.text('Entre para continuar'), findsNothing);
       },
     );
@@ -485,7 +524,7 @@ void main() {
 
         await tester.pumpWidget(_app(loggedIn: true));
         await tester.pumpAndSettle();
-        await _goToTab(tester, 'Profile');
+        await _goToTab(tester, 'Perfil');
 
         expect(find.text('diego@dbook.com'), findsOneWidget);
       },
@@ -499,7 +538,8 @@ void main() {
 
         await tester.pumpWidget(_app(flights: [_sampleFlight()]));
         await tester.pumpAndSettle();
-        await _goToTab(tester, 'Explore');
+        await _pickRoute(tester);
+        await _goToTab(tester, 'Explorar');
 
         // `New York` é popular, então aparece 2x na página (em "Principais
         // destinos" e de novo em "Destinos por região", que mostra todos
@@ -535,7 +575,7 @@ void main() {
         // Caiu direto em resultados de verdade — nem voltou pra Home nem
         // precisou apertar "Search Flights" na mão.
         expect(find.text('Iberia · IB 6821'), findsOneWidget);
-        expect(find.text('Search Flights'), findsNothing);
+        expect(find.text('Buscar voos'), findsNothing);
       },
     );
 
@@ -548,7 +588,8 @@ void main() {
 
         await tester.pumpWidget(_app(flights: [_sampleFlight()]));
         await tester.pumpAndSettle();
-        await _goToTab(tester, 'Explore');
+        await _pickRoute(tester);
+        await _goToTab(tester, 'Explorar');
 
         final destination = find
             .descendant(
@@ -573,10 +614,10 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(find.text('Iberia · IB 6821'));
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Book This Flight'));
+        await tester.tap(find.text('Reservar este voo'));
         await tester.pumpAndSettle();
 
-        expect(find.text('Welcome Back'), findsOneWidget);
+        expect(find.text('Bem-vindo de volta'), findsOneWidget);
       },
     );
   });
@@ -589,6 +630,7 @@ void main() {
 
       await tester.pumpWidget(_app(flights: [_sampleFlight()]));
       await tester.pumpAndSettle();
+      await _pickRoute(tester);
 
       final destination = find.descendant(
         of: find.byType(FlightSearchPage),
@@ -621,6 +663,7 @@ void main() {
 
       await tester.pumpWidget(_app(flights: [_sampleFlight()]));
       await tester.pumpAndSettle();
+      await _pickRoute(tester);
 
       final region = find.descendant(
         of: find.byType(FlightSearchPage),
@@ -653,6 +696,7 @@ void main() {
 
       await tester.pumpWidget(_app(flights: [_sampleFlight()]));
       await tester.pumpAndSettle();
+      await _pickRoute(tester);
 
       final region = find.descendant(
         of: find.byType(FlightSearchPage),
@@ -684,8 +728,73 @@ void main() {
       await tester.pumpAndSettle();
       await _searchAndOpenFlightDetail(tester);
 
-      expect(find.text('Seats available'), findsOneWidget);
+      expect(find.text('Assentos livres'), findsOneWidget);
       expect(find.text('Conectando...'), findsOneWidget);
+    },
+  );
+
+  testWidgetsWithMockImages(
+    'given the Home when choosing Hotéis then shows the stay search form',
+    (tester) async {
+      _skipOnboarding();
+
+      await tester.pumpWidget(_app(loggedIn: true));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Hotéis'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Buscar hotéis'), findsOneWidget);
+      expect(find.text('Entrada'), findsOneWidget);
+      expect(find.text('Hóspedes'), findsOneWidget);
+    },
+  );
+
+  testWidgetsWithMockImages(
+    'given a signed in user when tapping the bell then opens the '
+    'notifications inbox',
+    (tester) async {
+      _skipOnboarding();
+
+      await tester.pumpWidget(_app(loggedIn: true));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Notificações'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Notificações'), findsWidgets);
+      expect(find.byTooltip('Preferências'), findsOneWidget);
+    },
+  );
+
+  testWidgetsWithMockImages(
+    'given a signed in user when opening Trips then offers flights and hotels',
+    (tester) async {
+      _skipOnboarding();
+
+      await tester.pumpWidget(_app(loggedIn: true));
+      await tester.pumpAndSettle();
+      await _goToTab(tester, 'Viagens');
+
+      expect(find.text('Voos'), findsOneWidget);
+      expect(find.text('Hotéis'), findsOneWidget);
+      await tester.tap(find.text('Hotéis'));
+      await tester.pumpAndSettle();
+      expect(find.text('Nenhuma estadia ainda'), findsOneWidget);
+    },
+  );
+
+  testWidgetsWithMockImages(
+    'given the app when built then has no separate Hotels tab',
+    (tester) async {
+      _skipOnboarding();
+
+      await tester.pumpWidget(_app());
+      await tester.pumpAndSettle();
+
+      expect(
+        find.widgetWithText(NavigationDestination, 'Hotels'),
+        findsNothing,
+      );
+      expect(find.byType(NavigationDestination), findsNWidgets(4));
     },
   );
 }

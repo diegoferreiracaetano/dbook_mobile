@@ -20,6 +20,7 @@ class _FakePaymentRepository implements PaymentRepository {
     required String cardLast4,
     required String cardholderName,
     required String idempotencyKey,
+    String? promoCode,
   }) async {
     capturedBookingIds = bookingIds;
     capturedCardLast4 = cardLast4;
@@ -95,20 +96,44 @@ List<BookedLeg> _twoLegs() => [
   ),
 ];
 
-Widget _wrap(Widget child, {required PaymentRepository paymentRepository}) {
+class _FakePromos implements PromoRepository {
+  _FakePromos({this.error});
+
+  final Object? error;
+  List<int>? ids;
+
+  @override
+  Future<PromoPreview> validate({
+    required String code,
+    required List<int> bookingIds,
+  }) async {
+    ids = bookingIds;
+    if (error != null) throw error!;
+    return PromoPreview(code: code, subtotal: 800, discount: 80, total: 720);
+  }
+}
+
+Widget _wrap(
+  Widget child, {
+  required PaymentRepository paymentRepository,
+  PromoRepository? promos,
+}) {
   return ProviderScope(
-    overrides: [paymentRepositoryProvider.overrideWithValue(paymentRepository)],
+    overrides: [
+      paymentRepositoryProvider.overrideWithValue(paymentRepository),
+      if (promos != null) promoRepositoryProvider.overrideWithValue(promos),
+    ],
     child: MaterialApp(theme: DbookTheme.light, home: child),
   );
 }
 
 Future<void> _fillValidCard(WidgetTester tester) async {
   await tester.enterText(
-    find.widgetWithText(TextFormField, 'Cardholder name'),
+    find.widgetWithText(TextFormField, 'Nome no cartão'),
     'Jane Doe',
   );
   await tester.enterText(
-    find.widgetWithText(TextFormField, 'Card number'),
+    find.widgetWithText(TextFormField, 'Número do cartão'),
     '4242 4242 4242 4242',
   );
   await tester.enterText(find.widgetWithText(TextFormField, 'MM/YY'), '12/29');
@@ -127,9 +152,9 @@ void main() {
         ),
       );
 
-      expect(find.text('GRU → GIG · Seat 12A'), findsOneWidget);
-      expect(find.text('GIG → GRU · Seat 8C'), findsOneWidget);
-      expect(find.text('Pay \$800.00'), findsOneWidget);
+      expect(find.text('GRU → GIG · Assento 12A'), findsOneWidget);
+      expect(find.text('GIG → GRU · Assento 8C'), findsOneWidget);
+      expect(find.text('Pagar \$800.00'), findsOneWidget);
       expect(find.textContaining('Tax'), findsNothing);
       expect(find.textContaining('Save card'), findsNothing);
     },
@@ -146,7 +171,7 @@ void main() {
     );
 
     await _fillValidCard(tester);
-    await tester.tap(find.text('Pay \$800.00'));
+    await tester.tap(find.text('Pagar \$800.00'));
     await tester.pumpAndSettle();
 
     expect(paymentRepository.capturedBookingIds, [1, 2]);
@@ -167,7 +192,7 @@ void main() {
       );
 
       await _fillValidCard(tester);
-      await tester.tap(find.text('Pay \$800.00'));
+      await tester.tap(find.text('Pagar \$800.00'));
       await tester.pumpAndSettle();
 
       expect(find.text('Booking is no longer PENDING'), findsOneWidget);
@@ -187,14 +212,77 @@ void main() {
       );
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Cardholder name'),
+        find.widgetWithText(TextFormField, 'Nome no cartão'),
         'Jane Doe',
       );
-      await tester.tap(find.text('Pay \$800.00'));
+      await tester.tap(find.text('Pagar \$800.00'));
       await tester.pumpAndSettle();
 
       expect(paymentRepository.capturedBookingIds, isNull);
       expect(find.text('Número de cartão inválido'), findsOneWidget);
     },
   );
+
+  testWidgets('given a valid promo code when applying then shows the discount '
+      'and the new total the server computed', (tester) async {
+    final promos = _FakePromos();
+    await tester.pumpWidget(
+      _wrap(
+        PaymentPage(bookedLegs: _twoLegs()),
+        paymentRepository: _FakePaymentRepository(),
+        promos: promos,
+      ),
+    );
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Código promocional'),
+      'BEMVINDO10',
+    );
+    await tester.ensureVisible(find.text('Aplicar'));
+    await tester.tap(find.text('Aplicar'));
+    await tester.pumpAndSettle();
+
+    expect(promos.ids, [1, 2]);
+    expect(find.text('Pagar \$720.00'), findsOneWidget);
+    expect(find.text('BEMVINDO10 aplicado'), findsOneWidget);
+  });
+
+  testWidgets('given an unknown promo code when applying then explains it '
+      'and keeps the full total', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        PaymentPage(bookedLegs: _twoLegs()),
+        paymentRepository: _FakePaymentRepository(),
+        promos: _FakePromos(error: const DbookNotFoundException('nope')),
+      ),
+    );
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Código promocional'),
+      'XXXX',
+    );
+    await tester.ensureVisible(find.text('Aplicar'));
+    await tester.tap(find.text('Aplicar'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('não existe'), findsOneWidget);
+    expect(find.text('Pagar \$800.00'), findsOneWidget);
+  });
+
+  testWidgets('given a hotel item when paying together then the summary '
+      'lists it and the total includes it', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        PaymentPage(
+          items: const [
+            (bookingId: 9, label: 'Hotel Copacabana · 3 noites', price: 1050),
+          ],
+        ),
+        paymentRepository: _FakePaymentRepository(),
+      ),
+    );
+
+    expect(find.text('Hotel Copacabana · 3 noites'), findsOneWidget);
+    expect(find.text('Pagar \$1,050.00'), findsOneWidget);
+  });
 }

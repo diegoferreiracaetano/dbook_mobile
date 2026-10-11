@@ -33,12 +33,23 @@ class FlightSearchQuery {
 /// campo "Return" de verdade), Multi-city 1+N. Ver
 /// `_FlightSearchPageState._search`.
 enum _TripType {
-  roundTrip('Round Trip'),
-  oneWay('One Way'),
-  multiCity('Multi-city');
+  roundTrip('Ida e volta'),
+  oneWay('Só ida'),
+  multiCity('Vários destinos');
 
   const _TripType(this.label);
   final String label;
+}
+
+/// O que a Home busca: voo ou hotel. O hotel só aparece se o app injetou o
+/// painel ([FlightSearchPage.hotelPanelBuilder]).
+enum _SearchMode {
+  flights('Voos', Icons.flight_outlined),
+  hotels('Hotéis', Icons.hotel_outlined);
+
+  const _SearchMode(this.label, this.icon);
+  final String label;
+  final IconData icon;
 }
 
 /// Um trecho extra da jornada Multi-city — o trecho principal já é
@@ -61,6 +72,9 @@ class FlightSearchPage extends ConsumerStatefulWidget {
     required this.onSearch,
     this.onSelectRegion,
     this.actions,
+    this.hotelPanelBuilder,
+    this.hotelResultsBuilder,
+    this.extrasBuilder,
   });
 
   /// Sempre a lista completa de trechos, na ordem em que devem ser
@@ -74,21 +88,36 @@ class FlightSearchPage extends ConsumerStatefulWidget {
   final ValueChanged<String>? onSelectRegion;
   final List<Widget>? actions;
 
+  /// Formulário da busca de hotel, montado por quem compõe as features (a de
+  /// voos não conhece a de hotéis). Quando existe, a Home ganha o seletor
+  /// "Voos | Hotéis" e o formulário aparece na mesma faixa de marca do voo,
+  /// com a mesma lista de destinos já carregada.
+  final Widget Function(BuildContext context, List<Destination> destinations)?
+  hotelPanelBuilder;
+
+  /// Resultados da busca de hotel, abaixo da faixa de marca.
+  final WidgetBuilder? hotelResultsBuilder;
+
+  /// Vitrine de hotéis e pacotes, também montada pelo app. Aparece só na aba
+  /// Hotéis, abaixo dos resultados: a aba Voos fica só com voos.
+  final Widget Function(BuildContext context, List<Destination> destinations)?
+  extrasBuilder;
+
   @override
   ConsumerState<FlightSearchPage> createState() => _FlightSearchPageState();
 }
 
 class _FlightSearchPageState extends ConsumerState<FlightSearchPage> {
-  // Nascem `null` — não dá mais pra popular no field initializer, a lista
-  // de destinos agora vem de `GET /destinations` (assíncrono). Ver o
-  // `ref.listen` no `build()`: assim que a 1ª busca resolve, os 2
-  // primeiros destinos preenchem `_origin`/`_destination`, só se o usuário
-  // ainda não tiver escolhido nada.
+  // Nascem `null` e continuam assim até o usuário escolher: a lista vem de
+  // `GET /destinations` e não há um "primeiro destino" que faça sentido
+  // para ele (antes, a Home vinha com os dois primeiros da lista). O botão
+  // de busca fica desativado até os dois estarem escolhidos.
   Destination? _origin;
   Destination? _destination;
   DateTime _date = DateTime.now().add(const Duration(days: 1));
   DateTime _returnDate = DateTime.now().add(const Duration(days: 8));
   _TripType _tripType = _TripType.roundTrip;
+  _SearchMode _mode = _SearchMode.flights;
   final List<_FlightLeg> _extraLegs = [];
 
   static final _dateFormat = DateFormat('EEE, MMM d, yyyy');
@@ -295,27 +324,30 @@ class _FlightSearchPageState extends ConsumerState<FlightSearchPage> {
       setState(() => _destination = next);
     });
 
-    // A 1ª vez que a lista de destinos chega, popula origem/destino com os
-    // 2 primeiros — só se o usuário ainda não tiver escolhido nada (não
-    // sobrescreve uma seleção manual em refreshes seguintes).
-    ref.listen<AsyncValue<List<Destination>>>(featuredDestinationsProvider, (
-      previous,
-      next,
-    ) {
-      final destinations = next.value;
-      if (destinations == null || destinations.isEmpty) return;
-      if (_origin != null && _destination != null) return;
-      setState(() {
-        _origin ??= destinations.first;
-        _destination ??= destinations.length > 1
-            ? destinations[1]
-            : destinations.first;
-      });
+    // A origem das preferências da conta entra sozinha, uma vez, se o cliente
+    // ainda não escolheu nenhuma (nunca sobrescreve uma escolha dele).
+    void applyHomeAirport() {
+      final code = ref.read(homeAirportProvider);
+      final destinations = ref.read(featuredDestinationsProvider).value;
+      if (_origin != null || code == null || destinations == null) return;
+      final match = destinations.where((d) => d.iataCode == code);
+      if (match.isEmpty) return;
+      setState(() => _origin = match.first);
       _syncSearchOrigin();
+    }
+
+    ref.listen<String?>(homeAirportProvider, (_, _) => applyHomeAirport());
+    ref.listen<AsyncValue<List<Destination>>>(
+      featuredDestinationsProvider,
+      (_, _) => applyHomeAirport(),
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) applyHomeAirport();
     });
 
     final destinationsAsync = ref.watch(featuredDestinationsProvider);
-    final colorScheme = Theme.of(context).colorScheme;
+
+    final brand = Theme.of(context).extension<DbookBrandColors>()!;
 
     return Scaffold(
       appBar: _HomeHeroBar(actions: widget.actions),
@@ -330,7 +362,7 @@ class _FlightSearchPageState extends ConsumerState<FlightSearchPage> {
               // dentro dela (referência: Figma Make "App de viagem com
               // design system").
               Container(
-                color: colorScheme.primary,
+                color: brand.surface,
                 padding: const EdgeInsets.fromLTRB(
                   DbookSpacing.lg,
                   0,
@@ -340,120 +372,163 @@ class _FlightSearchPageState extends ConsumerState<FlightSearchPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _TripTypeRow(
-                      selected: _tripType,
-                      onChanged: _selectTripType,
-                      enabled: false,
-                    ),
-                    const SizedBox(height: DbookSpacing.md),
-                    DbookTripSummaryCard(
-                      origin: _origin?.label ?? 'Selecionar',
-                      destination: _destination?.label ?? 'Selecionar',
-                      dateRangeLabel: _dateFormat.format(_date),
-                      returnDateLabel: _tripType == _TripType.roundTrip
-                          ? _dateFormat.format(_returnDate)
-                          : null,
-                      passengersLabel: '1 Passenger',
-                      onTapRoute: _pickOrigin,
-                      onTapDestination: _pickDestination,
-                      onSwap: _swap,
-                      onTapDates: _pickDate,
-                      onTapReturnDate: _pickReturnDate,
-                      searchLabel: 'Search Flights',
-                      onSearch: _canSearch ? _search : null,
-                      // Multi-city: trechos extras são seções do MESMO
-                      // card (divididas por uma linha fina), não cards
-                      // separados — confirmado com o usuário depois de
-                      // pesquisar a referência real (Google Flights).
-                      extraContent: _tripType != _TripType.multiCity
-                          ? null
-                          : [
-                              for (var i = 0; i < _extraLegs.length; i++) ...[
+                    if (widget.hotelPanelBuilder != null) ...[
+                      _SearchModeToggle(
+                        selected: _mode,
+                        onChanged: (mode) => setState(() => _mode = mode),
+                      ),
+                      const SizedBox(height: DbookSpacing.md),
+                    ],
+                    if (_mode == _SearchMode.flights) ...[
+                      _TripTypeRow(
+                        selected: _tripType,
+                        onChanged: _selectTripType,
+                        enabled: false,
+                      ),
+                      const SizedBox(height: DbookSpacing.md),
+                      DbookTripSummaryCard(
+                        origin: _origin?.label ?? 'Selecionar',
+                        destination: _destination?.label ?? 'Selecionar',
+                        dateRangeLabel: _dateFormat.format(_date),
+                        returnDateLabel: _tripType == _TripType.roundTrip
+                            ? _dateFormat.format(_returnDate)
+                            : null,
+                        passengersLabel: '1 passageiro',
+                        onTapRoute: _pickOrigin,
+                        onTapDestination: _pickDestination,
+                        onSwap: _swap,
+                        onTapDates: _pickDate,
+                        onTapReturnDate: _pickReturnDate,
+                        searchLabel: 'Buscar voos',
+                        onSearch: _canSearch ? _search : null,
+                        // Multi-city: trechos extras são seções do MESMO
+                        // card (divididas por uma linha fina), não cards
+                        // separados — confirmado com o usuário depois de
+                        // pesquisar a referência real (Google Flights).
+                        extraContent: _tripType != _TripType.multiCity
+                            ? null
+                            : [
+                                for (var i = 0; i < _extraLegs.length; i++) ...[
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: DbookSpacing.sm,
+                                    ),
+                                    child: Divider(height: 1),
+                                  ),
+                                  _ExtraLegSection(
+                                    index: i,
+                                    leg: _extraLegs[i],
+                                    onRemove: () => _removeLeg(i),
+                                    onSwap: () => _swapLeg(i),
+                                    onTapOrigin: () => _pickLegOrigin(i),
+                                    onTapDestination: () =>
+                                        _pickLegDestination(i),
+                                    onTapDate: () => _pickLegDate(i),
+                                    dateFormat: _dateFormat,
+                                  ),
+                                ],
                                 const Padding(
                                   padding: EdgeInsets.symmetric(
                                     vertical: DbookSpacing.sm,
                                   ),
                                   child: Divider(height: 1),
                                 ),
-                                _ExtraLegSection(
-                                  index: i,
-                                  leg: _extraLegs[i],
-                                  onRemove: () => _removeLeg(i),
-                                  onSwap: () => _swapLeg(i),
-                                  onTapOrigin: () => _pickLegOrigin(i),
-                                  onTapDestination: () =>
-                                      _pickLegDestination(i),
-                                  onTapDate: () => _pickLegDate(i),
-                                  dateFormat: _dateFormat,
+                                DbookButton(
+                                  label: 'Adicionar outro voo',
+                                  icon: Icons.add,
+                                  variant: DbookButtonVariant.text,
+                                  onPressed: _canAddLeg ? _addLeg : null,
                                 ),
                               ],
-                              const Padding(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: DbookSpacing.sm,
-                                ),
-                                child: Divider(height: 1),
+                      ),
+                    ],
+                    if (_mode == _SearchMode.hotels &&
+                        widget.hotelPanelBuilder != null)
+                      switch (destinationsAsync) {
+                        AsyncData(:final value) => widget.hotelPanelBuilder!(
+                          context,
+                          value,
+                        ),
+                        _ => const Padding(
+                          padding: EdgeInsets.all(DbookSpacing.lg),
+                          child: DbookLoadingIndicator(
+                            message: 'Carregando destinos...',
+                          ),
+                        ),
+                      },
+                  ],
+                ),
+              ),
+              if (_mode == _SearchMode.hotels &&
+                  widget.hotelPanelBuilder != null)
+                Padding(
+                  padding: const EdgeInsets.all(DbookSpacing.lg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ?widget.hotelResultsBuilder?.call(context),
+                      if (widget.extrasBuilder != null &&
+                          destinationsAsync.hasValue) ...[
+                        const SizedBox(height: DbookSpacing.xl),
+                        widget.extrasBuilder!(
+                          context,
+                          destinationsAsync.requireValue,
+                        ),
+                      ],
+                    ],
+                  ),
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.all(DbookSpacing.lg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const DbookSectionLabel(
+                        text: 'Destinos em destaque',
+                        icon: Icons.travel_explore_outlined,
+                      ),
+                      const SizedBox(height: DbookSpacing.md),
+                      switch (destinationsAsync) {
+                        AsyncData(:final value) => Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            DestinationCardGrid(
+                              destinations: value
+                                  .where((d) => d.isPopular)
+                                  .toList(),
+                              onSelect: _selectDestination,
+                            ),
+                            if (widget.onSelectRegion != null) ...[
+                              const SizedBox(height: DbookSpacing.xl),
+                              const DbookSectionLabel(
+                                text: 'Explore por região',
+                                icon: Icons.public_outlined,
                               ),
-                              DbookButton(
-                                label: 'Add another flight',
-                                icon: Icons.add,
-                                variant: DbookButtonVariant.text,
-                                onPressed: _canAddLeg ? _addLeg : null,
+                              const SizedBox(height: DbookSpacing.md),
+                              RegionCarousel(
+                                destinations: value,
+                                onSelectRegion: widget.onSelectRegion!,
                               ),
                             ],
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(DbookSpacing.lg),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const DbookSectionLabel(
-                      text: 'Destinos em destaque',
-                      icon: Icons.travel_explore_outlined,
-                    ),
-                    const SizedBox(height: DbookSpacing.md),
-                    switch (destinationsAsync) {
-                      AsyncData(:final value) => Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          DestinationCardGrid(
-                            destinations: value
-                                .where((d) => d.isPopular)
-                                .toList(),
-                            onSelect: _selectDestination,
-                          ),
-                          if (widget.onSelectRegion != null) ...[
-                            const SizedBox(height: DbookSpacing.xl),
-                            const DbookSectionLabel(
-                              text: 'Explore por região',
-                              icon: Icons.public_outlined,
-                            ),
-                            const SizedBox(height: DbookSpacing.md),
-                            RegionCarousel(
-                              destinations: value,
-                              onSelectRegion: widget.onSelectRegion!,
-                            ),
                           ],
-                        ],
-                      ),
-                      AsyncError() => DbookStatusPlaceholder(
-                        icon: Icons.error_outline,
-                        iconColor: Theme.of(context).colorScheme.error,
-                        title: 'Não foi possível carregar',
-                        message: 'Tente de novo em instantes.',
-                        actionLabel: 'Tentar de novo',
-                        onAction: () =>
-                            ref.invalidate(featuredDestinationsProvider),
-                      ),
-                      _ => const DbookLoadingIndicator(
-                        message: 'Carregando destinos...',
-                      ),
-                    },
-                  ],
+                        ),
+                        AsyncError() => DbookStatusPlaceholder(
+                          icon: Icons.error_outline,
+                          iconColor: Theme.of(context).colorScheme.error,
+                          title: 'Não foi possível carregar',
+                          message: 'Tente de novo em instantes.',
+                          actionLabel: 'Tentar de novo',
+                          onAction: () =>
+                              ref.invalidate(featuredDestinationsProvider),
+                        ),
+                        _ => const DbookLoadingIndicator(
+                          message: 'Carregando destinos...',
+                        ),
+                      },
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
         ),
@@ -501,13 +576,13 @@ class _ExtraLegSection extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: Text('Flight ${index + 2}', style: textTheme.labelLarge),
+              child: Text('Voo ${index + 2}', style: textTheme.labelLarge),
             ),
             IconButton(
               icon: const Icon(Icons.close, size: 18),
               onPressed: onRemove,
               visualDensity: VisualDensity.compact,
-              tooltip: 'Remove flight',
+              tooltip: 'Remover voo',
               color: colorScheme.onSurfaceVariant,
             ),
           ],
@@ -518,7 +593,7 @@ class _ExtraLegSection extends StatelessWidget {
             Expanded(
               child: _CompactFieldBox(
                 icon: Icons.flight_takeoff,
-                value: leg.origin?.label ?? 'From',
+                value: leg.origin?.label ?? 'Origem',
                 onTap: onTapOrigin,
               ),
             ),
@@ -531,7 +606,7 @@ class _ExtraLegSection extends StatelessWidget {
             Expanded(
               child: _CompactFieldBox(
                 icon: Icons.flight_land,
-                value: leg.destination?.label ?? 'To',
+                value: leg.destination?.label ?? 'Destino',
                 onTap: onTapDestination,
               ),
             ),
@@ -590,6 +665,71 @@ class _CompactFieldBox extends StatelessWidget {
   }
 }
 
+/// "Voos | Hotéis" sobre a faixa de marca: o escolhido é preenchido com a
+/// cor do texto da marca (e o rótulo na cor da superfície), o outro fica só
+/// com contorno; o par de cores é o mesmo da faixa, então o contraste vale
+/// nos dois temas.
+class _SearchModeToggle extends StatelessWidget {
+  const _SearchModeToggle({required this.selected, required this.onChanged});
+
+  final _SearchMode selected;
+  final ValueChanged<_SearchMode> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<DbookBrandColors>()!;
+    return Row(
+      children: [
+        for (final mode in _SearchMode.values) ...[
+          Expanded(
+            child: Semantics(
+              button: true,
+              selected: mode == selected,
+              label: mode.label,
+              excludeSemantics: true,
+              child: GestureDetector(
+                onTap: () => onChanged(mode),
+                child: Container(
+                  height: DbookSizes.controlHeight,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: mode == selected ? brand.onSurface : null,
+                    border: Border.all(color: brand.onSurface),
+                    borderRadius: BorderRadius.circular(DbookRadius.full),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        mode.icon,
+                        size: 18,
+                        color: mode == selected
+                            ? brand.surface
+                            : brand.onSurface,
+                      ),
+                      const SizedBox(width: DbookSpacing.xs),
+                      Text(
+                        mode.label,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: mode == selected
+                              ? brand.surface
+                              : brand.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          if (mode != _SearchMode.values.last)
+            const SizedBox(width: DbookSpacing.sm),
+        ],
+      ],
+    );
+  }
+}
+
 /// Round Trip / One Way / Multi-city — três rádios numa linha, sem fundo
 /// próprio (fica sobre a zona azul da tela de busca).
 ///
@@ -611,7 +751,7 @@ class _TripTypeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<DbookBrandColors>()!;
     final textTheme = Theme.of(context).textTheme;
 
     final row = RadioGroup<_TripType>(
@@ -634,9 +774,7 @@ class _TripTypeRow extends StatelessWidget {
                     children: [
                       Radio<_TripType>(
                         value: type,
-                        fillColor: WidgetStatePropertyAll(
-                          colorScheme.onPrimary,
-                        ),
+                        fillColor: WidgetStatePropertyAll(brand.onSurface),
                         visualDensity: VisualDensity.compact,
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
@@ -644,7 +782,9 @@ class _TripTypeRow extends StatelessWidget {
                       Text(
                         type.label,
                         style: textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onPrimary,
+                          color: selected == type
+                              ? brand.onSurface
+                              : brand.onSurfaceMuted,
                           fontWeight: selected == type
                               ? FontWeight.w600
                               : FontWeight.normal,
@@ -660,7 +800,16 @@ class _TripTypeRow extends StatelessWidget {
     );
 
     if (enabled) return row;
-    return IgnorePointer(child: Opacity(opacity: 0.5, child: row));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        IgnorePointer(child: row),
+        Text(
+          'Só ida e vários destinos: em breve',
+          style: textTheme.bodySmall?.copyWith(color: brand.onSurfaceMuted),
+        ),
+      ],
+    );
   }
 }
 
@@ -676,12 +825,12 @@ class _HomeHeroBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<DbookBrandColors>()!;
     final textTheme = Theme.of(context).textTheme;
 
     return AppBar(
-      backgroundColor: colorScheme.primary,
-      foregroundColor: colorScheme.onPrimary,
+      backgroundColor: brand.surface,
+      foregroundColor: brand.onSurface,
       elevation: 0,
       toolbarHeight: 72,
       actions: actions,
@@ -691,14 +840,10 @@ class _HomeHeroBar extends StatelessWidget implements PreferredSizeWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: colorScheme.onPrimary.withValues(alpha: 0.2),
+              color: brand.onSurface.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(DbookRadius.md),
             ),
-            child: Icon(
-              Icons.flight_takeoff,
-              color: colorScheme.onPrimary,
-              size: 20,
-            ),
+            child: Icon(Icons.flight_takeoff, color: brand.onSurface, size: 20),
           ),
           const SizedBox(width: DbookSpacing.sm),
           Column(
@@ -708,14 +853,14 @@ class _HomeHeroBar extends StatelessWidget implements PreferredSizeWidget {
               Text(
                 'DBook',
                 style: textTheme.titleMedium?.copyWith(
-                  color: colorScheme.onPrimary,
+                  color: brand.onSurface,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
-                'Book Smarter, Travel Happier',
+                'Reserve melhor, viaje mais feliz',
                 style: textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onPrimary.withValues(alpha: 0.75),
+                  color: brand.onSurfaceMuted,
                 ),
               ),
             ],

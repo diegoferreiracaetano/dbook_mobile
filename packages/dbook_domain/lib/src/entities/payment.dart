@@ -13,5 +13,12 @@ abstract class Payment with _$Payment {
     required String cardLast4,
     required List<int> bookingIds,
     required String status,
+
+    /// Antes do desconto e o desconto aplicado (código promocional); `null`
+    /// em pagamentos anteriores ao M39 do backend. [amount] é o que foi
+    /// **cobrado** (`subtotal − discount`).
+    double? subtotal,
+    double? discount,
+    String? promoCode,
   }) = _Payment;
 }

@@ -80,15 +80,57 @@ MyBooking _myBooking({
   seat: _seat,
 );
 
+/// Reserva ainda não paga: o servidor responde "é só cancelar".
+class _FakeRefundRepository implements RefundRepository {
+  @override
+  Future<CancellationPolicy> policy(int bookingId) async => CancellationPolicy(
+    bookingId: bookingId,
+    action: CancellationAction.cancel,
+  );
+
+  @override
+  Future<RefundRequestResult> request(
+    int bookingId, {
+    required String idempotencyKey,
+  }) => throw UnimplementedError();
+}
+
+class _FakeReviews implements ReviewRepository {
+  final created = <(int, int, String)>[];
+
+  @override
+  Future<Review> create({
+    required int bookingId,
+    required int rating,
+    required String comment,
+  }) async {
+    created.add((bookingId, rating, comment));
+    return Review(
+      id: 1,
+      bookingId: bookingId,
+      customerId: 7,
+      rating: rating,
+      comment: comment,
+      createdAt: DateTime(2026, 10, 9),
+    );
+  }
+}
+
 Widget _wrap(
   BookingRepository bookingRepository, {
   List<Destination> destinations = const [],
+  void Function(PaidItem item)? onPay,
+  ReviewRepository? reviews,
 }) {
   return ProviderScope(
-    overrides: [bookingRepositoryProvider.overrideWithValue(bookingRepository)],
+    overrides: [
+      bookingRepositoryProvider.overrideWithValue(bookingRepository),
+      refundRepositoryProvider.overrideWithValue(_FakeRefundRepository()),
+      if (reviews != null) reviewRepositoryProvider.overrideWithValue(reviews),
+    ],
     child: MaterialApp(
       theme: DbookTheme.light,
-      home: MyBookingsPage(destinations: destinations),
+      home: MyBookingsPage(destinations: destinations, onPay: onPay),
     ),
   );
 }
@@ -114,12 +156,13 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('GRU → MAD'), findsOneWidget);
-      expect(find.text('Cancel Booking'), findsOneWidget);
+      expect(find.text('Cancelar reserva'), findsOneWidget);
     },
   );
 
   testWidgetsWithMockImages(
-    'given a confirmed booking when built then shows no cancel action',
+    'given a paid upcoming booking when built then offers the cancel/refund '
+    'action (the sheet shows what the server allows)',
     (tester) async {
       await tester.pumpWidget(
         _wrap(
@@ -130,7 +173,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Cancel Booking'), findsNothing);
+      expect(find.text('Cancelar reserva'), findsOneWidget);
     },
   );
 
@@ -197,9 +240,15 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Cancel Booking'));
+      await tester.tap(find.text('Cancelar reserva'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Cancel Booking').last);
+      await tester.tap(find.text('Cancelar reserva').last);
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Reserva cancelada. O assento foi liberado.'),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('Fechar'));
       await tester.pumpAndSettle();
 
       // Uma reserva cancelada não é mais uma viagem "a caminho" — some de
@@ -228,12 +277,15 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Cancel Booking'));
+      await tester.tap(find.text('Cancelar reserva'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Cancel Booking').last);
+      await tester.tap(find.text('Cancelar reserva').last);
       await tester.pumpAndSettle();
 
-      expect(find.text('Not your booking'), findsOneWidget);
+      expect(
+        find.text('Não foi possível concluir agora. Tente de novo.'),
+        findsOneWidget,
+      );
       expect(find.text('Pendente'), findsOneWidget);
     },
   );
@@ -260,6 +312,109 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(Image), findsOneWidget);
+    },
+  );
+
+  testWidgetsWithMockImages(
+    'given a pending booking when tapping Pagar agora then hands the booking '
+    'to the payment flow with its frozen price',
+    (tester) async {
+      PaidItem? paid;
+      await tester.pumpWidget(
+        _wrap(
+          _FakeBookingRepository(initial: [_myBooking()]),
+          onPay: (item) => paid = item,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Pagar agora'));
+
+      expect(paid!.bookingId, 99);
+      expect(paid!.label, contains('GRU'));
+      expect(paid!.label, contains('3A'));
+    },
+  );
+
+  testWidgetsWithMockImages(
+    'given a confirmed booking when built then there is nothing to pay',
+    (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          _FakeBookingRepository(
+            initial: [_myBooking(status: BookingStatus.confirmed)],
+          ),
+          onPay: (_) {},
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Pagar agora'), findsNothing);
+    },
+  );
+
+  testWidgetsWithMockImages(
+    'given a confirmed booking when reviewing with rating and comment then '
+    'sends the review',
+    (tester) async {
+      final reviews = _FakeReviews();
+      await tester.pumpWidget(
+        _wrap(
+          _FakeBookingRepository(
+            initial: [_myBooking(status: BookingStatus.confirmed)],
+          ),
+          reviews: reviews,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Avaliar'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.star_border).at(3));
+      await tester.pump();
+      await tester.enterText(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.byType(TextField),
+        ),
+        'Voo pontual e atendimento ótimo',
+      );
+      await tester.pump();
+      await tester.tap(find.text('Enviar'));
+      await tester.pumpAndSettle();
+
+      expect(reviews.created, hasLength(1));
+      expect(reviews.created.single.$2, 4);
+      expect(reviews.created.single.$3, 'Voo pontual e atendimento ótimo');
+    },
+  );
+
+  testWidgetsWithMockImages(
+    'given a stays view when choosing Hotéis then shows it instead of the '
+    'flights',
+    (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            bookingRepositoryProvider.overrideWithValue(
+              _FakeBookingRepository(),
+            ),
+          ],
+          child: MaterialApp(
+            theme: DbookTheme.light,
+            home: const MyBookingsPage(staysView: Text('lista de estadias')),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('lista de estadias'), findsNothing);
+      await tester.tap(find.text('Hotéis'));
+      await tester.pumpAndSettle();
+      expect(find.text('lista de estadias'), findsOneWidget);
+      await tester.tap(find.text('Voos'));
+      await tester.pumpAndSettle();
+      expect(find.text('lista de estadias'), findsNothing);
     },
   );
 }

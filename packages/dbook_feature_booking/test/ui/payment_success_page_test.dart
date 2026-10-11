@@ -77,11 +77,11 @@ void main() {
       ),
     );
 
-    expect(find.text('Payment Confirmed!'), findsOneWidget);
-    expect(find.textContaining('GRU → GIG · Seat 12A'), findsOneWidget);
-    expect(find.textContaining('GIG → GRU · Seat 8C'), findsOneWidget);
+    expect(find.text('Pagamento confirmado!'), findsOneWidget);
+    expect(find.textContaining('GRU → GIG · Assento 12A'), findsOneWidget);
+    expect(find.textContaining('GIG → GRU · Assento 8C'), findsOneWidget);
     expect(find.textContaining('\$800.00'), findsOneWidget);
     expect(find.text('#55'), findsOneWidget);
-    expect(find.text('View My Bookings'), findsOneWidget);
+    expect(find.text('Ver minhas viagens'), findsOneWidget);
   });
 }

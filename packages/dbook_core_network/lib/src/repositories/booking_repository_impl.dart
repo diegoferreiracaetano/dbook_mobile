@@ -45,8 +45,11 @@ class BookingRepositoryImpl implements BookingRepository {
   Future<List<MyBooking>> listMine() async {
     try {
       final response = await _dio.get<List<dynamic>>('/bookings');
+      // Reserva de hotel vem na mesma lista, com `flight`/`seat` nulos: ela é
+      // lida por `AccommodationRepository.myStays`, não aqui.
       return response.data!
           .cast<Map<String, dynamic>>()
+          .where((json) => json['flight'] != null && json['seat'] != null)
           .map((json) => MyBookingResponseDto.fromJson(json).toDomain())
           .toList();
     } on DioException catch (error) {

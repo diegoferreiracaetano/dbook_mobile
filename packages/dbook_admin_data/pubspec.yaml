@@ -1,0 +1,20 @@
+name: dbook_admin_data
+description: "Modelos de leitura e repositórios (Dio) do portal administrativo do DBook — Dart puro."
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.13.3
+
+resolution: workspace
+
+dependencies:
+  dbook_core_network:
+    path: ../dbook_core_network
+  dbook_domain:
+    path: ../dbook_domain
+  dio: ^5.9.0
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.6

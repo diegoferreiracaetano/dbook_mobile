@@ -1,0 +1,78 @@
+name: E2E do portal
+
+# Testes de ponta a ponta do portal contra o backend REAL (docker compose +
+# bootRun) num Chrome de verdade. Pesado e dependente do repositório do
+# backend, então não roda em todo push: à noite e sob demanda.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"
+
+env:
+  # senha só de teste: o backend sobe com este SUPER_ADMIN (bootstrap-admin)
+  E2E_ADMIN_EMAIL: e2e-admin@dbook.test
+  E2E_ADMIN_PASSWORD: e2e-admin-senha-longa-123
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Backend (repositório irmão)
+        uses: actions/checkout@v4
+        with:
+          repository: diegoferreiracaetano/dbook
+          token: ${{ secrets.DBOOK_BACKEND_TOKEN }}
+          path: backend
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Postgres e Redis
+        working-directory: backend
+        run: docker compose up -d postgres redis
+
+      - name: Subir o backend
+        working-directory: backend
+        env:
+          DBOOK_BOOTSTRAP_ADMIN_EMAIL: ${{ env.E2E_ADMIN_EMAIL }}
+          DBOOK_BOOTSTRAP_ADMIN_PASSWORD: ${{ env.E2E_ADMIN_PASSWORD }}
+          ADMIN_PORTAL_COOKIE_SECURE: "false"
+        run: |
+          ./gradlew bootRun --no-daemon > ../backend.log 2>&1 &
+          for i in $(seq 1 90); do
+            curl -fs http://localhost:8080/health && break
+            sleep 2
+          done
+          curl -fs http://localhost:8080/health
+
+      - name: Bootstrap do workspace
+        run: flutter pub get
+
+      - name: ChromeDriver
+        uses: nanasess/setup-chromedriver@v2
+
+      - name: Rodar os fluxos
+        working-directory: apps/dbook_admin
+        run: |
+          chromedriver --port=4444 &
+          flutter drive \
+            --driver=test_driver/integration_test.dart \
+            --target=integration_test/portal_flows_test.dart \
+            -d web-server --browser-name=chrome --headless \
+            --dart-define=API_BASE_URL=http://localhost:8080/v1 \
+            --dart-define=E2E_ADMIN_EMAIL=${{ env.E2E_ADMIN_EMAIL }} \
+            --dart-define=E2E_ADMIN_PASSWORD=${{ env.E2E_ADMIN_PASSWORD }}
+
+      - name: Log do backend (se falhou)
+        if: failure()
+        run: tail -n 200 backend.log

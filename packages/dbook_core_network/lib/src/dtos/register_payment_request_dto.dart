@@ -11,6 +11,7 @@ abstract class RegisterPaymentRequestDto with _$RegisterPaymentRequestDto {
     required List<int> bookingIds,
     required String cardLast4,
     required String cardholderName,
+    @JsonKey(includeIfNull: false) String? promoCode,
   }) = _RegisterPaymentRequestDto;
 
   factory RegisterPaymentRequestDto.fromJson(Map<String, dynamic> json) =>

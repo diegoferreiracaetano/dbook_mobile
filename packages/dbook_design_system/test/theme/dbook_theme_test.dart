@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('given DbookTheme.light when built then cardTheme uses the design system radius and elevation', () {
+  test('given DbookTheme.light when built then cardTheme is flat with a hairline border', () {
     final cardTheme = DbookTheme.light.cardTheme;
     final shape = cardTheme.shape! as RoundedRectangleBorder;
 
     expect(shape.borderRadius, BorderRadius.circular(DbookRadius.lg));
-    expect(cardTheme.elevation, DbookElevation.sm);
+    expect(shape.side.color, DbookColorScheme.light.outlineVariant);
+    expect(cardTheme.elevation, DbookElevation.none);
+    expect(cardTheme.color, DbookColorScheme.light.surface);
   });
 
   test('given DbookTheme.light when built then listTileTheme uses the design system radius', () {

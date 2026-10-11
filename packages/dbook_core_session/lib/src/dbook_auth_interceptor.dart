@@ -20,11 +20,16 @@ class DbookAuthInterceptor extends Interceptor {
     required this.tokenStorage,
     required this.authRepository,
     required this.dio,
+    this.onAccountBlocked,
   });
 
   final TokenStorage tokenStorage;
   final AuthRepository authRepository;
   final Dio dio;
+
+  /// Chamado quando o servidor diz que a conta foi bloqueada (`403` com
+  /// `code=ACCOUNT_BLOCKED`, também no meio da sessão).
+  final void Function()? onAccountBlocked;
 
   Future<AuthTokens>? _refreshing;
 
@@ -45,6 +50,12 @@ class DbookAuthInterceptor extends Interceptor {
     DioException err,
     ErrorInterceptorHandler handler,
   ) async {
+    if (err.response?.statusCode == 403) {
+      final body = err.response?.data;
+      if (body is Map && body['code'] == 'ACCOUNT_BLOCKED') {
+        onAccountBlocked?.call();
+      }
+    }
     if (err.response?.statusCode != 401) {
       handler.next(err);
       return;

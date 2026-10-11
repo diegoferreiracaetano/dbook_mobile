@@ -15,6 +15,9 @@ _PaymentResponseDto _$PaymentResponseDtoFromJson(Map<String, dynamic> json) =>
           .map((e) => (e as num).toInt())
           .toList(),
       status: json['status'] as String,
+      subtotal: (json['subtotal'] as num?)?.toDouble(),
+      discount: (json['discount'] as num?)?.toDouble(),
+      promoCode: json['promoCode'] as String?,
     );
 
 Map<String, dynamic> _$PaymentResponseDtoToJson(_PaymentResponseDto instance) =>
@@ -24,4 +27,7 @@ Map<String, dynamic> _$PaymentResponseDtoToJson(_PaymentResponseDto instance) =>
       'cardLast4': instance.cardLast4,
       'bookingIds': instance.bookingIds,
       'status': instance.status,
+      'subtotal': instance.subtotal,
+      'discount': instance.discount,
+      'promoCode': instance.promoCode,
     };

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import 'app_client_info.dart';
+import 'deprecation_interceptor.dart';
 
 /// Monta o `Dio` usado por toda chamada à API do DBook — base URL,
 /// timeouts, a identificação do app ([appClient], mandada em toda
@@ -22,6 +23,8 @@ abstract final class DbookDioClient {
         headers: appClient.headers,
       ),
     );
+
+    dio.interceptors.add(DeprecationInterceptor());
 
     if (logging) {
       dio.interceptors.add(

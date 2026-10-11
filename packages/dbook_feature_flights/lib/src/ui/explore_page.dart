@@ -25,7 +25,7 @@ class ExplorePage extends ConsumerWidget {
     final destinations = ref.watch(featuredDestinationsProvider);
 
     return Scaffold(
-      appBar: const DbookAppBar(title: 'Explore'),
+      appBar: const DbookAppBar(title: 'Explorar'),
       body: switch (destinations) {
         AsyncData(:final value) => _ExploreContent(
           destinations: value,

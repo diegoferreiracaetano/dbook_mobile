@@ -73,5 +73,64 @@ BookingStatus bookingStatusFromWire(String value) => switch (value) {
   'PENDING' => BookingStatus.pending,
   'CONFIRMED' => BookingStatus.confirmed,
   'CANCELLED' => BookingStatus.cancelled,
+  'EXPIRED' => BookingStatus.expired,
+  'REFUNDED' => BookingStatus.refunded,
   _ => _unknown('BookingStatus', value, BookingStatus.unknown),
+};
+
+NotificationType notificationTypeFromWire(String value) => switch (value) {
+  'BOOKING_CONFIRMED' => NotificationType.bookingConfirmed,
+  'BOOKING_EXPIRED' => NotificationType.bookingExpired,
+  'BOOKING_CANCELLED_BY_STAFF' => NotificationType.bookingCancelledByStaff,
+  'REFUND_COMPLETED' => NotificationType.refundCompleted,
+  'FLIGHT_CHANGED' => NotificationType.flightChanged,
+  'PRICE_ALERT' => NotificationType.priceAlert,
+  _ => _unknown('NotificationType', value, NotificationType.unknown),
+};
+
+String notificationTypeToWire(NotificationType type) => switch (type) {
+  NotificationType.bookingConfirmed => 'BOOKING_CONFIRMED',
+  NotificationType.bookingExpired => 'BOOKING_EXPIRED',
+  NotificationType.bookingCancelledByStaff => 'BOOKING_CANCELLED_BY_STAFF',
+  NotificationType.refundCompleted => 'REFUND_COMPLETED',
+  NotificationType.flightChanged => 'FLIGHT_CHANGED',
+  NotificationType.priceAlert => 'PRICE_ALERT',
+  NotificationType.unknown => 'UNKNOWN',
+};
+
+NotificationChannel? notificationChannelFromWire(String value) =>
+    switch (value) {
+      'IN_APP' => NotificationChannel.inApp,
+      'EMAIL' => NotificationChannel.email,
+      'PUSH' => NotificationChannel.push,
+      _ => null,
+    };
+
+String notificationChannelToWire(NotificationChannel channel) =>
+    switch (channel) {
+      NotificationChannel.inApp => 'IN_APP',
+      NotificationChannel.email => 'EMAIL',
+      NotificationChannel.push => 'PUSH',
+    };
+
+CancellationAction cancellationActionFromWire(String value) => switch (value) {
+  'CANCEL' => CancellationAction.cancel,
+  'REFUND_REQUEST' => CancellationAction.refundRequest,
+  'NONE' => CancellationAction.none,
+  _ => _unknown('CancellationAction', value, CancellationAction.none),
+};
+
+CancellationBlock cancellationBlockFromWire(String value) => switch (value) {
+  'WINDOW_CLOSED' => CancellationBlock.windowClosed,
+  'REFUND_IN_PROGRESS' => CancellationBlock.refundInProgress,
+  'ALREADY_REFUNDED' => CancellationBlock.alreadyRefunded,
+  'ALREADY_CANCELLED' => CancellationBlock.alreadyCancelled,
+  _ => _unknown('CancellationBlock', value, CancellationBlock.unknown),
+};
+
+RefundProgress refundProgressFromWire(String value) => switch (value) {
+  'REQUESTED' => RefundProgress.requested,
+  'COMPLETED' => RefundProgress.completed,
+  'FAILED' => RefundProgress.failed,
+  _ => _unknown('RefundProgress', value, RefundProgress.unknown),
 };

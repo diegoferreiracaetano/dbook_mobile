@@ -56,9 +56,9 @@ class DbookPeriodPreset {
 class DbookFilterBar extends StatefulWidget {
   const DbookFilterBar({
     super.key,
-    required this.searchText,
-    required this.onSearchChanged,
     required this.onClearAll,
+    this.searchText = '',
+    this.onSearchChanged,
     this.searchHint = 'Buscar',
     this.debounce = const Duration(milliseconds: 300),
     this.period,
@@ -66,10 +66,14 @@ class DbookFilterBar extends StatefulWidget {
     this.presets,
     this.activeFilters = const [],
     this.today,
+    this.searchFocusNode,
   });
 
   final String searchText;
-  final ValueChanged<String> onSearchChanged;
+
+  /// Sem ela, a barra não mostra o campo de busca (listas que o servidor não
+  /// busca por texto não prometem uma busca).
+  final ValueChanged<String>? onSearchChanged;
   final VoidCallback onClearAll;
   final String searchHint;
   final Duration debounce;
@@ -82,6 +86,9 @@ class DbookFilterBar extends StatefulWidget {
 
   /// "Hoje" para os atalhos; em teste, uma data fixa.
   final DateTime Function()? today;
+
+  /// Para focar a busca de fora (o atalho `/` das listas).
+  final FocusNode? searchFocusNode;
 
   @override
   State<DbookFilterBar> createState() => _DbookFilterBarState();
@@ -120,19 +127,19 @@ class _DbookFilterBarState extends State<DbookFilterBar> {
 
   void _onTyped(String text) {
     _pending?.cancel();
-    _pending = Timer(widget.debounce, () => widget.onSearchChanged(text));
+    _pending = Timer(widget.debounce, () => widget.onSearchChanged?.call(text));
     setState(() {});
   }
 
   void _submit(String text) {
     _pending?.cancel();
-    widget.onSearchChanged(text);
+    widget.onSearchChanged?.call(text);
   }
 
   void _clearSearch() {
     _pending?.cancel();
     _controller.clear();
-    widget.onSearchChanged('');
+    widget.onSearchChanged?.call('');
     setState(() {});
   }
 
@@ -143,7 +150,8 @@ class _DbookFilterBarState extends State<DbookFilterBar> {
       runSpacing: DbookSpacing.sm,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        SizedBox(width: _searchWidth, child: _searchField()),
+        if (widget.onSearchChanged != null)
+          SizedBox(width: _searchWidth, child: _searchField()),
         if (widget.onPeriodChanged != null) _periodMenu(context),
         for (final filter in widget.activeFilters)
           InputChip(
@@ -167,6 +175,7 @@ class _DbookFilterBarState extends State<DbookFilterBar> {
   Widget _searchField() {
     return TextField(
       controller: _controller,
+      focusNode: widget.searchFocusNode,
       onChanged: _onTyped,
       onSubmitted: _submit,
       textInputAction: TextInputAction.search,

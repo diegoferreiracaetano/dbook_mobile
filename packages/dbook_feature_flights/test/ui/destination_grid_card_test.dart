@@ -1,3 +1,4 @@
+import 'package:dbook_core_network/dbook_core_network.dart';
 import 'package:dbook_design_system/dbook_design_system.dart';
 import 'package:dbook_domain/dbook_domain.dart';
 import 'package:dbook_feature_flights/dbook_feature_flights.dart';
@@ -21,6 +22,24 @@ Widget _app(Widget home) {
   return ProviderScope(
     child: MaterialApp(theme: DbookTheme.light, home: home),
   );
+}
+
+class _FakeFavorites implements FavoriteRepository {
+  final saved = <String>{};
+  var failOnAdd = false;
+
+  @override
+  Future<Set<String>> destinations() async => {...saved};
+
+  @override
+  Future<void> addDestination(String iataCode) async {
+    if (failOnAdd) throw const DbookConflictException('limite');
+    saved.add(iataCode);
+  }
+
+  @override
+  Future<void> removeDestination(String iataCode) async =>
+      saved.remove(iataCode);
 }
 
 class _FixedSearchOrigin extends SearchOriginNotifier {
@@ -78,7 +97,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('from \$450'), findsOneWidget);
+      expect(find.text('a partir de \$450'), findsOneWidget);
     },
   );
 
@@ -92,32 +111,69 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.favorite_border), findsOneWidget);
-      expect(find.textContaining('from \$'), findsNothing);
+      expect(find.textContaining('a partir de \$'), findsNothing);
     },
   );
 
   testWidgetsWithMockImages(
-    'given the favorite button when tapped then it toggles filled and '
-    'persists',
+    'given a signed-in user when tapping the favorite then it fills and the '
+    'server is told',
     (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final fake = _FakeFavorites();
       await tester.pumpWidget(
-        _app(Scaffold(body: DestinationCard(destination: _destination))),
+        ProviderScope(
+          overrides: [
+            isLoggedInProvider.overrideWithValue(true),
+            favoriteRepositoryProvider.overrideWithValue(fake),
+          ],
+          child: MaterialApp(
+            theme: DbookTheme.light,
+            home: const Scaffold(
+              body: DestinationCard(destination: _destination),
+            ),
+          ),
+        ),
       );
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.favorite_border), findsOneWidget);
-      expect(find.byIcon(Icons.favorite), findsNothing);
 
       await tester.tap(find.byIcon(Icons.favorite_border));
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.favorite), findsOneWidget);
-      expect(find.byIcon(Icons.favorite_border), findsNothing);
+      expect(fake.saved, {'GRU'});
+    },
+  );
 
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getStringList('favorite_destination_iata_codes'), [
-        _destination.iataCode,
-      ]);
+  testWidgetsWithMockImages(
+    'given the server refuses when tapping the favorite then it goes back to '
+    'empty',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final fake = _FakeFavorites()..failOnAdd = true;
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            isLoggedInProvider.overrideWithValue(true),
+            favoriteRepositoryProvider.overrideWithValue(fake),
+          ],
+          child: MaterialApp(
+            theme: DbookTheme.light,
+            home: const Scaffold(
+              body: DestinationCard(destination: _destination),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.favorite_border));
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.favorite_border), findsOneWidget);
+      expect(find.byIcon(Icons.favorite), findsNothing);
     },
   );
 

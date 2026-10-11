@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../tokens/dbook_radius.dart';
+import 'dbook_airline_logo.dart';
 import '../tokens/dbook_spacing.dart';
 
 /// Linha de resultado de busca de voo — companhia, horários de
@@ -17,10 +18,11 @@ class DbookFlightResultTile extends StatelessWidget {
     required this.durationLabel,
     required this.price,
     this.airlineIataCode,
+    this.airlineLogoUrl,
     this.airlineColor,
     this.airlineIcon = Icons.flight,
     this.flightNumber,
-    this.stopsLabel = 'Nonstop',
+    this.stopsLabel = 'Direto',
     this.aircraftType,
     this.selected = false,
     this.onTap,
@@ -38,6 +40,9 @@ class DbookFlightResultTile extends StatelessWidget {
   /// com o código IATA da companhia (ex.: referência visual real de apps de
   /// busca de voo) em vez do ícone genérico de avião.
   final String? airlineIataCode;
+
+  /// Logo que o servidor mandou para a companhia; sem ele (ou se falhar) vale o selo com o código.
+  final String? airlineLogoUrl;
   final Color? airlineColor;
   final IconData airlineIcon;
   final String departureTime;
@@ -76,6 +81,7 @@ class DbookFlightResultTile extends StatelessWidget {
               _AirlineBadge(
                 iataCode: airlineIataCode,
                 color: airlineColor,
+                logoUrl: airlineLogoUrl,
                 icon: airlineIcon,
               ),
               const SizedBox(width: DbookSpacing.sm),
@@ -176,10 +182,12 @@ class _AirlineBadge extends StatelessWidget {
     required this.iataCode,
     required this.color,
     required this.icon,
+    this.logoUrl,
   });
 
   final String? iataCode;
   final Color? color;
+  final String? logoUrl;
   final IconData icon;
 
   @override
@@ -198,19 +206,10 @@ class _AirlineBadge extends StatelessWidget {
       );
     }
 
-    return Container(
-      width: 36,
-      height: 36,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(DbookRadius.sm),
-      ),
-      child: Text(
-        iataCode!,
-        style: Theme.of(context).textTheme.labelMedium
-            ?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
-      ),
+    return DbookAirlineLogo(
+      iataCode: iataCode!,
+      color: color!,
+      logoUrl: logoUrl,
     );
   }
 }

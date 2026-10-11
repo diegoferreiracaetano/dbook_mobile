@@ -40,4 +40,24 @@ void main() {
       expect(avatars[0].radius, lessThan(avatars[1].radius!));
     },
   );
+
+  testWidgets('given custom colors when built then uses them instead of the '
+      'theme container colors', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: DbookTheme.dark,
+        home: const Scaffold(
+          body: DbookAvatar(
+            initials: 'MA',
+            backgroundColor: Color(0xFFFFFFFF),
+            foregroundColor: Color(0xFF074599),
+          ),
+        ),
+      ),
+    );
+
+    final avatar = tester.widget<CircleAvatar>(find.byType(CircleAvatar));
+    expect(avatar.backgroundColor, const Color(0xFFFFFFFF));
+    expect(avatar.foregroundColor, const Color(0xFF074599));
+  });
 }

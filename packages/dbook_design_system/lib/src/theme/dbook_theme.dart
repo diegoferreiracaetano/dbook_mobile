@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../tokens/dbook_colors.dart';
 import '../tokens/dbook_elevation.dart';
 import '../tokens/dbook_radius.dart';
+import '../tokens/dbook_sizes.dart';
 import '../tokens/dbook_spacing.dart';
 import '../tokens/dbook_typography.dart';
 
@@ -13,16 +14,19 @@ abstract final class DbookTheme {
   static ThemeData get light => _theme(
     colorScheme: DbookColorScheme.light,
     statusColors: DbookStatusColors.light,
+    brandColors: DbookBrandColors.light,
   );
 
   static ThemeData get dark => _theme(
     colorScheme: DbookColorScheme.dark,
     statusColors: DbookStatusColors.dark,
+    brandColors: DbookBrandColors.dark,
   );
 
   static ThemeData _theme({
     required ColorScheme colorScheme,
     required DbookStatusColors statusColors,
+    required DbookBrandColors brandColors,
   }) {
     final textTheme = DbookTypography.textTheme.apply(
       bodyColor: colorScheme.onSurface,
@@ -36,13 +40,15 @@ abstract final class DbookTheme {
       horizontal: DbookSpacing.xl,
       vertical: DbookSpacing.md,
     );
+    // Altura mínima de toda ação: botão baixo demais é alvo de toque ruim.
+    const buttonMinimum = Size(64, DbookSizes.controlHeight);
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
       textTheme: textTheme,
       scaffoldBackgroundColor: colorScheme.surface,
-      extensions: [statusColors],
+      extensions: [statusColors, brandColors],
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: colorScheme.primary,
@@ -55,6 +61,7 @@ abstract final class DbookTheme {
           ),
           shape: buttonShape,
           padding: buttonPadding,
+          minimumSize: buttonMinimum,
           textStyle: textTheme.labelLarge,
         ),
       ),
@@ -62,6 +69,7 @@ abstract final class DbookTheme {
         style: OutlinedButton.styleFrom(
           shape: buttonShape,
           padding: buttonPadding,
+          minimumSize: buttonMinimum,
           textStyle: textTheme.labelLarge,
           side: BorderSide(color: colorScheme.primary),
         ),
@@ -70,6 +78,7 @@ abstract final class DbookTheme {
         style: TextButton.styleFrom(
           shape: buttonShape,
           padding: buttonPadding,
+          minimumSize: buttonMinimum,
           textStyle: textTheme.labelLarge,
         ),
       ),
@@ -88,27 +97,27 @@ abstract final class DbookTheme {
           vertical: DbookSpacing.md,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(DbookRadius.xs),
+          borderRadius: BorderRadius.circular(DbookRadius.md),
           borderSide: BorderSide(color: colorScheme.outline),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(DbookRadius.xs),
+          borderRadius: BorderRadius.circular(DbookRadius.md),
           borderSide: BorderSide(color: colorScheme.outline),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(DbookRadius.xs),
+          borderRadius: BorderRadius.circular(DbookRadius.md),
           borderSide: BorderSide(color: colorScheme.primary, width: 1.6),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(DbookRadius.xs),
+          borderRadius: BorderRadius.circular(DbookRadius.md),
           borderSide: BorderSide(color: colorScheme.error),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(DbookRadius.xs),
+          borderRadius: BorderRadius.circular(DbookRadius.md),
           borderSide: BorderSide(color: colorScheme.error, width: 1.6),
         ),
         disabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(DbookRadius.xs),
+          borderRadius: BorderRadius.circular(DbookRadius.md),
           borderSide: BorderSide(color: colorScheme.outlineVariant),
         ),
       ),
@@ -119,11 +128,16 @@ abstract final class DbookTheme {
         headerBackgroundColor: colorScheme.primary,
         headerForegroundColor: colorScheme.onPrimary,
       ),
+      // Cartão plano com contorno: a hierarquia vem da superfície e da borda,
+      // não de sombra (que, sobre branco, só suja). Regra de forma do DBook:
+      // botões e chips em pílula, campos `md`, cartões e folhas `lg`.
       cardTheme: CardThemeData(
-        elevation: DbookElevation.sm,
-        color: colorScheme.surfaceContainerLow,
+        elevation: DbookElevation.none,
+        color: colorScheme.surface,
+        surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(DbookRadius.lg),
+          side: BorderSide(color: colorScheme.outlineVariant),
         ),
         margin: EdgeInsets.zero,
       ),

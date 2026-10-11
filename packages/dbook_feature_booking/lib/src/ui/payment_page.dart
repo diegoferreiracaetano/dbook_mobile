@@ -1,4 +1,5 @@
 import 'package:dbook_design_system/dbook_design_system.dart';
+import 'package:dbook_domain/dbook_domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -6,6 +7,8 @@ import 'package:intl/intl.dart';
 import '../booked_leg.dart';
 import '../state/booking_providers.dart';
 import '../state/payment_state.dart';
+import '../state/promo_notifier.dart';
+import '../state/promo_state.dart';
 
 final _priceFormat = NumberFormat.currency(symbol: r'$');
 final _cardNumberDigits = RegExp(r'\D');
@@ -17,9 +20,17 @@ final _cardNumberDigits = RegExp(r'\D');
 /// mostra o preço real de cada voo (já em memória, sem fetch novo) — sem
 /// taxa/imposto fictício, que não existe no backend.
 class PaymentPage extends ConsumerStatefulWidget {
-  const PaymentPage({super.key, required this.bookedLegs, this.onPaid});
+  const PaymentPage({
+    super.key,
+    this.bookedLegs = const [],
+    this.items = const [],
+    this.onPaid,
+  });
 
   final List<BookedLeg> bookedLegs;
+
+  /// Itens que não são voo (hotel), pagos junto com [bookedLegs].
+  final List<PaidItem> items;
   final void Function(PaymentPaid state)? onPaid;
 
   @override
@@ -32,9 +43,42 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
   final _cardNumberController = TextEditingController();
   final _expiryController = TextEditingController();
   final _cvvController = TextEditingController();
+  final _promoController = TextEditingController();
+  final _promoFocus = FocusNode();
 
-  double get _total =>
-      widget.bookedLegs.fold(0, (sum, leg) => sum + leg.flight.price);
+  /// O valor das reservas (o servidor cobra `Booking.price`, congelado).
+  double get _subtotal =>
+      widget.bookedLegs.fold<double>(0, (sum, leg) => sum + leg.flight.price) +
+      widget.items.fold<double>(0, (sum, item) => sum + item.price);
+
+  List<int> get _bookingIds => [
+    ...widget.bookedLegs.map((leg) => leg.booking.id),
+    ...widget.items.map((item) => item.bookingId),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    // valida o código ao sair do campo
+    _promoFocus.addListener(() {
+      if (!_promoFocus.hasFocus) _validatePromo();
+    });
+  }
+
+  void _validatePromo() {
+    final current = ref.read(promoNotifierProvider);
+    final text = _promoController.text.trim();
+    if (current is PromoApplied &&
+        current.preview.code.toLowerCase() == text.toLowerCase()) {
+      return;
+    }
+    ref.read(promoNotifierProvider.notifier).validate(text, _bookingIds);
+  }
+
+  void _removePromo() {
+    _promoController.clear();
+    ref.read(promoNotifierProvider.notifier).remove();
+  }
 
   @override
   void dispose() {
@@ -42,6 +86,8 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
     _cardNumberController.dispose();
     _expiryController.dispose();
     _cvvController.dispose();
+    _promoController.dispose();
+    _promoFocus.dispose();
     super.dispose();
   }
 
@@ -50,12 +96,16 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
     if (!isFormValid) return;
 
     final digits = _cardNumberController.text.replaceAll(_cardNumberDigits, '');
+    // só vai o código que o servidor já previu como válido: um código recusado
+    // não bloqueia o pagamento, mas também não vai junto
+    final promo = ref.read(promoNotifierProvider);
     ref
         .read(paymentNotifierProvider.notifier)
         .pay(
-          bookingIds: widget.bookedLegs.map((leg) => leg.booking.id).toList(),
+          bookingIds: _bookingIds,
           cardLast4: digits.substring(digits.length - 4),
           cardholderName: _cardholderNameController.text.trim(),
+          promoCode: promo is PromoApplied ? promo.preview.code : null,
         );
   }
 
@@ -67,9 +117,12 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
 
     final state = ref.watch(paymentNotifierProvider);
     final isSubmitting = state is PaymentSubmitting;
+    final promo = ref.watch(promoNotifierProvider);
+    // o total a pagar é o que o servidor previu; sem código, a soma das reservas
+    final total = promo is PromoApplied ? promo.preview.total : _subtotal;
 
     return Scaffold(
-      appBar: const DbookAppBar(title: 'Review & Pay'),
+      appBar: const DbookAppBar(title: 'Revisar e pagar'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(DbookSpacing.lg),
         child: Form(
@@ -77,10 +130,24 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _OrderSummary(bookedLegs: widget.bookedLegs, total: _total),
+              _OrderSummary(
+                bookedLegs: widget.bookedLegs,
+                items: widget.items,
+                subtotal: _subtotal,
+                promo: promo is PromoApplied ? promo.preview : null,
+                total: total,
+              ),
+              const SizedBox(height: DbookSpacing.lg),
+              _PromoSection(
+                controller: _promoController,
+                focusNode: _promoFocus,
+                state: promo,
+                onApply: _validatePromo,
+                onRemove: _removePromo,
+              ),
               const SizedBox(height: DbookSpacing.xl),
               Text(
-                'Card Information',
+                'Dados do cartão',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: DbookSpacing.md),
@@ -88,7 +155,7 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
                 controller: _cardholderNameController,
                 autofillHints: const [AutofillHints.creditCardName],
                 decoration: const InputDecoration(
-                  labelText: 'Cardholder name',
+                  labelText: 'Nome no cartão',
                   hintText: 'Jane Doe',
                 ),
                 validator: _PaymentValidators.cardholderName,
@@ -104,7 +171,7 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
                 // teste aqui é só uma conveniência pra quem for testar o
                 // fluxo, não uma promessa de cobrança de verdade.
                 decoration: const InputDecoration(
-                  labelText: 'Card number',
+                  labelText: 'Número do cartão',
                   hintText: '4242 4242 4242 4242',
                 ),
                 validator: _PaymentValidators.cardNumber,
@@ -147,7 +214,7 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
               ],
               const SizedBox(height: DbookSpacing.xl),
               DbookButton(
-                label: 'Pay ${_priceFormat.format(_total)}',
+                label: 'Pagar ${_priceFormat.format(total)}',
                 isLoading: isSubmitting,
                 onPressed: isSubmitting ? null : _submit,
               ),
@@ -160,9 +227,18 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
 }
 
 class _OrderSummary extends StatelessWidget {
-  const _OrderSummary({required this.bookedLegs, required this.total});
+  const _OrderSummary({
+    required this.bookedLegs,
+    required this.items,
+    required this.subtotal,
+    required this.promo,
+    required this.total,
+  });
 
   final List<BookedLeg> bookedLegs;
+  final List<PaidItem> items;
+  final double subtotal;
+  final PromoPreview? promo;
   final double total;
 
   @override
@@ -179,18 +255,37 @@ class _OrderSummary extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Order Summary', style: textTheme.titleMedium),
+          Text('Resumo do pedido', style: textTheme.titleMedium),
           const SizedBox(height: DbookSpacing.md),
           for (final leg in bookedLegs) ...[
             _OrderSummaryLine(
               label:
                   '${leg.flight.originIataCode} → '
-                  '${leg.flight.destinationIataCode} · Seat ${leg.seat.label}',
+                  '${leg.flight.destinationIataCode} · Assento ${leg.seat.label}',
               value: _priceFormat.format(leg.flight.price),
             ),
             const SizedBox(height: DbookSpacing.sm),
           ],
+          for (final item in items) ...[
+            _OrderSummaryLine(
+              label: item.label,
+              value: _priceFormat.format(item.price),
+            ),
+            const SizedBox(height: DbookSpacing.sm),
+          ],
           const Divider(),
+          if (promo != null) ...[
+            _OrderSummaryLine(
+              label: 'Subtotal',
+              value: _priceFormat.format(promo!.subtotal),
+            ),
+            const SizedBox(height: DbookSpacing.sm),
+            _OrderSummaryLine(
+              label: 'Desconto (${promo!.code})',
+              value: '-${_priceFormat.format(promo!.discount)}',
+            ),
+            const SizedBox(height: DbookSpacing.sm),
+          ],
           _OrderSummaryLine(
             label: 'Total',
             value: _priceFormat.format(total),
@@ -260,5 +355,91 @@ abstract final class _PaymentValidators {
       return 'CVV inválido';
     }
     return null;
+  }
+}
+
+/// Campo do código promocional: valida ao sair do campo, mostra o selo
+/// "aplicado" (removível) ou o motivo da recusa. Mostra o que o servidor
+/// previu; quem decide o desconto é o pagamento.
+class _PromoSection extends StatelessWidget {
+  const _PromoSection({
+    required this.controller,
+    required this.focusNode,
+    required this.state,
+    required this.onApply,
+    required this.onRemove,
+  });
+
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final PromoState state;
+  final VoidCallback onApply;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    if (state case PromoApplied(:final preview)) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: InputChip(
+          avatar: const Icon(Icons.local_offer_outlined, size: 18),
+          label: Text('${preview.code} aplicado'),
+          onDeleted: onRemove,
+          deleteButtonTooltipMessage: 'Remover o código ${preview.code}',
+        ),
+      );
+    }
+
+    final validating = state is PromoValidating;
+    final rejected = state is PromoRejected ? state as PromoRejected : null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: TextField(
+                controller: controller,
+                focusNode: focusNode,
+                enabled: !validating,
+                textCapitalization: TextCapitalization.characters,
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) => onApply(),
+                decoration: InputDecoration(
+                  labelText: 'Código promocional',
+                  errorText: rejected?.reason,
+                ),
+              ),
+            ),
+            const SizedBox(width: DbookSpacing.sm),
+            Padding(
+              padding: const EdgeInsets.only(top: DbookSpacing.xs),
+              child: validating
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : TextButton(
+                      onPressed: onApply,
+                      child: const Text('Aplicar'),
+                    ),
+            ),
+          ],
+        ),
+        if (rejected != null)
+          Padding(
+            padding: const EdgeInsets.only(top: DbookSpacing.xs),
+            child: Text(
+              'O pagamento segue sem o código.',
+              style: theme.textTheme.bodySmall,
+            ),
+          ),
+      ],
+    );
   }
 }

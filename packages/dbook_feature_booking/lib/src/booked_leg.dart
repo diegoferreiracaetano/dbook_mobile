@@ -7,3 +7,8 @@ import 'package:dbook_domain/dbook_domain.dart';
 /// própria, porque é só os três dados já existentes juntos, sem
 /// comportamento novo.
 typedef BookedLeg = ({Booking booking, Flight flight, Seat seat});
+
+/// Um item pago que não é voo (hoje, a estadia num hotel). O chamador entrega
+/// o rótulo já pronto e o valor que o servidor congelou na reserva; a revisão
+/// só soma e lista.
+typedef PaidItem = ({int bookingId, String label, double price});

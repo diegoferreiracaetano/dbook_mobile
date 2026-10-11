@@ -29,6 +29,14 @@ final paymentRepositoryProvider = Provider<PaymentRepository>(
   (ref) => PaymentRepositoryImpl(ref.watch(dioProvider)),
 );
 
+final refundRepositoryProvider = Provider<RefundRepository>(
+  (ref) => RefundRepositoryImpl(ref.watch(dioProvider)),
+);
+
+final promoRepositoryProvider = Provider<PromoRepository>(
+  (ref) => PromoRepositoryImpl(ref.watch(dioProvider)),
+);
+
 final idempotencyKeyGeneratorProvider = Provider<String Function()>(
   (ref) => generateIdempotencyKey,
 );

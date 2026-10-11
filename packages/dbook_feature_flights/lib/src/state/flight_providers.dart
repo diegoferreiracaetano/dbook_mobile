@@ -70,3 +70,17 @@ final prefillDestinationProvider =
     NotifierProvider<PrefillDestinationNotifier, Destination?>(
       PrefillDestinationNotifier.new,
     );
+
+/// Código do aeroporto de origem que o cliente escolheu nas preferências da
+/// conta (vem do servidor, via o app). A Home o usa para pré-preencher a
+/// origem; `null` deixa o campo em branco, como antes.
+class HomeAirportNotifier extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void set(String? code) => state = code;
+}
+
+final homeAirportProvider = NotifierProvider<HomeAirportNotifier, String?>(
+  HomeAirportNotifier.new,
+);

@@ -116,7 +116,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(DbookSeatCell), findsNWidgets(2));
-    expect(find.text('Select a seat'), findsOneWidget);
+    expect(find.text('Escolha um assento'), findsOneWidget);
   });
 
   testWidgets(
@@ -136,7 +136,7 @@ void main() {
       await tester.tap(find.byType(DbookSeatCell).first);
       await tester.pump();
 
-      expect(find.text('Book Seat 3A'), findsOneWidget);
+      expect(find.text('Reservar assento 3A'), findsOneWidget);
     },
   );
 
@@ -167,9 +167,9 @@ void main() {
 
       await tester.tap(find.byType(DbookSeatCell).first);
       await tester.pump();
-      await tester.tap(find.text('Book Seat 3A'));
+      await tester.tap(find.text('Reservar assento 3A'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Book'));
+      await tester.tap(find.text('Reservar'));
       await tester.pumpAndSettle();
 
       expect(bookedBooking?.id, 99);
@@ -196,9 +196,9 @@ void main() {
 
       await tester.tap(find.byType(DbookSeatCell).first);
       await tester.pump();
-      await tester.tap(find.text('Book Seat 3A'));
+      await tester.tap(find.text('Reservar assento 3A'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Book'));
+      await tester.tap(find.text('Reservar'));
       await tester.pumpAndSettle();
 
       expect(find.text('Seat no longer available'), findsOneWidget);

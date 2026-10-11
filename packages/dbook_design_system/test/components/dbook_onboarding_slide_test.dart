@@ -14,11 +14,11 @@ void main() {
           home: Scaffold(
             body: DbookOnboardingSlide(
               background: const ColoredBox(color: Colors.blue),
-              title: 'Discover New Horizons',
+              title: 'Descubra novos horizontes',
               subtitle: 'Find and book the best flights.',
               pageCount: 3,
               currentIndex: 0,
-              primaryActionLabel: 'Next',
+              primaryActionLabel: 'Avançar',
               onPrimaryAction: () => primaryCount++,
               onSkip: () => skipCount++,
             ),
@@ -26,13 +26,13 @@ void main() {
         ),
       );
 
-      expect(find.text('Discover New Horizons'), findsOneWidget);
-      expect(find.text('Skip'), findsOneWidget);
+      expect(find.text('Descubra novos horizontes'), findsOneWidget);
+      expect(find.text('Pular'), findsOneWidget);
 
-      await tester.tap(find.text('Skip'));
+      await tester.tap(find.text('Pular'));
       expect(skipCount, 1);
 
-      await tester.tap(find.text('Next'));
+      await tester.tap(find.text('Avançar'));
       expect(primaryCount, 1);
     },
   );
@@ -45,18 +45,18 @@ void main() {
         home: Scaffold(
           body: DbookOnboardingSlide(
             background: const ColoredBox(color: Colors.blue),
-            title: 'Travel Your Way',
+            title: 'Viaje do seu jeito',
             subtitle: 'Flexible options, secure booking.',
             pageCount: 3,
             currentIndex: 2,
-            primaryActionLabel: 'Get Started',
+            primaryActionLabel: 'Começar',
             onPrimaryAction: () {},
           ),
         ),
       ),
     );
 
-    expect(find.text('Skip'), findsNothing);
-    expect(find.text('Get Started'), findsOneWidget);
+    expect(find.text('Pular'), findsNothing);
+    expect(find.text('Começar'), findsOneWidget);
   });
 }

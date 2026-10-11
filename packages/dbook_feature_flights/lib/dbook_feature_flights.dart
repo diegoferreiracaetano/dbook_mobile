@@ -8,6 +8,7 @@ export 'src/state/favorite_destinations_notifier.dart';
 export 'src/state/flight_providers.dart';
 export 'src/state/flight_search_notifier.dart';
 export 'src/state/flight_search_state.dart';
+export 'src/ui/airport_picker_sheet.dart';
 export 'src/ui/destination_grid_card.dart';
 export 'src/ui/destinations_by_region.dart';
 export 'src/ui/explore_page.dart';
@@ -16,3 +17,8 @@ export 'src/ui/flight_results_page.dart';
 export 'src/ui/flight_search_page.dart';
 export 'src/ui/region_carousel.dart';
 export 'src/ui/region_destinations_page.dart';
+export 'src/state/destination_reviews_notifier.dart'
+    show ownReviewIdsProvider, isLoggedInProvider;
+export 'src/ui/destination_detail_page.dart';
+export 'src/state/price_providers.dart' show priceAlertsNotifierProvider;
+export 'src/ui/price_alerts_page.dart';

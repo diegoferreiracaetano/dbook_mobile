@@ -15,6 +15,9 @@ abstract class PaymentResponseDto with _$PaymentResponseDto {
     required String cardLast4,
     required List<int> bookingIds,
     required String status,
+    double? subtotal,
+    double? discount,
+    String? promoCode,
   }) = _PaymentResponseDto;
 
   factory PaymentResponseDto.fromJson(Map<String, dynamic> json) =>
@@ -26,5 +29,8 @@ abstract class PaymentResponseDto with _$PaymentResponseDto {
     cardLast4: cardLast4,
     bookingIds: bookingIds,
     status: status,
+    subtotal: subtotal,
+    discount: discount,
+    promoCode: promoCode,
   );
 }

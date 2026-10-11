@@ -1,0 +1,57 @@
+name: dbook_admin
+description: "Portal administrativo do DBook (Flutter Web): equipe, clientes, reservas, catálogo e painel."
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.3
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+  dbook_admin_data:
+    path: ../../packages/dbook_admin_data
+  dbook_admin_l10n:
+    path: ../../packages/dbook_admin_l10n
+  dbook_admin_session:
+    path: ../../packages/dbook_admin_session
+  dbook_core_network:
+    path: ../../packages/dbook_core_network
+  dbook_design_system:
+    path: ../../packages/dbook_design_system
+  dbook_domain:
+    path: ../../packages/dbook_domain
+  dbook_feature_admin_auth:
+    path: ../../packages/dbook_feature_admin_auth
+  dbook_feature_admin_bookings:
+    path: ../../packages/dbook_feature_admin_bookings
+  dbook_feature_admin_catalog:
+    path: ../../packages/dbook_feature_admin_catalog
+  dbook_feature_admin_customers:
+    path: ../../packages/dbook_feature_admin_customers
+  dbook_feature_admin_dashboard:
+    path: ../../packages/dbook_feature_admin_dashboard
+  dbook_feature_admin_governance:
+    path: ../../packages/dbook_feature_admin_governance
+  dbook_feature_admin_team:
+    path: ../../packages/dbook_feature_admin_team
+  dio: ^5.9.0
+  flutter_riverpod: ^3.4.3
+  go_router: ^16.2.4
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true

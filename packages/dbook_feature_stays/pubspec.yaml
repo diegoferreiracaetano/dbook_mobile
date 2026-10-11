@@ -1,0 +1,29 @@
+name: dbook_feature_stays
+description: "Hotéis do DBook no app: busca por datas, quartos livres, reserva e minhas estadias."
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.13.3
+  flutter: ">=1.17.0"
+
+resolution: workspace
+
+dependencies:
+  dbook_core_network:
+    path: ../dbook_core_network
+  dbook_core_session:
+    path: ../dbook_core_session
+  dbook_design_system:
+    path: ../dbook_design_system
+  dbook_domain:
+    path: ../dbook_domain
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.4.3
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter

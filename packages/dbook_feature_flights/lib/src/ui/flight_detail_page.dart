@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../airline_colors.dart';
 import '../state/flight_providers.dart';
+import 'price_section.dart';
 
 final _timeFormat = DateFormat('HH:mm');
 final _heroDateFormat = DateFormat('EEE, MMM d, yyyy');
@@ -20,10 +20,10 @@ String _formatDuration(Duration duration) {
 }
 
 String _seatClassLabel(SeatClass seatClass) => switch (seatClass) {
-  SeatClass.economy => 'Economy',
-  SeatClass.premiumEconomy => 'Premium Economy',
-  SeatClass.business => 'Business',
-  SeatClass.first => 'First',
+  SeatClass.economy => 'Econômica',
+  SeatClass.premiumEconomy => 'Econômica premium',
+  SeatClass.business => 'Executiva',
+  SeatClass.first => 'Primeira',
   SeatClass.unknown => 'Outra classe',
 };
 
@@ -63,11 +63,11 @@ class FlightDetailPage extends ConsumerWidget {
       flight.destinationIataCode,
       destinations,
     );
-    final airlineColor = airlineColorFor(flight.airlineIataCode);
+    final airlineColor = DbookCategoricalColors.forKey(flight.airlineIataCode);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: DbookAppBar(title: 'Flight Details', transparent: true),
+      appBar: DbookAppBar(title: 'Detalhes do voo', transparent: true),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -87,9 +87,11 @@ class FlightDetailPage extends ConsumerWidget {
                     children: [
                       Row(
                         children: [
-                          _AirlineBadge(
+                          DbookAirlineLogo(
                             iataCode: flight.airlineIataCode,
                             color: airlineColor,
+                            logoUrl: flight.airlineLogoUrl,
+                            size: 40,
                           ),
                           const SizedBox(width: DbookSpacing.md),
                           Column(
@@ -114,7 +116,7 @@ class FlightDetailPage extends ConsumerWidget {
                       _FlightRouteTimeline(flight: flight),
                       const SizedBox(height: DbookSpacing.lg),
                       DbookSummaryRow(
-                        label: 'Aircraft',
+                        label: 'Aeronave',
                         value: flight.aircraftType,
                       ),
                       if (liveAvailability != null)
@@ -126,7 +128,7 @@ class FlightDetailPage extends ConsumerWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Seats available',
+                                'Assentos livres',
                                 style: Theme.of(context).textTheme.bodyMedium,
                               ),
                               liveAvailability!,
@@ -135,13 +137,22 @@ class FlightDetailPage extends ConsumerWidget {
                         )
                       else
                         DbookSummaryRow(
-                          label: 'Seats available',
+                          label: 'Assentos livres',
                           value: '${flight.availableCapacity}',
                         ),
                     ],
                   ),
                 ),
               ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                DbookSpacing.lg,
+                0,
+                DbookSpacing.lg,
+                DbookSpacing.lg,
+              ),
+              child: PriceSection(flight: flight),
             ),
           ],
         ),
@@ -155,13 +166,13 @@ class FlightDetailPage extends ConsumerWidget {
             Expanded(
               child: DbookPriceDisplay(
                 amount: _priceFormat.format(flight.price),
-                caption: 'per passenger',
+                caption: 'por passageiro',
               ),
             ),
             if (onBook != null) ...[
               const SizedBox(width: DbookSpacing.md),
               DbookButton(
-                label: 'Book This Flight',
+                label: 'Reservar este voo',
                 onPressed: () => onBook!(flight),
               ),
             ],
@@ -224,7 +235,7 @@ class _HeroHeader extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Color(0x00000000), Color(0xCC000000)],
+                  colors: DbookCategoricalColors.photoScrim,
                 ),
               ),
               child: Padding(
@@ -252,34 +263,6 @@ class _HeroHeader extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// Selo com o código IATA da companhia sobre a cor fixa dela — mesmo
-/// visual do badge de `DbookFlightResultTile` (design system), reaplicado
-/// aqui porque aquele é privado ao componente de resultado.
-class _AirlineBadge extends StatelessWidget {
-  const _AirlineBadge({required this.iataCode, required this.color});
-
-  final String iataCode;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 40,
-      height: 40,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(DbookRadius.sm),
-      ),
-      child: Text(
-        iataCode,
-        style: Theme.of(context).textTheme.labelMedium
-            ?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
       ),
     );
   }

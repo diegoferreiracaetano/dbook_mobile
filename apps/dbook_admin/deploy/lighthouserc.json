@@ -1,0 +1,17 @@
+{
+  "ci": {
+    "collect": {
+      "staticDistDir": "apps/dbook_admin/build/web",
+      "url": ["http://localhost/index.html"],
+      "numberOfRuns": 3,
+      "settings": { "preset": "desktop", "onlyCategories": ["performance", "accessibility"] }
+    },
+    "assert": {
+      "assertions": {
+        "interactive": ["error", { "maxNumericValue": 6000 }],
+        "total-blocking-time": ["warn", { "maxNumericValue": 600 }],
+        "categories:accessibility": ["warn", { "minScore": 0.9 }]
+      }
+    }
+  }
+}

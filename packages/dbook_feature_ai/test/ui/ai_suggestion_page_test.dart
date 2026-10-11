@@ -62,7 +62,7 @@ void main() {
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
 
-      expect(find.text('Flight #42'), findsOneWidget);
+      expect(find.text('Voo #42'), findsOneWidget);
       expect(find.text('Best fare for your dates'), findsOneWidget);
     },
   );

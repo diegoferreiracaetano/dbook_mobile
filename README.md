@@ -4,6 +4,22 @@ Cliente Flutter do [DBook](../dbook) — consome a API de reservas de voos const
 
 Monorepo gerenciado com [melos](https://melos.invertase.dev/), sobre o suporte nativo do Dart a [pub workspaces](https://dart.dev/tools/pub/workspaces).
 
+## Visão geral do app
+
+O app de clientes (Flutter, web e mobile) busca voos e hotéis numa tela só, mostra a vitrine de hotéis e pacotes com fotos reais, reserva e paga, e guarda preferências na conta. Capturas contra a API real (400 × 860); a lista completa, com a descrição de cada uma, está em [`docs/screenshots`](docs/screenshots/README.md).
+
+| Busca de voos | Resultados com logo da companhia | Detalhe do voo |
+|---|---|---|
+| ![Home, aba Voos](docs/screenshots/01-home-voos.png) | ![Resultados de voo](docs/screenshots/03-resultados-voos.png) | ![Detalhe do voo](docs/screenshots/04-detalhe-voo.png) |
+
+| Busca de hotéis | Vitrine de hotéis e pacotes | Tema escuro |
+|---|---|---|
+| ![Busca de hotéis](docs/screenshots/05-busca-hoteis.png) | ![Vitrine de hotéis e pacotes](docs/screenshots/06-vitrine-hoteis-pacotes.png) | ![Pacotes no tema escuro](docs/screenshots/12-pacotes-escuro.png) |
+
+| Perfil | Preferências de viagem | Home com a origem da conta |
+|---|---|---|
+| ![Perfil](docs/screenshots/07-perfil.png) | ![Preferências de viagem](docs/screenshots/08-preferencias-viagem.png) | ![Home com a origem das preferências](docs/screenshots/09-home-origem-das-preferencias.png) |
+
 ## Estrutura
 
 ```
@@ -102,5 +118,6 @@ Ver [CHECKLIST.md](CHECKLIST.md) para o detalhamento marco a marco.
 - **M21 — Nota média de cada destino na Home**: completo. O card de destino (Home, Explore e listagem por região) mostra um selo pequeno com a nota média (`★ 4.7`) ao lado do preço, vinda de `GET /destinations` (`averageRating`, M19 do backend `dbook`) — a média das avaliações feitas pelo M20. Destino sem nenhuma avaliação não mostra selo: o app só renderiza o que o backend manda, sem calcular nem inventar nota. O selo é compacto (ícone + número) em vez do `DbookRatingStars`, que é grande demais pra um card denso.
 - **M22 — Idempotência no pagamento**: completo. `POST /payments` passou a exigir o header `Idempotency-Key`; o `PaymentNotifier` gera um UUID por tentativa de pagamento e o reaproveita se o usuário tocar em "Pagar" de novo com os mesmos dados depois de um erro (resposta perdida), então o backend devolve o pagamento original em vez de cobrar duas vezes. Ver `CHECKLIST.md` M22.
 - **M23 — API versionada**: completo. O backend passou a versionar a API de negócio pelo caminho (`/v1/...`); o app só mudou a base URL (os repositórios usam caminhos relativos) e o WebSocket `/ws`, sem versão, não a herda. Ver `CHECKLIST.md` M23.
-- Em andamento — M9 (parcial); M10-M23 completos.
+- M10-M23 completos; **M24-M44 implementados e testados**, fechamento no **M46** (Home com Voos | Hotéis, vitrine de hotéis e pacotes, Trips unificada, interface em português, cobertura combinada 80,68 %); **M47/M48** trazem o logo da companhia e o perfil completo (foto, preferências, senha, dispositivos), com demonstração em `docs/screenshots`. Ficam fora, por decisão do dono (não será publicado): deploy, Lighthouse, backlog U1–U21 e o E2E do portal, que só roda no CI (precisa de `chromedriver`). Ver o `CHECKLIST.md`.
+- **Portal administrativo, identidade e hotéis**: ver `docs/portal.md`, `docs/portal-seguranca.md` e `docs/identidade-visual.md`.
 - **M24 — Fundações do portal**: completo. O app deixou de quebrar com valor novo do backend: `SeatClass`, `SeatStatus`, `BookingStatus` e `Role` ganharam `unknown` (a UI mostra um rótulo neutro e o fato é reportado por `onUnknownWireValue`); `Permission` espelha as 17 permissões do backend e `permissionsFromWire` descarta e reporta as desconhecidas. O `Role` espelha o backend (`client`, `support`, `catalogManager`, `superAdmin`); o app de clientes continua só enxergando `client`. O design system ganhou os tokens do portal (breakpoints, densidade, números tabulares, tons semânticos `success`/`warning`/`danger`/`info` com contraste AA testado, anel de foco, elevação de painel) e o teste de contraste achou e corrigiu um aviso abaixo do AA (`warning`: 4,05:1 → 5,3:1). Toda chamada à API agora manda `X-App-Version` e `X-App-Platform`, que o backend (M44) conta por versão. Ver `CHECKLIST.md` M24.

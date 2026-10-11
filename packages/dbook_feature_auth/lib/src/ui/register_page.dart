@@ -61,7 +61,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     final isLoading = state is AuthLoading;
 
     return Scaffold(
-      appBar: const DbookAppBar(title: 'Join Dbook'),
+      appBar: const DbookAppBar(title: 'Entre para o DBook'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(DbookSpacing.lg),
         child: Form(
@@ -128,7 +128,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
               ],
               const SizedBox(height: DbookSpacing.lg),
               DbookButton(
-                label: 'Create Account',
+                label: 'Criar conta',
                 isLoading: isLoading,
                 onPressed: (isLoading || !_agreedToTerms) ? null : _submit,
               ),

@@ -215,7 +215,7 @@ void main() {
       expect(find.text(r'$520'), findsOneWidget);
       expect(find.text(r'$510'), findsOneWidget);
       // Jan 13, 2026 (the query date) is the cheapest of the 5 — badge shows.
-      expect(find.text('Best prices today'), findsOneWidget);
+      expect(find.text('Melhores preços de hoje'), findsOneWidget);
     },
   );
 
@@ -269,29 +269,29 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('2 flights found'), findsOneWidget);
+      expect(find.text('2 voos encontrados'), findsOneWidget);
 
-      await tester.tap(find.text('Filter'));
+      await tester.tap(find.text('Filtrar'));
       await tester.pumpAndSettle();
       await tester.tap(
         find.descendant(
           of: find.byType(BottomSheet),
-          matching: find.text('Business'),
+          matching: find.text('Executiva'),
         ),
       );
       await tester.pumpAndSettle();
       await tester.scrollUntilVisible(
-        find.text('Apply'),
+        find.text('Aplicar'),
         200,
         scrollable: find.descendant(
           of: find.byType(BottomSheet),
           matching: find.byType(Scrollable),
         ),
       );
-      await tester.tap(find.text('Apply'));
+      await tester.tap(find.text('Aplicar'));
       await tester.pumpAndSettle();
 
-      expect(find.text('1 flight found'), findsOneWidget);
+      expect(find.text('1 voo encontrado'), findsOneWidget);
       expect(find.text('Iberia · DB13'), findsNothing);
       expect(find.text('Iberia · DBB13'), findsOneWidget);
       expect(find.text(r'$900.00'), findsOneWidget);

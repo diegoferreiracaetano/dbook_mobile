@@ -83,7 +83,11 @@ class _DbookLiveAvailabilityState extends ConsumerState<DbookLiveAvailability> {
     };
 
     final (dotColor, label) = switch (_state) {
-      AvailabilityLive() => (Colors.green, 'Ao vivo'),
+      AvailabilityLive() => (
+        Theme.of(context).extension<DbookStatusColors>()?.success ??
+            colorScheme.primary,
+        'Ao vivo',
+      ),
       AvailabilityConnecting() => (colorScheme.outline, 'Conectando...'),
       AvailabilityReconnecting() => (colorScheme.outline, 'Reconectando...'),
       AvailabilityUnavailable() => (colorScheme.error, 'Indisponível'),

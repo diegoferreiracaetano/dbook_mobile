@@ -1,0 +1,31 @@
+name: dbook_admin_l10n
+description: "Textos pt-BR (.arb), formatação de data/valor e mensagens de erro por code do portal."
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.13.3
+  flutter: ">=1.17.0"
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.2
+  dbook_admin_data:
+    path: ../dbook_admin_data
+  dbook_core_network:
+    path: ../dbook_core_network
+  dbook_domain:
+    path: ../dbook_domain
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  generate: true

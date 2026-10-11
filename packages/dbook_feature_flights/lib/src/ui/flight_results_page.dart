@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../airline_colors.dart';
 import '../state/date_strip_provider.dart';
 import '../state/flight_providers.dart';
 import '../state/flight_search_state.dart';
@@ -30,16 +29,16 @@ bool _isSameDay(DateTime a, DateTime b) =>
 /// `DbookFlightResultTile` pra mostrar a classe da cabine, informação bem
 /// mais útil já que o mesmo voo pode aparecer mais de uma vez por classe.
 String _seatClassLabel(SeatClass seatClass) => switch (seatClass) {
-  SeatClass.economy => 'Economy',
-  SeatClass.premiumEconomy => 'Premium Economy',
-  SeatClass.business => 'Business',
-  SeatClass.first => 'First',
+  SeatClass.economy => 'Econômica',
+  SeatClass.premiumEconomy => 'Econômica premium',
+  SeatClass.business => 'Executiva',
+  SeatClass.first => 'Primeira',
   SeatClass.unknown => 'Outra classe',
 };
 
 enum _SortOrder {
-  priceAsc('Price (low to high)'),
-  durationAsc('Duration (shortest first)');
+  priceAsc('Preço (menor primeiro)'),
+  durationAsc('Duração (menor primeiro)');
 
   const _SortOrder(this.label);
 
@@ -130,14 +129,14 @@ class _FlightResultsPageState extends ConsumerState<FlightResultsPage> {
     return Scaffold(
       appBar: DbookAppBar(
         title: '${widget.query.origin.city} → ${widget.query.destination.city}',
-        subtitle: '${_dateFormatFull.format(_selectedDate)} · 1 Passenger',
+        subtitle: '${_dateFormatFull.format(_selectedDate)} · 1 passageiro',
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: DbookSpacing.md),
             child: OutlinedButton.icon(
               onPressed: _openFilterSheet,
               icon: const Icon(Icons.filter_alt_outlined, size: 18),
-              label: const Text('Filter'),
+              label: const Text('Filtrar'),
             ),
           ),
         ],
@@ -270,11 +269,13 @@ class _DateChip extends StatelessWidget {
               _dateChipFormat.format(option.date),
               style: textTheme.labelMedium?.copyWith(color: foreground),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: DbookSpacing.xxs),
             Text(
               option.lowestPrice == null
-                  ? '—'
+                  ? 'sem voo'
                   : _priceFormatWhole.format(option.lowestPrice),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: textTheme.labelSmall?.copyWith(
                 color: subForeground,
                 fontWeight: FontWeight.w700,
@@ -396,7 +397,7 @@ class _FlightResults extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${sorted.length} flight${sorted.length == 1 ? '' : 's'} found',
+                '${sorted.length} ${sorted.length == 1 ? 'voo encontrado' : 'voos encontrados'}',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -424,7 +425,10 @@ class _FlightResults extends StatelessWidget {
                 return DbookFlightResultTile(
                   airlineName: flight.airlineName,
                   airlineIataCode: flight.airlineIataCode,
-                  airlineColor: airlineColorFor(flight.airlineIataCode),
+                  airlineLogoUrl: flight.airlineLogoUrl,
+                  airlineColor: DbookCategoricalColors.forKey(
+                    flight.airlineIataCode,
+                  ),
                   flightNumber: flight.flightNumber,
                   departureTime: _timeFormat.format(flight.departureTime),
                   departureAirport: flight.originIataCode,
@@ -463,7 +467,7 @@ class _BestPriceBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(DbookRadius.full),
       ),
       child: Text(
-        'Best prices today',
+        'Melhores preços de hoje',
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
           color: statusColors.success,
           fontWeight: FontWeight.w700,
@@ -505,7 +509,7 @@ class _FilterSheetState extends State<_FilterSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Sort by', style: textTheme.titleSmall),
+          Text('Ordenar por', style: textTheme.titleSmall),
           const SizedBox(height: DbookSpacing.xs),
           RadioGroup<_SortOrder>(
             groupValue: _sortOrder,
@@ -532,7 +536,7 @@ class _FilterSheetState extends State<_FilterSheet> {
             ),
           ),
           const SizedBox(height: DbookSpacing.md),
-          Text('Cabin class', style: textTheme.titleSmall),
+          Text('Classe da cabine', style: textTheme.titleSmall),
           const SizedBox(height: DbookSpacing.sm),
           Wrap(
             spacing: DbookSpacing.sm,
@@ -554,7 +558,7 @@ class _FilterSheetState extends State<_FilterSheet> {
           ),
           const SizedBox(height: DbookSpacing.lg),
           DbookButton(
-            label: 'Apply',
+            label: 'Aplicar',
             onPressed: () => Navigator.of(context).pop(
               _FilterResult(sortOrder: _sortOrder, classFilter: _classFilter),
             ),

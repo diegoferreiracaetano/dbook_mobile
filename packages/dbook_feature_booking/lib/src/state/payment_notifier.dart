@@ -13,6 +13,7 @@ class _PaymentAttempt {
     required this.bookingIds,
     required this.cardLast4,
     required this.cardholderName,
+    this.promoCode,
   });
 
   final String key;
@@ -20,14 +21,21 @@ class _PaymentAttempt {
   final String cardLast4;
   final String cardholderName;
 
+  /// O código promocional é parte do pedido: trocar o código é **outra
+  /// tentativa** (outra chave), como trocar o cartão. O servidor recusa a
+  /// mesma chave com um pedido diferente (`422`).
+  final String? promoCode;
+
   bool isFor({
     required List<int> bookingIds,
     required String cardLast4,
     required String cardholderName,
+    required String? promoCode,
   }) =>
       listEquals(this.bookingIds, bookingIds) &&
       this.cardLast4 == cardLast4 &&
-      this.cardholderName == cardholderName;
+      this.cardholderName == cardholderName &&
+      this.promoCode == promoCode;
 }
 
 class PaymentNotifier extends Notifier<PaymentState> {
@@ -40,11 +48,16 @@ class PaymentNotifier extends Notifier<PaymentState> {
     required List<int> bookingIds,
     required String cardLast4,
     required String cardholderName,
+    String? promoCode,
   }) async {
+    final code = promoCode == null || promoCode.trim().isEmpty
+        ? null
+        : promoCode.trim().toUpperCase();
     final attempt = _attemptFor(
       bookingIds: bookingIds,
       cardLast4: cardLast4,
       cardholderName: cardholderName,
+      promoCode: code,
     );
     state = const PaymentState.submitting();
     try {
@@ -55,6 +68,7 @@ class PaymentNotifier extends Notifier<PaymentState> {
             cardLast4: cardLast4,
             cardholderName: cardholderName,
             idempotencyKey: attempt.key,
+            promoCode: code,
           );
 
       _attempt = null;
@@ -71,6 +85,7 @@ class PaymentNotifier extends Notifier<PaymentState> {
     required List<int> bookingIds,
     required String cardLast4,
     required String cardholderName,
+    required String? promoCode,
   }) {
     final current = _attempt;
     if (current != null &&
@@ -78,6 +93,7 @@ class PaymentNotifier extends Notifier<PaymentState> {
           bookingIds: bookingIds,
           cardLast4: cardLast4,
           cardholderName: cardholderName,
+          promoCode: promoCode,
         )) {
       return current;
     }
@@ -86,6 +102,7 @@ class PaymentNotifier extends Notifier<PaymentState> {
       bookingIds: List.of(bookingIds),
       cardLast4: cardLast4,
       cardholderName: cardholderName,
+      promoCode: promoCode,
     );
     _attempt = fresh;
     return fresh;

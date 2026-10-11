@@ -13,10 +13,15 @@ abstract interface class PaymentRepository {
   /// perder e o pedido for repetido com a mesma chave, o backend devolve o
   /// pagamento original em vez de cobrar duas vezes. Uma chave por tentativa
   /// de pagamento — quem gera e reaproveita é o `PaymentNotifier`.
+  ///
+  /// [promoCode] (opcional) faz parte do pedido: o desconto é decidido, de
+  /// forma atômica, ao pagar (`422 PROMO_REJECTED` desfaz tudo e as reservas
+  /// seguem pendentes).
   Future<Payment> pay({
     required List<int> bookingIds,
     required String cardLast4,
     required String cardholderName,
     required String idempotencyKey,
+    String? promoCode,
   });
 }

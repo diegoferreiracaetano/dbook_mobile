@@ -74,14 +74,39 @@ Widget _app(Widget home, {DestinationRepository? destinationRepository}) {
 /// exercitando a lógica (`_TripType`, `_extraLegs`), mas não dá pra
 /// alcançá-la tocando o rádio (`IgnorePointer` bloqueia o toque), então
 /// ficam pausados junto, não apagados.
-const _tripTypeDisabled = true;
+const _tripTypeDisabled = false;
+
+/// Escolhe o tipo de viagem sem tocar no rádio (a UI o mantém desativado):
+/// chama o `onChanged` do grupo com o valor do rádio na posição dada
+/// (0 Round Trip, 1 One Way, 2 Multi-city). Assim a lógica pausada continua
+/// coberta e o dia em que os rádios voltarem é só trocar por `tap`.
+Future<void> _chooseTripType(WidgetTester tester, int index) async {
+  final radios = tester.widgetList(find.byWidgetPredicate((w) => w is Radio));
+  final value = (radios.elementAt(index) as dynamic).value;
+  final group = tester.widget(find.byWidgetPredicate((w) => w is RadioGroup));
+  (group as dynamic).onChanged(value);
+  await tester.pumpAndSettle();
+}
+
+/// A Home nasce sem origem nem destino (nada é escolhido pelo usuário):
+/// escolhe os dois primeiros pelo seletor, como o usuário faria.
+Future<void> _pickRoute(WidgetTester tester) async {
+  await tester.tap(find.text('Selecionar').first);
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(_destinations[0].label).last);
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('Selecionar').first);
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(_destinations[1].label).last);
+  await tester.pumpAndSettle();
+}
 
 void main() {
   // Os cards de "Destinos em destaque" carregam foto real via
   // NetworkImage — sem isso, o teste bateria numa requisição de rede de
   // verdade e falharia com NetworkImageLoadException.
   testWidgetsWithMockImages(
-    'given default selections (Round Trip) when Search Flights is tapped '
+    'given a picked route (Round Trip) when Search Flights is tapped '
     'then reports the outbound leg and a real return leg, swapped',
     (tester) async {
       List<FlightSearchQuery>? reported;
@@ -91,10 +116,13 @@ void main() {
       );
       await tester.pumpAndSettle();
 
+      expect(find.text('Selecionar'), findsNWidgets(2));
+      await _pickRoute(tester);
+
       expect(find.text(_destinations[0].label), findsOneWidget);
       expect(find.text(_destinations[1].label), findsOneWidget);
 
-      await tester.tap(find.text('Search Flights'));
+      await tester.tap(find.text('Buscar voos'));
       await tester.pumpAndSettle();
 
       expect(reported, hasLength(2));
@@ -119,12 +147,12 @@ void main() {
         _app(FlightSearchPage(onSearch: (queries) => reported = queries)),
       );
       await tester.pumpAndSettle();
+      await _pickRoute(tester);
 
-      await tester.tap(find.text('Multi-city'));
-      await tester.pumpAndSettle();
+      await _chooseTripType(tester, 2);
 
-      expect(find.text('Flight 2'), findsNothing);
-      await tester.tap(find.text('Search Flights'));
+      expect(find.text('Voo 2'), findsNothing);
+      await tester.tap(find.text('Buscar voos'));
       await tester.pumpAndSettle();
 
       expect(reported, hasLength(1));
@@ -144,11 +172,11 @@ void main() {
 
       await tester.pumpWidget(_app(FlightSearchPage(onSearch: (_) {})));
       await tester.pumpAndSettle();
+      await _pickRoute(tester);
 
-      await tester.tap(find.text('Multi-city'));
-      await tester.pumpAndSettle();
-      await scrollTo(find.text('Add another flight'));
-      await tester.tap(find.text('Add another flight'));
+      await _chooseTripType(tester, 2);
+      await scrollTo(find.text('Adicionar outro voo'));
+      await tester.tap(find.text('Adicionar outro voo'));
       await tester.pumpAndSettle();
 
       // O destino do trecho principal é _destinations[1] por padrão —
@@ -162,7 +190,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.descendant(of: leg2, matching: find.text('To')),
+        find.descendant(of: leg2, matching: find.text('Destino')),
         findsOneWidget,
       );
     },
@@ -183,11 +211,11 @@ void main() {
         _app(FlightSearchPage(onSearch: (queries) => reported = queries)),
       );
       await tester.pumpAndSettle();
+      await _pickRoute(tester);
 
-      await tester.tap(find.text('Multi-city'));
-      await tester.pumpAndSettle();
-      await scrollTo(find.text('Add another flight'));
-      await tester.tap(find.text('Add another flight'));
+      await _chooseTripType(tester, 2);
+      await scrollTo(find.text('Adicionar outro voo'));
+      await tester.tap(find.text('Adicionar outro voo'));
       await tester.pumpAndSettle();
 
       // A origem já veio preenchida (encadeada do trecho principal) —
@@ -195,8 +223,10 @@ void main() {
       // 2") e ao `BottomSheet` de seleção pra não colidir com o "To" do
       // card principal nem com o valor já visível atrás dele.
       final leg2 = find.byKey(const Key('extra_leg_0'));
-      await scrollTo(find.text('Flight 2'));
-      await tester.tap(find.descendant(of: leg2, matching: find.text('To')));
+      await scrollTo(find.text('Voo 2'));
+      await tester.tap(
+        find.descendant(of: leg2, matching: find.text('Destino')),
+      );
       await tester.pumpAndSettle();
       await tester.tap(
         find.descendant(
@@ -206,8 +236,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await scrollTo(find.text('Search Flights'));
-      await tester.tap(find.text('Search Flights'));
+      await scrollTo(find.text('Buscar voos'));
+      await tester.tap(find.text('Buscar voos'));
       await tester.pumpAndSettle();
 
       expect(reported, hasLength(2));
@@ -228,22 +258,21 @@ void main() {
       await tester.pumpWidget(_app(FlightSearchPage(onSearch: (_) {})));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Multi-city'));
+      await _chooseTripType(tester, 2);
+      await scrollTo(find.text('Adicionar outro voo'));
+      await tester.tap(find.text('Adicionar outro voo'));
       await tester.pumpAndSettle();
-      await scrollTo(find.text('Add another flight'));
-      await tester.tap(find.text('Add another flight'));
-      await tester.pumpAndSettle();
-      await scrollTo(find.text('Add another flight'));
-      await tester.tap(find.text('Add another flight'));
+      await scrollTo(find.text('Adicionar outro voo'));
+      await tester.tap(find.text('Adicionar outro voo'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Flight 2'), findsOneWidget);
-      expect(find.text('Flight 3'), findsOneWidget);
+      expect(find.text('Voo 2'), findsOneWidget);
+      expect(find.text('Voo 3'), findsOneWidget);
 
       // Rola de novo: adicionar o trecho pode ter deixado a posição de
       // rolagem num ponto onde "Flight 2" (mais acima na lista) já não
       // está mais visível.
-      await scrollTo(find.text('Flight 2'));
+      await scrollTo(find.text('Voo 2'));
       await tester.tap(
         find.descendant(
           of: find.byKey(const Key('extra_leg_0')),
@@ -252,8 +281,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Flight 2'), findsOneWidget);
-      expect(find.text('Flight 3'), findsNothing);
+      expect(find.text('Voo 2'), findsOneWidget);
+      expect(find.text('Voo 3'), findsNothing);
     },
     skip: _tripTypeDisabled,
   );
@@ -265,7 +294,7 @@ void main() {
       await tester.pumpWidget(_app(FlightSearchPage(onSearch: (_) {})));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('To'));
+      await tester.tap(find.text('Destino'));
       await tester.pumpAndSettle();
 
       expect(find.text(_destinations[2].label), findsOneWidget);
@@ -287,6 +316,7 @@ void main() {
         _app(FlightSearchPage(onSearch: (queries) => reported = queries)),
       );
       await tester.pumpAndSettle();
+      await _pickRoute(tester);
 
       // Há 2 `Scrollable`s na árvore (o `SingleChildScrollView` da página
       // e o `GridView` em si, mesmo com `NeverScrollableScrollPhysics`) —
@@ -358,6 +388,94 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(repository.callCount, callsAfterInitialLoad + 1);
+    },
+  );
+
+  testWidgetsWithMockImages(
+    'given the departure date tapped when another day is picked then the '
+    'search reports that day',
+    (tester) async {
+      List<FlightSearchQuery>? reported;
+      await tester.pumpWidget(
+        _app(FlightSearchPage(onSearch: (queries) => reported = queries)),
+      );
+      await tester.pumpAndSettle();
+      await _pickRoute(tester);
+
+      await tester.tap(find.text('Partida'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('27').first);
+      await tester.pump();
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Buscar voos'));
+      await tester.pumpAndSettle();
+
+      expect(reported?.first.date.day, 27);
+    },
+  );
+
+  testWidgetsWithMockImages(
+    'given the swap button when tapped then origin and destination trade '
+    'places',
+    (tester) async {
+      List<FlightSearchQuery>? reported;
+      await tester.pumpWidget(
+        _app(FlightSearchPage(onSearch: (queries) => reported = queries)),
+      );
+      await tester.pumpAndSettle();
+      await _pickRoute(tester);
+
+      await tester.tap(find.byIcon(Icons.swap_vert));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Buscar voos'));
+      await tester.pumpAndSettle();
+
+      expect(reported?.first.origin, _destinations[1]);
+      expect(reported?.first.destination, _destinations[0]);
+    },
+  );
+
+  testWidgetsWithMockImages(
+    'given a hotel panel when choosing Hotéis then swaps the flight card for '
+    'the panel and back',
+    (tester) async {
+      await tester.pumpWidget(
+        _app(
+          FlightSearchPage(
+            onSearch: (_) {},
+            hotelPanelBuilder: (context, destinations) =>
+                Text('painel com ${destinations.length} destinos'),
+            extrasBuilder: (context, destinations) => const Text('vitrine'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Buscar voos'), findsOneWidget);
+      expect(find.text('vitrine'), findsNothing);
+
+      await tester.tap(find.text('Hotéis'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('painel com 3 destinos'), findsOneWidget);
+      expect(find.text('Buscar voos'), findsNothing);
+      expect(find.text('vitrine'), findsOneWidget);
+
+      await tester.tap(find.text('Voos'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Buscar voos'), findsOneWidget);
+    },
+  );
+
+  testWidgetsWithMockImages(
+    'given no hotel panel when the Home builds then has no mode toggle',
+    (tester) async {
+      await tester.pumpWidget(_app(FlightSearchPage(onSearch: (_) {})));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Hotéis'), findsNothing);
     },
   );
 }

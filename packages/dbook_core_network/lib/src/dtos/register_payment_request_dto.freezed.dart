@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RegisterPaymentRequestDto {
 
- List<int> get bookingIds; String get cardLast4; String get cardholderName;
+ List<int> get bookingIds; String get cardLast4; String get cardholderName;@JsonKey(includeIfNull: false) String? get promoCode;
 /// Create a copy of RegisterPaymentRequestDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,20 +30,20 @@ $RegisterPaymentRequestDtoCopyWith<RegisterPaymentRequestDto> get copyWith => _$
 @override
 bool operator ==(Object other) {
   final _this = this as RegisterPaymentRequestDto;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RegisterPaymentRequestDto&&const DeepCollectionEquality().equals(other.bookingIds, _this.bookingIds)&&(identical(other.cardLast4, _this.cardLast4) || other.cardLast4 == _this.cardLast4)&&(identical(other.cardholderName, _this.cardholderName) || other.cardholderName == _this.cardholderName));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RegisterPaymentRequestDto&&const DeepCollectionEquality().equals(other.bookingIds, _this.bookingIds)&&(identical(other.cardLast4, _this.cardLast4) || other.cardLast4 == _this.cardLast4)&&(identical(other.cardholderName, _this.cardholderName) || other.cardholderName == _this.cardholderName)&&(identical(other.promoCode, _this.promoCode) || other.promoCode == _this.promoCode));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as RegisterPaymentRequestDto;
-  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.bookingIds),_this.cardLast4,_this.cardholderName);
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.bookingIds),_this.cardLast4,_this.cardholderName,_this.promoCode);
 }
 
 @override
 String toString() {
   final _this = this as RegisterPaymentRequestDto;
-  return 'RegisterPaymentRequestDto(bookingIds: ${_this.bookingIds}, cardLast4: ${_this.cardLast4}, cardholderName: ${_this.cardholderName})';
+  return 'RegisterPaymentRequestDto(bookingIds: ${_this.bookingIds}, cardLast4: ${_this.cardLast4}, cardholderName: ${_this.cardholderName}, promoCode: ${_this.promoCode})';
 }
 
 
@@ -54,7 +54,7 @@ abstract mixin class $RegisterPaymentRequestDtoCopyWith<$Res>  {
   factory $RegisterPaymentRequestDtoCopyWith(RegisterPaymentRequestDto value, $Res Function(RegisterPaymentRequestDto) _then) = _$RegisterPaymentRequestDtoCopyWithImpl;
 @useResult
 $Res call({
- List<int> bookingIds, String cardLast4, String cardholderName
+ List<int> bookingIds, String cardLast4, String cardholderName,@JsonKey(includeIfNull: false) String? promoCode
 });
 
 
@@ -71,12 +71,13 @@ class _$RegisterPaymentRequestDtoCopyWithImpl<$Res>
 
 /// Create a copy of RegisterPaymentRequestDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? bookingIds = null,Object? cardLast4 = null,Object? cardholderName = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? bookingIds = null,Object? cardLast4 = null,Object? cardholderName = null,Object? promoCode = freezed,}) {
   return _then(RegisterPaymentRequestDto(
 bookingIds: null == bookingIds ? _self.bookingIds : bookingIds // ignore: cast_nullable_to_non_nullable
 as List<int>,cardLast4: null == cardLast4 ? _self.cardLast4 : cardLast4 // ignore: cast_nullable_to_non_nullable
 as String,cardholderName: null == cardholderName ? _self.cardholderName : cardholderName // ignore: cast_nullable_to_non_nullable
-as String,
+as String,promoCode: freezed == promoCode ? _self.promoCode : promoCode // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -161,10 +162,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<int> bookingIds,  String cardLast4,  String cardholderName)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<int> bookingIds,  String cardLast4,  String cardholderName, @JsonKey(includeIfNull: false)  String? promoCode)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RegisterPaymentRequestDto() when $default != null:
-return $default(_that.bookingIds,_that.cardLast4,_that.cardholderName);case _:
+return $default(_that.bookingIds,_that.cardLast4,_that.cardholderName,_that.promoCode);case _:
   return orElse();
 
 }
@@ -182,10 +183,10 @@ return $default(_that.bookingIds,_that.cardLast4,_that.cardholderName);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<int> bookingIds,  String cardLast4,  String cardholderName)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<int> bookingIds,  String cardLast4,  String cardholderName, @JsonKey(includeIfNull: false)  String? promoCode)  $default,) {final _that = this;
 switch (_that) {
 case _RegisterPaymentRequestDto():
-return $default(_that.bookingIds,_that.cardLast4,_that.cardholderName);case _:
+return $default(_that.bookingIds,_that.cardLast4,_that.cardholderName,_that.promoCode);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -202,10 +203,10 @@ return $default(_that.bookingIds,_that.cardLast4,_that.cardholderName);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<int> bookingIds,  String cardLast4,  String cardholderName)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<int> bookingIds,  String cardLast4,  String cardholderName, @JsonKey(includeIfNull: false)  String? promoCode)?  $default,) {final _that = this;
 switch (_that) {
 case _RegisterPaymentRequestDto() when $default != null:
-return $default(_that.bookingIds,_that.cardLast4,_that.cardholderName);case _:
+return $default(_that.bookingIds,_that.cardLast4,_that.cardholderName,_that.promoCode);case _:
   return null;
 
 }
@@ -217,7 +218,7 @@ return $default(_that.bookingIds,_that.cardLast4,_that.cardholderName);case _:
 @JsonSerializable()
 
 class _RegisterPaymentRequestDto implements RegisterPaymentRequestDto {
-  const _RegisterPaymentRequestDto({required  List<int> bookingIds, required this.cardLast4, required this.cardholderName}): _bookingIds = bookingIds;
+  const _RegisterPaymentRequestDto({required  List<int> bookingIds, required this.cardLast4, required this.cardholderName, @JsonKey(includeIfNull: false) this.promoCode}): _bookingIds = bookingIds;
   factory _RegisterPaymentRequestDto.fromJson(Map<String, dynamic> json) => _$RegisterPaymentRequestDtoFromJson(json);
 
  final  List<int> _bookingIds;
@@ -229,6 +230,7 @@ class _RegisterPaymentRequestDto implements RegisterPaymentRequestDto {
 
 @override final  String cardLast4;
 @override final  String cardholderName;
+@override@JsonKey(includeIfNull: false) final  String? promoCode;
 
 /// Create a copy of RegisterPaymentRequestDto
 /// with the given fields replaced by the non-null parameter values.
@@ -243,18 +245,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RegisterPaymentRequestDto&&const DeepCollectionEquality().equals(other.bookingIds, _bookingIds)&&(identical(other.cardLast4, cardLast4) || other.cardLast4 == cardLast4)&&(identical(other.cardholderName, cardholderName) || other.cardholderName == cardholderName));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RegisterPaymentRequestDto&&const DeepCollectionEquality().equals(other.bookingIds, _bookingIds)&&(identical(other.cardLast4, cardLast4) || other.cardLast4 == cardLast4)&&(identical(other.cardholderName, cardholderName) || other.cardholderName == cardholderName)&&(identical(other.promoCode, promoCode) || other.promoCode == promoCode));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_bookingIds),cardLast4,cardholderName);
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_bookingIds),cardLast4,cardholderName,promoCode);
 }
 
 @override
 String toString() {
-    return 'RegisterPaymentRequestDto(bookingIds: $bookingIds, cardLast4: $cardLast4, cardholderName: $cardholderName)';
+    return 'RegisterPaymentRequestDto(bookingIds: $bookingIds, cardLast4: $cardLast4, cardholderName: $cardholderName, promoCode: $promoCode)';
 }
 
 
@@ -265,7 +267,7 @@ abstract mixin class _$RegisterPaymentRequestDtoCopyWith<$Res> implements $Regis
   factory _$RegisterPaymentRequestDtoCopyWith(_RegisterPaymentRequestDto value, $Res Function(_RegisterPaymentRequestDto) _then) = __$RegisterPaymentRequestDtoCopyWithImpl;
 @override @useResult
 $Res call({
- List<int> bookingIds, String cardLast4, String cardholderName
+ List<int> bookingIds, String cardLast4, String cardholderName,@JsonKey(includeIfNull: false) String? promoCode
 });
 
 
@@ -282,12 +284,13 @@ class __$RegisterPaymentRequestDtoCopyWithImpl<$Res>
 
 /// Create a copy of RegisterPaymentRequestDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? bookingIds = null,Object? cardLast4 = null,Object? cardholderName = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? bookingIds = null,Object? cardLast4 = null,Object? cardholderName = null,Object? promoCode = freezed,}) {
   return _then(_RegisterPaymentRequestDto(
 bookingIds: null == bookingIds ? _self._bookingIds : bookingIds // ignore: cast_nullable_to_non_nullable
 as List<int>,cardLast4: null == cardLast4 ? _self.cardLast4 : cardLast4 // ignore: cast_nullable_to_non_nullable
 as String,cardholderName: null == cardholderName ? _self.cardholderName : cardholderName // ignore: cast_nullable_to_non_nullable
-as String,
+as String,promoCode: freezed == promoCode ? _self.promoCode : promoCode // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

@@ -16,29 +16,32 @@ class PaymentSuccessPage extends StatelessWidget {
   const PaymentSuccessPage({
     super.key,
     required this.payment,
-    required this.bookedLegs,
+    this.bookedLegs = const [],
+    this.items = const [],
   });
 
   final Payment payment;
   final List<BookedLeg> bookedLegs;
+  final List<PaidItem> items;
 
   @override
   Widget build(BuildContext context) {
-    final legLines = bookedLegs
-        .map(
-          (leg) =>
-              '${leg.flight.originIataCode} → '
-              '${leg.flight.destinationIataCode} · Seat ${leg.seat.label}',
-        )
-        .join('\n');
+    final legLines = [
+      ...bookedLegs.map(
+        (leg) =>
+            '${leg.flight.originIataCode} → '
+            '${leg.flight.destinationIataCode} · Assento ${leg.seat.label}',
+      ),
+      ...items.map((item) => item.label),
+    ].join('\n');
 
     return Scaffold(
       body: DbookSuccessScreen(
-        title: 'Payment Confirmed!',
+        title: 'Pagamento confirmado!',
         message: '$legLines\n\nTotal: ${_priceFormat.format(payment.amount)}',
-        referenceLabel: 'Payment reference',
+        referenceLabel: 'Referência do pagamento',
         referenceValue: '#${payment.id}',
-        primaryActionLabel: 'View My Bookings',
+        primaryActionLabel: 'Ver minhas viagens',
         onPrimaryAction: () => Navigator.of(context)
             .push(MaterialPageRoute(builder: (_) => const MyBookingsPage())),
       ),

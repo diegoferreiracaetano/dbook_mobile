@@ -26,6 +26,13 @@ class DbookTripSummaryCard extends StatelessWidget {
     this.onSearch,
     this.extraContent,
     this.compact = false,
+    this.originLabel = 'Origem',
+    this.destinationLabel = 'Destino',
+    this.startDateLabel = 'Partida',
+    this.endDateLabel = 'Volta',
+    this.passengersFieldLabel = 'Passageiros',
+    this.destinationIcon = Icons.flight_land,
+    this.showOrigin = true,
   });
 
   final String origin;
@@ -60,6 +67,19 @@ class DbookTripSummaryCard extends StatelessWidget {
   /// entre elas), não cards separados empilhados.
   final List<Widget>? extraContent;
   final bool compact;
+
+  /// Rótulos e ícone dos campos: o mesmo cartão serve à busca de hotel
+  /// (destino único, entrada e saída, hóspedes) trocando só estes textos.
+  final String originLabel;
+  final String destinationLabel;
+  final String startDateLabel;
+  final String endDateLabel;
+  final String passengersFieldLabel;
+  final IconData destinationIcon;
+
+  /// `false` esconde o campo de origem e o botão de trocar (hotel tem só o
+  /// destino).
+  final bool showOrigin;
 
   @override
   Widget build(BuildContext context) {
@@ -123,39 +143,47 @@ class _FullContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Column(
-                children: [
-                  _FieldBox(
-                    icon: Icons.flight_takeoff,
-                    label: 'From',
-                    value: data.origin,
-                    onTap: data.onTapRoute,
-                  ),
-                  const SizedBox(height: DbookSpacing.sm),
-                  _FieldBox(
-                    icon: Icons.flight_land,
-                    label: 'To',
-                    value: data.destination,
-                    onTap: data.onTapDestination,
-                  ),
-                ],
-              ),
-              Positioned(
-                right: DbookSpacing.md,
-                top: 0,
-                bottom: 0,
-                child: Center(child: _SwapButton(onTap: data.onSwap)),
-              ),
-            ],
-          ),
+          if (data.showOrigin)
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Column(
+                  children: [
+                    _FieldBox(
+                      icon: Icons.flight_takeoff,
+                      label: data.originLabel,
+                      value: data.origin,
+                      onTap: data.onTapRoute,
+                    ),
+                    const SizedBox(height: DbookSpacing.sm),
+                    _FieldBox(
+                      icon: data.destinationIcon,
+                      label: data.destinationLabel,
+                      value: data.destination,
+                      onTap: data.onTapDestination,
+                    ),
+                  ],
+                ),
+                Positioned(
+                  right: DbookSpacing.md,
+                  top: 0,
+                  bottom: 0,
+                  child: Center(child: _SwapButton(onTap: data.onSwap)),
+                ),
+              ],
+            )
+          else
+            _FieldBox(
+              icon: data.destinationIcon,
+              label: data.destinationLabel,
+              value: data.destination,
+              onTap: data.onTapDestination,
+            ),
           const SizedBox(height: DbookSpacing.sm),
           data.returnDateLabel == null
               ? _FieldBox(
                   icon: Icons.calendar_today_outlined,
-                  label: 'Dates',
+                  label: 'Datas',
                   value: data.dateRangeLabel,
                   onTap: data.onTapDates,
                 )
@@ -164,7 +192,7 @@ class _FullContent extends StatelessWidget {
                     Expanded(
                       child: _FieldBox(
                         icon: Icons.calendar_today_outlined,
-                        label: 'Departure',
+                        label: data.startDateLabel,
                         value: data.dateRangeLabel,
                         onTap: data.onTapDates,
                       ),
@@ -173,7 +201,7 @@ class _FullContent extends StatelessWidget {
                     Expanded(
                       child: _FieldBox(
                         icon: Icons.calendar_today_outlined,
-                        label: 'Return',
+                        label: data.endDateLabel,
                         value: data.returnDateLabel!,
                         onTap: data.onTapReturnDate,
                       ),
@@ -183,7 +211,7 @@ class _FullContent extends StatelessWidget {
           const SizedBox(height: DbookSpacing.sm),
           _FieldBox(
             icon: Icons.person_outline,
-            label: 'Passengers',
+            label: data.passengersFieldLabel,
             value: data.passengersLabel,
             onTap: data.onTapPassengers,
           ),

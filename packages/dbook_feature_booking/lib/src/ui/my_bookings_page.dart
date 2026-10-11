@@ -5,38 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../booked_leg.dart';
 import '../state/booking_providers.dart';
+import 'cancellation_sheet.dart';
 
 final _dateFormat = DateFormat('EEE, MMM d, yyyy · HH:mm');
-
-const _knownAirlineColors = {
-  'LA': Color(0xFFB23A2E),
-  'AD': Color(0xFF1E4FA3),
-  'G3': Color(0xFF1E7A34),
-  'AA': Color(0xFF6A3FA0),
-  'DL': Color(0xFFB35A00),
-  'UA': Color(0xFF00838F),
-};
-
-const _airlinePalette = [
-  Color(0xFF5C6BC0),
-  Color(0xFF26A69A),
-  Color(0xFFEC6C4B),
-  Color(0xFF8D6E63),
-];
-
-/// Companhia fora da lista conhecida cai num hash determinístico — mesmo
-/// espírito de `_airlineColor` em `dbook_feature_flights`, duplicado aqui
-/// de propósito (features não importam features, cada uma monta sua
-/// própria fiação/apresentação fina).
-Color _airlineColor(String iataCode) =>
-    _knownAirlineColors[iataCode] ??
-    _airlinePalette[iataCode.hashCode.abs() % _airlinePalette.length];
 
 DbookStatus _toDbookStatus(BookingStatus status) => switch (status) {
   BookingStatus.pending => DbookStatus.pending,
   BookingStatus.confirmed => DbookStatus.confirmed,
   BookingStatus.cancelled => DbookStatus.cancelled,
+  BookingStatus.refunded => DbookStatus.cancelled,
+  BookingStatus.expired => DbookStatus.unknown,
   BookingStatus.unknown => DbookStatus.unknown,
 };
 
@@ -44,6 +24,8 @@ String _statusLabel(BookingStatus status) => switch (status) {
   BookingStatus.pending => 'Pendente',
   BookingStatus.confirmed => 'Confirmada',
   BookingStatus.cancelled => 'Cancelada',
+  BookingStatus.refunded => 'Reembolsada',
+  BookingStatus.expired => 'Expirada',
   BookingStatus.unknown => 'Status desconhecido',
 };
 
@@ -60,6 +42,8 @@ Destination? _destinationFor(String iataCode, List<Destination> destinations) {
 /// verdade a caminho.
 bool _isUpcoming(MyBooking booking, DateTime now) =>
     booking.status != BookingStatus.cancelled &&
+    booking.status != BookingStatus.expired &&
+    booking.status != BookingStatus.refunded &&
     booking.flight.departureTime.isAfter(now);
 
 /// Minhas Viagens — busca via `GET /bookings` (`MyBookingsNotifier`, agora
@@ -71,9 +55,22 @@ bool _isUpcoming(MyBooking booking, DateTime now) =>
 /// fallback de gradiente) pra quem chamar de dentro da própria feature
 /// (ex. `BookingSuccessPage`) sem precisar dela.
 class MyBookingsPage extends ConsumerStatefulWidget {
-  const MyBookingsPage({super.key, this.destinations = const []});
+  const MyBookingsPage({
+    super.key,
+    this.destinations = const [],
+    this.onPay,
+    this.staysView,
+  });
 
   final List<Destination> destinations;
+
+  /// Pagar uma reserva ainda pendente (ela expira em 15 min). O app leva o
+  /// item à mesma revisão e pagamento do voo; sem isso o botão não aparece.
+  final void Function(PaidItem item)? onPay;
+
+  /// Lista de estadias, montada pelo app (a feature de hotéis é outra). Com
+  /// ela a aba ganha "Voos | Hotéis"; sem, só voos.
+  final Widget? staysView;
 
   @override
   ConsumerState<MyBookingsPage> createState() => _MyBookingsPageState();
@@ -81,28 +78,21 @@ class MyBookingsPage extends ConsumerStatefulWidget {
 
 class _MyBookingsPageState extends ConsumerState<MyBookingsPage> {
   var _tabIndex = 0;
+  var _showStays = false;
 
+  /// Cancelar ou pedir reembolso: a folha mostra a política do servidor
+  /// (valor e prazo) antes de confirmar.
   Future<void> _cancel(
     BuildContext context,
     WidgetRef ref,
     MyBooking booking,
   ) async {
-    final confirmed = await showDbookConfirmationDialog(
-      context,
-      title: 'Cancel Booking',
-      message: 'Cancel your seat ${booking.seat.label} booking?',
-      confirmLabel: 'Cancel Booking',
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => CancellationSheet(booking: booking),
     );
-    if (!confirmed) return;
-    if (!context.mounted) return;
-
-    try {
-      await ref.read(myBookingsNotifierProvider.notifier).cancel(booking.id);
-    } on DbookNetworkException catch (error) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(error.message)));
-    }
+    ref.invalidate(myBookingsNotifierProvider);
   }
 
   Future<void> _review(
@@ -132,32 +122,74 @@ class _MyBookingsPageState extends ConsumerState<MyBookingsPage> {
   @override
   Widget build(BuildContext context) {
     final bookingsAsync = ref.watch(myBookingsNotifierProvider);
+    final staysView = widget.staysView;
 
     return Scaffold(
-      appBar: const DbookAppBar(title: 'My Bookings'),
-      body: switch (bookingsAsync) {
-        AsyncData(:final value) => _BookingsBody(
-          bookings: value,
-          tabIndex: _tabIndex,
-          destinations: widget.destinations,
-          onTabChanged: (index) => setState(() => _tabIndex = index),
-          onRefresh: _refresh,
-          onCancel: (booking) => _cancel(context, ref, booking),
-          onReview: (booking) => _review(context, ref, booking),
-        ),
-        AsyncError(:final error) => DbookStatusPlaceholder(
-          icon: Icons.error_outline,
-          iconColor: Theme.of(context).colorScheme.error,
-          title: 'Não foi possível carregar suas reservas',
-          message: error is DbookNetworkException
-              ? error.message
-              : 'Tente novamente em instantes.',
-          actionLabel: 'Tentar de novo',
-          onAction: () => ref.invalidate(myBookingsNotifierProvider),
-        ),
-        _ => const DbookLoadingIndicator(message: 'Carregando reservas...'),
-      },
+      appBar: const DbookAppBar(title: 'Minhas viagens'),
+      body: staysView == null
+          ? _flightsBody(context, bookingsAsync)
+          : Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    DbookSpacing.lg,
+                    DbookSpacing.lg,
+                    DbookSpacing.lg,
+                    0,
+                  ),
+                  child: DbookChipRow(
+                    labels: const ['Voos', 'Hotéis'],
+                    selectedIndex: _showStays ? 1 : 0,
+                    onSelected: (index) =>
+                        setState(() => _showStays = index == 1),
+                  ),
+                ),
+                Expanded(
+                  child: _showStays
+                      ? staysView
+                      : _flightsBody(context, bookingsAsync),
+                ),
+              ],
+            ),
     );
+  }
+
+  Widget _flightsBody(
+    BuildContext context,
+    AsyncValue<List<MyBooking>> bookingsAsync,
+  ) {
+    return switch (bookingsAsync) {
+      AsyncData(:final value) => _BookingsBody(
+        bookings: value,
+        tabIndex: _tabIndex,
+        destinations: widget.destinations,
+        onTabChanged: (index) => setState(() => _tabIndex = index),
+        onRefresh: _refresh,
+        onPay: widget.onPay == null
+            ? null
+            : (booking) => widget.onPay!((
+                bookingId: booking.id,
+                label:
+                    '${booking.flight.originIataCode} → '
+                    '${booking.flight.destinationIataCode} · '
+                    'Assento ${booking.seat.label}',
+                price: booking.flight.price,
+              )),
+        onCancel: (booking) => _cancel(context, ref, booking),
+        onReview: (booking) => _review(context, ref, booking),
+      ),
+      AsyncError(:final error) => DbookStatusPlaceholder(
+        icon: Icons.error_outline,
+        iconColor: Theme.of(context).colorScheme.error,
+        title: 'Não foi possível carregar suas reservas',
+        message: error is DbookNetworkException
+            ? error.message
+            : 'Tente novamente em instantes.',
+        actionLabel: 'Tentar de novo',
+        onAction: () => ref.invalidate(myBookingsNotifierProvider),
+      ),
+      _ => const DbookLoadingIndicator(message: 'Carregando reservas...'),
+    };
   }
 }
 
@@ -169,6 +201,7 @@ class _BookingsBody extends StatelessWidget {
     required this.onTabChanged,
     required this.onRefresh,
     required this.onCancel,
+    this.onPay,
     required this.onReview,
   });
 
@@ -178,6 +211,7 @@ class _BookingsBody extends StatelessWidget {
   final ValueChanged<int> onTabChanged;
   final Future<void> Function() onRefresh;
   final void Function(MyBooking booking) onCancel;
+  final void Function(MyBooking booking)? onPay;
   final void Function(MyBooking booking) onReview;
 
   @override
@@ -249,7 +283,14 @@ class _BookingsBody extends StatelessWidget {
                           booking.flight.destinationIataCode,
                           destinations,
                         ),
-                        onCancel: booking.status == BookingStatus.pending
+                        onPay:
+                            booking.status == BookingStatus.pending &&
+                                onPay != null
+                            ? () => onPay!(booking)
+                            : null,
+                        onCancel:
+                            booking.status == BookingStatus.pending ||
+                                booking.status == BookingStatus.confirmed
                             ? () => onCancel(booking)
                             : null,
                         onReview: booking.status == BookingStatus.confirmed
@@ -269,12 +310,14 @@ class _BookingCard extends StatelessWidget {
   const _BookingCard({
     required this.booking,
     required this.destination,
+    this.onPay,
     this.onCancel,
     this.onReview,
   });
 
   final MyBooking booking;
   final Destination? destination;
+  final VoidCallback? onPay;
   final VoidCallback? onCancel;
   final VoidCallback? onReview;
 
@@ -283,7 +326,7 @@ class _BookingCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final flight = booking.flight;
-    final airlineColor = _airlineColor(flight.airlineIataCode);
+    final airlineColor = DbookCategoricalColors.forKey(flight.airlineIataCode);
     final review = booking.review;
 
     return Card(
@@ -320,13 +363,11 @@ class _BookingCard extends StatelessWidget {
                   const SizedBox(height: DbookSpacing.xs),
                   Row(
                     children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: airlineColor,
-                          shape: BoxShape.circle,
-                        ),
+                      DbookAirlineLogo(
+                        iataCode: flight.airlineIataCode,
+                        color: airlineColor,
+                        logoUrl: flight.airlineLogoUrl,
+                        size: 20,
                       ),
                       const SizedBox(width: DbookSpacing.xs),
                       Expanded(
@@ -343,13 +384,17 @@ class _BookingCard extends StatelessWidget {
                   const SizedBox(height: DbookSpacing.xs),
                   Text(
                     '${_dateFormat.format(flight.departureTime)} · '
-                    'Seat ${booking.seat.label}',
+                    'Assento ${booking.seat.label}',
                     style: textTheme.bodySmall,
                   ),
+                  if (onPay != null) ...[
+                    const SizedBox(height: DbookSpacing.sm),
+                    DbookButton(label: 'Pagar agora', onPressed: onPay),
+                  ],
                   if (onCancel != null) ...[
                     const SizedBox(height: DbookSpacing.sm),
                     DbookButton(
-                      label: 'Cancel Booking',
+                      label: 'Cancelar reserva',
                       variant: DbookButtonVariant.text,
                       onPressed: onCancel,
                     ),
@@ -408,7 +453,10 @@ class _DestinationThumbnail extends StatelessWidget {
                     ],
                   ),
                 ),
-                child: const Icon(Icons.flight_outlined, color: Colors.white),
+                child: Icon(
+                  Icons.flight_outlined,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
               )
             : Image.network(photoUrl!, fit: BoxFit.cover),
       ),
