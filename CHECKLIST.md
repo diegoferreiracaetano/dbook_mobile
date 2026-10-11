@@ -992,7 +992,9 @@ Antes de qualquer tela do CRM (regra tokens → componentes → telas). Cada com
 - [ ] 44.1 Ao iniciar, consulta `GET /v1/app-config`; versão abaixo da mínima → tela de **atualização obrigatória** (com link da loja), versão defasada porém aceita → aviso dispensável
 - [ ] 44.2 Tratamento do cabeçalho `Deprecation` (registrar e, em debug, avisar), testes e documentação
 
-## Estado real de M26–M44 (2026-10-09)
+## Estado real de M26–M44 (2026-10-09; atualizado em 2026-10-10)
+
+> **Atualização de 2026-10-10:** tudo abaixo está **implementado, testado e verificado renderizado contra a API real**; `melos run analyze` e `test` com exit 0, cobertura combinada **80,68 %**. O que a tabela ainda chama de "pendente" ficou, em sua maior parte, **resolvido** nos M45–M48. **Continuam pendentes:** E2E do portal (só roda no CI, falta `chromedriver` na máquina), Lighthouse, deploy do portal, a tela de hotéis do portal (M47.3) e a pré-visualização da foto no formulário de aeroportos (M47.4). O texto original da tabela fica como registro do que se sabia em 2026-10-09.
 
 Legenda: 🟡 = **implementado e compilando**, verificação completa pendente. Nada
 foi verificado contra a API real (o Docker não subiu na máquina de
@@ -1058,7 +1060,7 @@ testes de favoritos e cancelamento estavam defasados em relação ao M39/M42.
 do adaptador falso; busca de hotel por nome de cidade em vez de código IATA
 (depende de endpoint de busca de destino no backend).
 
-## M45 — Revisão do app de clientes: correções e busca unificada 📋  *(pedido de 2026-10-09)*
+## M45 — Revisão do app de clientes: correções e busca unificada ✅ *(absorvido pelo M46)*  *(pedido de 2026-10-09)*
 
 Origem: feedback do dono ao ver o app renderizado. **Regra desta etapa: planejar e registrar primeiro; nada é corrigido sem estar aqui.**
 

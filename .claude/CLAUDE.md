@@ -1,8 +1,8 @@
 # DBook Mobile
 
-Cliente **Flutter** (não é app Android nativo nem Compose — as pastas `android/`/`ios/` são só o runner) do backend DBook (`../dbook`, Kotlin/Spring). Monorepo com **melos + pub workspaces**. Hoje: onboarding, busca de voos, detalhe, reserva de assento, pagamento, minhas viagens, perfil, tempo real (disponibilidade), sugestão por IA.
+Cliente **Flutter** (não é app Android nativo nem Compose — as pastas `android/`/`ios/` são só o runner) do backend DBook (`../dbook`, Kotlin/Spring). Monorepo com **melos + pub workspaces**. Hoje: onboarding, busca única de voo e hotel, vitrine de hotéis e pacotes (com foto), detalhe, reserva de assento e de quarto, pagamento com cupom, minhas viagens e estadias, reembolso, favoritos, alertas de preço, notificações, perfil completo (foto, preferências, senha, dispositivos), tempo real (disponibilidade) e sugestão por IA. Há também o **portal administrativo** (Flutter Web, `apps/dbook_admin`) para a equipe.
 
-Idioma: docs (`README.md`, `CHECKLIST.md`, este arquivo), comentários/dartdoc e commits em **português**; identificadores em inglês. Textos de UI hoje são **mistos** (telas de fluxo em inglês — "Select a Seat", "Book This Flight"; mensagens de formulário/erro em português — "Digite seu e-mail"). Não há l10n; siga o idioma da tela em que está mexendo e não "unifique" de passagem.
+Idioma: docs (`README.md`, `CHECKLIST.md`, este arquivo), comentários/dartdoc e commits em **português**; identificadores em inglês. A interface do app de clientes é **toda em português** (decisão do M46). O app não tem l10n: os textos ficam no código da tela; o **portal** tem `dbook_admin_l10n` (ARB em português). Não volte a misturar idiomas numa tela.
 
 > Regra de ouro: **não invente padrões**. Ache o irmão mais próximo (notifier, page, teste) e copie a forma dele. As skills em `.claude/skills/` têm exemplos reais.
 
@@ -22,25 +22,30 @@ Idioma: docs (`README.md`, `CHECKLIST.md`, este arquivo), comentários/dartdoc e
 | Estado / DI | flutter_riverpod ^3.4.3 — `Notifier`/`AsyncNotifier`/`FutureProvider` escritos à mão (sem `riverpod_generator`) |
 | Modelos | freezed ^4.0.1 + freezed_annotation ^3.1.0; json_serializable ^6.11.1 **só** em `dbook_core_network` (DTOs) |
 | HTTP | dio ^5.9.0 |
-| Navegação | `Navigator`/`MaterialPageRoute` no root + `go_router` ^16.2.4 **só** dentro de `FlightsHomePage` |
+| Navegação | app de clientes: `Navigator`/`MaterialPageRoute` no root + `go_router` ^16.2.4 **só** dentro de `FlightsHomePage`; portal: `go_router` com URL por caminho em `apps/dbook_admin` |
 | Storage | flutter_secure_storage ^11.1.1 (tokens), shared_preferences ^2.5.3 (onboarding/favoritos) |
 | Tempo real | web_socket_channel ^3.0.1 (STOMP mínimo próprio) |
-| Fontes/format | google_fonts ^8.2.1, intl ^0.20.2 |
+| Fontes/format | Roboto **empacotada** em `dbook_design_system/assets/fonts` (sem CDN: a CSP do portal bloqueia fonte remota), intl ^0.20.2 |
 | Lint | flutter_lints ^6.0.0 / lints ^6.0.0 (`analysis_options.yaml` padrão, sem regras extras) |
 | Testes | flutter_test / test, `fake_async` (timers), integration_test. **Sem lib de mock** (nada de mocktail/mockito) |
 
 ## Estrutura (grafo de dependência real)
 
 ```
-apps/dbook_mobile/            composition root: main.dart (tabs, Auth Gate, jornada de reserva), profile_page.dart
+apps/dbook_mobile/            composition root: main.dart (4 abas, Auth Gate, jornada de reserva), profile_page.dart, account/ (preferências, dispositivos, senha, foto), home_stays_section.dart (vitrine de hotéis e pacotes)
+apps/dbook_admin/             portal administrativo (Flutter Web): go_router, redirecionamento por permissão, shell responsivo
 packages/
-  dbook_design_system/        tokens (DbookSpacing/Radius/...), DbookTheme, componentes Dbook* — só Flutter+google_fonts (não conhece domínio)
+  dbook_design_system/        tokens (DbookSpacing/Radius/...), DbookTheme, componentes Dbook* (inclui `DbookPhoto`, `DbookAirlineLogo`) — só Flutter (não conhece domínio)
     sample/  widgetbook/      apps de catálogo do design system
   dbook_domain/               Dart PURO: entidades (freezed), portas (abstract interface class XxxRepository), use_cases
   dbook_core_network/         Dio, DTOs (freezed+json), XxxRepositoryImpl, DbookNetworkException, wire_enums
   dbook_core_storage/         TokenStorage (secure storage)
   dbook_core_session/         dioProvider (token + refresh no 401), baseUrlProvider — compartilhado por toda feature
-  dbook_feature_auth/  _flights/  _booking/  _realtime/  _ai/     state/ (Notifier + freezed) + ui/ + barrel
+  dbook_feature_auth/  _flights/  _booking/  _realtime/  _ai/  _stays/  _notifications/   state/ (Notifier + freezed) + ui/ + barrel
+  dbook_admin_data/           portal: modelos tolerantes (`JsonRead`), `Dio*Api`, `guarded()`
+  dbook_admin_session/        portal: token em memória, renovação em voo único, `IdleGuard`, `DraftGuard`, `PermissionGate`
+  dbook_admin_l10n/           portal: textos (ARB) e formatação
+  dbook_feature_admin_{auth,team,customers,bookings,catalog,dashboard,governance}/   telas do portal por assunto
 ```
 
 Setas: `domain` ← `core_network` ← `core_session` ← `feature_*` ← `app`; `design_system` é folha. Feature nova de negócio = pacote `dbook_feature_<x>` seguindo os irmãos; todo `src/` é privado e só o barrel `lib/dbook_feature_<x>.dart` exporta.
@@ -71,7 +76,7 @@ Estado real dos **use cases** de `dbook_domain`: existem e têm teste, mas as fe
 - Componente reutilizável entre features → `dbook_design_system` (+ export no barrel + teste + entrada no widgetbook quando cabível). Widget de uso único fica privado (`_Xxx`) no arquivo da tela.
 - Tela com conteúdo que pode passar da altura: use rolagem (`SingleChildScrollView`) — já houve `RenderFlex overflow` real por isso.
 - Imagem de rede (`Image.network`) precisa de fallback (gradiente) quando não há foto.
-- Navegação: shell de 4 abas (`IndexedStack` + `NavigationBar`); login pelo Auth Gate (`pushAuthGate` em `main.dart`); jornada de reserva no `rootNavigator` com `MaterialPageRoute` orquestrada pelo `main.dart`; `go_router` só na aba Home.
+- Navegação: shell de 4 abas (`IndexedStack` + `NavigationBar`: Início, Explorar, Viagens, Perfil); a Home tem o seletor **Voos | Hotéis** no mesmo cartão de busca. Cuidado: a página raiz da Home mora num `GoRouter` que guarda o que construiu, por isso `FlightsHomePage` a reconstrói a cada mudança do pai (senão fica com o estado de visitante depois do login); login pelo Auth Gate (`pushAuthGate` em `main.dart`); jornada de reserva no `rootNavigator` com `MaterialPageRoute` orquestrada pelo `main.dart`; `go_router` só na aba Home.
 
 ## Estratégia de testes (detalhes na skill `flutter-testing`)
 
@@ -92,7 +97,7 @@ melos run test                     # flutter test nos pacotes Flutter
 melos run test:dart                # dart test em dbook_domain e dbook_core_network
 melos run coverage                 # flutter test --coverage
 melos run coverage:dart            # dart test --coverage → lcov
-./tool/combine_coverage.sh         # junta em coverage/lcov.info (CI exige ≥ 80%; último valor conhecido 82.01%)
+./tool/combine_coverage.sh         # junta em coverage/lcov.info (CI exige ≥ 80%; último valor conhecido 80,68 % em 2026-10-10)
 
 # um pacote só (mais rápido no dia a dia)
 cd packages/dbook_feature_booking && flutter analyze && flutter test

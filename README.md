@@ -1,6 +1,6 @@
 # DBook Mobile
 
-Cliente Flutter do [DBook](../dbook) — consome a API de reservas de voos construída no projeto backend.
+Cliente Flutter do [DBook](../dbook) — consome a API de reservas de voos e hotéis construída no projeto backend. Inclui o app de clientes e o portal administrativo da equipe (Flutter Web).
 
 Monorepo gerenciado com [melos](https://melos.invertase.dev/), sobre o suporte nativo do Dart a [pub workspaces](https://dart.dev/tools/pub/workspaces).
 
@@ -28,7 +28,8 @@ O app de clientes (Flutter, web e mobile) busca voos e hotéis numa tela só, mo
 
 ```
 apps/
-  dbook_mobile/                 # app Flutter de verdade
+  dbook_mobile/                 # app Flutter de clientes (voos, hotéis, reserva, pagamento, perfil)
+  dbook_admin/                  # portal administrativo (Flutter Web): clientes, reservas, catálogo, dashboard, equipe
 packages/
   dbook_design_system/          # tokens, tema e componentes compartilhados
     sample/                     # app de exemplo mostrando o design system
@@ -42,6 +43,12 @@ packages/
   dbook_feature_booking/        # seleção de assento, confirmação e minhas reservas (Riverpod)
   dbook_feature_realtime/       # disponibilidade ao vivo — cliente STOMP mínimo sobre WebSocket
   dbook_feature_ai/             # sugestão de voo por IA — busca em linguagem natural (Riverpod)
+  dbook_feature_stays/          # busca de hotel, detalhe, quartos, reserva e minhas estadias
+  dbook_feature_notifications/  # caixa de entrada, preferências de aviso e registro do aparelho
+  dbook_admin_data/             # portal: modelos tolerantes e APIs administrativas
+  dbook_admin_session/          # portal: sessão em memória, ociosidade, rascunho protegido, permissões
+  dbook_admin_l10n/             # portal: textos em português e formatação
+  dbook_feature_admin_*/        # portal: auth, equipe, clientes, reservas, catálogo, dashboard, governança
 ```
 
 ## Rodando localmente
@@ -107,7 +114,7 @@ Ver [CHECKLIST.md](CHECKLIST.md) para o detalhamento marco a marco.
 - **M6 — Tempo real**: completo. `dbook_feature_realtime` tem um cliente STOMP mínimo sobre `web_socket_channel` — conecta em `/ws`, autentica com um header STOMP nativo (`Authorization: Bearer <token>` no CONNECT, já que o handshake do WebSocket em si não aceita header HTTP custom), assina `/topic/bookables/{id}/availability` e reconecta com backoff se a conexão cair (o broker é em memória, sem fila/replay, então uma atualização perdida durante a queda é só perdida mesmo). `DbookLiveAvailability` mostra isso na tela de detalhe do voo, injetado do mesmo jeito que o botão de reservar (M5) e o logout (M4) — a feature de voos não conhece nenhuma das outras.
 - **M7 — Sugestão por IA**: completo. `dbook_feature_ai` tem `AiSuggestionPage` com um `DbookSearchField` (M1, já pensado pra esse uso) pra busca em linguagem natural. `POST /ai/suggestions` só devolve `{flightId, reason}` — sem os dados do voo e sem `GET /flights/{id}` pra completar depois — então a lista mostra exatamente isso, sem fingir ter uma busca de voo por trás. Erros de rate limit (429) e modelo indisponível (502/503) usam o mesmo `DbookNetworkException.message` de toda outra feature.
 - **M8 — CI/CD**: completo. Ver seção [CI/CD](#cicd) acima. Build de APK debug/release (assinado se os secrets existirem) e build de iOS sem codesign, todos verificados localmente antes de subir pro pipeline. O gate de qualidade (`analyze-format-test`) já roda desde o M1; falta só ativar o branch protection no GitHub exigindo esse check (não é algo que dá pra fazer sem autenticação `gh` de verdade no ambiente onde isso foi construído).
-- **M9 — Remediação de navegação e UX**: em andamento. Auth Gate real (busca/resultado/detalhe públicos, sem exigir login pra ver preço — bate com o próprio backend, que já expõe isso como `permitAll()`), shell de 4 abas (`IndexedStack` + `NavigationBar`), "Destinos em destaque" com foto real, preço real (via M12 do backend) e favorito local (`shared_preferences`), tipo de viagem (Round Trip/One Way/Multi-city implementados, rádios temporariamente desativados na UI por pedido do usuário). Faltam: Review Order antes da confirmação (9.6) e polimento client-side (9.8).
+- **M9 — Remediação de navegação e UX**: histórico (as pendências 9.6 e 9.8 foram absorvidas pelos M10-M23 e M46). Auth Gate real (busca/resultado/detalhe públicos, sem exigir login pra ver preço — bate com o próprio backend, que já expõe isso como `permitAll()`), shell de 4 abas (`IndexedStack` + `NavigationBar`), "Destinos em destaque" com foto real, preço real (via M12 do backend) e favorito local (`shared_preferences`), tipo de viagem (Round Trip/One Way/Multi-city implementados, rádios temporariamente desativados na UI por pedido do usuário). Faltam: Review Order antes da confirmação (9.6) e polimento client-side (9.8).
 - **M10 — Tela de Resultados da Busca (redesign)**: completo. `FlightResultsPage` ganhou cabeçalho com rota+data+botão Filter, faixa horizontal de datas com preço real por dia (`GET /flights/search` por data, sem endpoint novo), contagem de voos + selo "Best prices today" (só quando o dia é de fato o mais barato da faixa), e `DbookFlightResultTile` com selo colorido por companhia (dado real do M11 do backend, cor fixa por companhia conhecida). Ordenar por preço/duração e filtrar por classe de cabine, tudo client-side sobre o resultado já buscado.
 - **M11 — `Destination` substitui `KnownAirport` (front burro)**: completo. Antes, `knownAirports` era uma lista fixa de 3 aeroportos hardcoded no Flutter — dado de negócio vivendo no front. Agora `dbook_domain` tem a entidade `Destination` (iataCode, city, country, photoUrl, lowestPrice) e a porta `DestinationRepository`, alimentadas por `GET /destinations` (M13 do backend `dbook`) — um endpoint só, sem BFF separado, moldado pro que a Home precisa: aeroporto + foto real + menor preço real numa resposta. O front não sabe mais "quais destinos existem"; só renderiza os 8 que a API manda (São Paulo, Rio, Nova York e 5 hubs internacionais novos — Londres, Paris, Lisboa, Miami, Buenos Aires). `FlightRepository.getLowestPrice` foi removido (a responsabilidade de preço por destino é só da `DestinationRepository` agora); busca, seletor de origem/destino, grade da Home e aba Explore usam todos o mesmo `featuredDestinationsProvider`.
 - **M12 — "Principais destinos" e "Destinos por região" (Explore + Home)**: completo. Home e Explore filtram `destination.isPopular` (curadoria real do backend, M14 do `dbook`) pra "Destinos em destaque"/"Principais destinos". Pra região, as duas telas divergem por design: a Explore tem um filtro de verdade (`DestinationsByRegion` — chips de seleção única acima de uma grade que mostra só a região escolhida); a Home tem um carrossel de navegação (`RegionCarousel` — 1 card por região, foto real + nome, sem filtrar nada na própria tela). Tocar um card do carrossel leva pra Explore já com aquela região selecionada (`prefillRegionProvider`, mesma "ponte efêmera" de `prefillDestinationProvider`, só que no sentido contrário). Uma chamada só (`GET /destinations`, sem mudança de endpoint) — tudo vem da mesma lista já carregada por `featuredDestinationsProvider`. `DbookChipRow` (faixa de chips, mesmo padrão visual do `DbookFareDateStrip`) entrou no design system antes da feature usar.
