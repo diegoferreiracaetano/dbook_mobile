@@ -1177,6 +1177,30 @@ Feito (só com dado e ação reais): perfil em seções, resumo com números rea
 - [x] 48.4 **Trocar senha** e **dispositivos conectados** dentro do app (M51.4) e **sessões ativas** (M51.5).
 - [x] 48.5 Testes de `apps/dbook_mobile/test/account_test.dart` (contrato da conta, preferências com recusa do servidor, dispositivos, senha, foto) e do perfil; telas verificadas renderizadas contra a API real (`docs/screenshots`). O teste achou um defeito real: os controladores dos diálogos eram descartados antes da animação de saída.
 
+## M49 — Referência visual: Traveline (UI8) 📋  *(pedido de 2026-10-11)*
+
+Referência escolhida pelo dono: [Traveline, Travel and Lifestyle App UI Kit (Unpixel, UI8)](https://ui8.net/unpixel/products/traveline---travel-and-lifestyle-app-ui-kit): 150+ telas claro e escuro, 12 categorias (onboarding, autenticação, Home, hotel, voo, trem, atração, minhas reservas, favoritos, mensagens, perfil, suporte). **Só como referência**: o kit é pago e as imagens não entram no repositório; usamos os princípios.
+
+**O que a referência define** (lido das prévias públicas): primário azul `#006CE5` (o nosso `#0B66D6` já é praticamente o mesmo), **secundário amarelo `#FFD023`** (selos "50% off", assento selecionado, destaque), sucesso `#22C55E`, aviso `#FACC15`, erro `#F75555`, escala de cinzas 50-900, fonte Urbanist, cartões brancos com cantos grandes, formulários de busca como cartão branco sobre faixa azul, barra de preço fixa embaixo com CTA, navegação Home / Explorar / Reservas / Favoritos / Perfil.
+
+**Decisões que pedem confirmação do dono** (recomendação entre parênteses):
+1. Amarelo como segundo acento? (sim, só para selo e assento selecionado, com texto escuro para passar AA; o resto segue com um acento só)
+2. Fonte Urbanist? (**não**: a Roboto empacotada foi escolha do dono; trocar custa peso do bundle e a CSP do portal)
+3. Aba "Favoritos" na barra inferior? (sim, os favoritos já existem no servidor; hoje ficam escondidos no Perfil)
+4. Selo de desconto ("-50%") nos cartões? (**só** se a API entregar o desconto real; hoje não entrega)
+
+**Itens propostos, do menor para o maior:**
+- [ ] 49.1 **Token** `accent` (amarelo) em `DbookBrandColors`/paleta, com par de texto AA e teste de contraste.
+- [ ] 49.2 **Mapa de assentos** no padrão da referência: disponível cinza, selecionado amarelo, indisponível apagado, barra inferior com preço e "Concluir".
+- [ ] 49.3 **Detalhe do hotel**: foto de capa, linha de comodidades com ícone, barra de preço fixa com "Selecionar quarto".
+- [ ] 49.4 **Filtros do hotel** (estrelas e faixa de preço, aplicados nos resultados já carregados) em folha, como a tela "Filters".
+- [ ] 49.5 **Buscas recentes** (histórico no aparelho, não é dado de negócio) na busca de hotel e de voo.
+- [ ] 49.6 **Aba Favoritos** com estado vazio ilustrado ("Sua lista está vazia").
+- [ ] 49.7 **Cartões** de hotel e destino no padrão (foto, pino de local, nota, "a partir de"), sem selo de desconto sem dado.
+- [ ] 49.8 Capturas antes e depois em `docs/screenshots`, claro e escuro, e teste de cada item.
+
+**Fora do escopo** (não há dado ou endpoint, princípio "front burro"): trem, atrações, mensagens, cupons e ofertas da semana, localização atual, pagamento por carteiras.
+
 ## Ideias futuras (fora da numeração)
 
 - Golden tests (regressão visual) pros componentes do `dbook_design_system`
