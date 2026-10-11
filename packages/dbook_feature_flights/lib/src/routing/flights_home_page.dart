@@ -59,21 +59,42 @@ class FlightsHomePage extends StatefulWidget {
 }
 
 class _FlightsHomePageState extends State<FlightsHomePage> {
+  // O `GoRouter` guarda a página que construiu: sem isto, a Home ficaria com
+  // as ações e callbacks de quando nasceu (ex.: ainda "visitante" depois do
+  // login, com o ícone de entrar e a IA pedindo conta). Cada mudança do
+  // widget pai reconstrói a página raiz por aqui.
+  final _version = ValueNotifier<int>(0);
+
+  @override
+  void didUpdateWidget(covariant FlightsHomePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _version.value++;
+  }
+
+  @override
+  void dispose() {
+    _version.dispose();
+    super.dispose();
+  }
+
   late final _router = GoRouter(
     initialLocation: '/',
     routes: [
       GoRoute(
         path: '/',
-        builder: (context, state) => FlightSearchPage(
-          actions: widget.actions,
-          onSelectRegion: widget.onSelectRegion,
-          hotelPanelBuilder: widget.hotelPanelBuilder,
-          hotelResultsBuilder: widget.hotelResultsBuilder,
-          extrasBuilder: widget.extrasBuilder,
-          onSearch: (queries) {
-            widget.onQueueLegs?.call(queries.skip(1).toList());
-            context.push('/results', extra: queries.first);
-          },
+        builder: (context, state) => ValueListenableBuilder<int>(
+          valueListenable: _version,
+          builder: (context, _, _) => FlightSearchPage(
+            actions: widget.actions,
+            onSelectRegion: widget.onSelectRegion,
+            hotelPanelBuilder: widget.hotelPanelBuilder,
+            hotelResultsBuilder: widget.hotelResultsBuilder,
+            extrasBuilder: widget.extrasBuilder,
+            onSearch: (queries) {
+              widget.onQueueLegs?.call(queries.skip(1).toList());
+              context.push('/results', extra: queries.first);
+            },
+          ),
         ),
       ),
       GoRoute(

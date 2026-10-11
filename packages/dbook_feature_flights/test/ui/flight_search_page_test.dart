@@ -478,4 +478,33 @@ void main() {
       expect(find.text('Hotéis'), findsNothing);
     },
   );
+
+  testWidgetsWithMockImages(
+    'given the Home already built when the parent passes new actions (the user '
+    'logged in) then the header shows them, not the ones it was born with',
+    (tester) async {
+      Widget host(List<Widget> actions) => ProviderScope(
+        overrides: [
+          destinationRepositoryProvider.overrideWithValue(
+            _FakeDestinationRepository(),
+          ),
+          flightRepositoryProvider.overrideWithValue(_FakeFlightRepository()),
+        ],
+        child: MaterialApp(
+          theme: DbookTheme.light,
+          home: FlightsHomePage(actions: actions),
+        ),
+      );
+
+      await tester.pumpWidget(host(const [Icon(Icons.login)]));
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.login), findsOneWidget);
+
+      await tester.pumpWidget(host(const [Icon(Icons.logout)]));
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.logout), findsOneWidget);
+      expect(find.byIcon(Icons.login), findsNothing);
+    },
+  );
 }
