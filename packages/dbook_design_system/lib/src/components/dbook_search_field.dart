@@ -36,6 +36,11 @@ class DbookSearchField extends StatelessWidget {
         ),
         suffixIcon: IconButton.filled(
           icon: const Icon(Icons.send),
+          tooltip: 'Enviar',
+          style: IconButton.styleFrom(
+            backgroundColor: colorScheme.primary,
+            foregroundColor: colorScheme.onPrimary,
+          ),
           onPressed: () => onSubmitted(controller.text),
         ),
       ),

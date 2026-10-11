@@ -232,7 +232,34 @@ class _AppShellState extends ConsumerState<_AppShell> {
       );
       return;
     }
-    pushAuthGate(context, onAuthenticated: (_) => const AiSuggestionPage());
+    // Visitante: explica antes de levar ao login (a IA usa a conta para limitar
+    // o uso), em vez de cair numa tela de login sem contexto.
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Entre para perguntar à IA'),
+        content: const Text(
+          'A IA sugere voos reais a partir do seu pedido. Para usar, entre na '
+          'sua conta ou crie uma: é rápido.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Agora não'),
+          ),
+          DbookButton(
+            label: 'Entrar',
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              pushAuthGate(
+                context,
+                onAuthenticated: (_) => const AiSuggestionPage(),
+              );
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   /// Nem Round Trip nem Multi-city são "1 trecho de verdade + resto

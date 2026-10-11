@@ -321,14 +321,20 @@ void main() {
     );
 
     testWidgetsWithMockImages(
-      'given a guest when Ask DBook AI is tapped then the Auth Gate opens '
-      'login instead of the AI screen',
+      'given a guest when the AI is tapped then explains why and only then '
+      'opens the login',
       (tester) async {
         _skipOnboarding();
 
         await tester.pumpWidget(_app());
         await tester.pumpAndSettle();
         await tester.tap(find.byIcon(Icons.auto_awesome_outlined));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Entre para perguntar à IA'), findsOneWidget);
+        expect(find.text('Bem-vindo de volta'), findsNothing);
+
+        await tester.tap(find.text('Entrar'));
         await tester.pumpAndSettle();
 
         expect(find.text('Bem-vindo de volta'), findsOneWidget);

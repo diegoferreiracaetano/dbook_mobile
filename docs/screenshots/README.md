@@ -15,3 +15,5 @@ Capturas do app (web, 400 × 860) contra a API real (`dbook`, com os seeds `seed
 | 09 | Home com a origem das preferências | origem já preenchida pela conta |
 | 10, 11 | Tema escuro | Home e Perfil |
 | 12 | Pacotes no tema escuro | botão "Ver voos" branco com o azul da marca, legível nos dois temas |
+| 13 | Perguntar à IA | sugestões de voos reais com o motivo de cada uma (ativas com `AI_PROVIDER=local` sem credenciais AWS) |
+| 14 | IA para visitante | explica por que pede login antes de abrir a tela de entrar |
