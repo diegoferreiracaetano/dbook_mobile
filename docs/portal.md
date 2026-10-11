@@ -44,10 +44,22 @@ faixa) e `APP_VERSION`.
 
 ## Verificado e não verificado
 
-Verificado: `flutter analyze` limpo, testes unitários e de widget dos pacotes
-de sessão, dados e codecs, build web de produção, tamanho do bundle
-(1164 KB gz contra orçamento de 1500).
+Verificado (atualizado em 2026-10-10): `flutter analyze` limpo em todos os
+pacotes; testes unitários e de widget de todos os pacotes do portal, inclusive
+os de **contrato com respostas reais da API** e as páginas renderizadas com
+elas; build web de produção e tamanho do bundle (1164 KB gz contra orçamento
+de 1500); e o portal **renderizado no navegador contra o backend real**
+(login, menu por permissão, clientes, dashboard, reservas). Cobertura
+combinada do repositório: 80,68 %.
 
-**Não** executado até aqui: backend real (o Docker não subiu na máquina),
-E2E (`integration_test/portal_flows_test.dart` escrito, não rodou), Lighthouse,
-deploy (`deploy-portal.yml` escrito, com portão de credencial AWS).
+Corrigido pelos testes: dropdowns do formulário de voo estouravam à direita,
+o selo de status estourava em coluna estreita, as linhas de tabela com duas
+linhas de texto estouravam a altura, e a fila de moderação ganhou um menu de
+ações (o botão "Dispensar denúncias" não recebia clique).
+
+**Ainda não executado:** o E2E (`integration_test/portal_flows_test.dart`
+está escrito e roda no workflow `e2e-portal.yml`; localmente falta o
+`chromedriver`), Lighthouse e o deploy (`deploy-portal.yml`, com portão de
+credencial AWS: o projeto não será publicado). **Fora do portal por enquanto:**
+a tela de hotéis (a API `/v1/admin/accommodations` já existe) e a
+pré-visualização da foto no formulário de aeroportos.
