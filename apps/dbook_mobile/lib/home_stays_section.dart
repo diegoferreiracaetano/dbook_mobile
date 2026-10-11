@@ -92,12 +92,30 @@ class HomeStaysSection extends ConsumerWidget {
             icon: Icons.luggage_outlined,
           ),
           const SizedBox(height: DbookSpacing.md),
-          for (final item in packages) ...[
-            _PackageCard(
-              destination: item.destination,
-              stay: item.stay,
-              onFlights: () => onSearchFlights(item.destination),
-              onHotel: () => _openHotel(context, item.stay),
+          // Grade de 2 por linha; `IntrinsicHeight` iguala a altura dos dois
+          // cartões da linha, sem número fixo que estoure com fonte maior.
+          for (var i = 0; i < packages.length; i += 2) ...[
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var j = i; j < i + 2; j++) ...[
+                    if (j > i) const SizedBox(width: DbookSpacing.md),
+                    Expanded(
+                      child: j < packages.length
+                          ? _PackageCard(
+                              destination: packages[j].destination,
+                              stay: packages[j].stay,
+                              onFlights: () =>
+                                  onSearchFlights(packages[j].destination),
+                              onHotel: () =>
+                                  _openHotel(context, packages[j].stay),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                  ],
+                ],
+              ),
             ),
             const SizedBox(height: DbookSpacing.md),
           ],
@@ -191,13 +209,16 @@ class _PackageCard extends StatelessWidget {
     final theme = Theme.of(context);
     final brand = theme.extension<DbookBrandColors>()!;
     final hotelFrom = stay.hotel.fromPrice;
+    final muted = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
     return Card(
       clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(
-            height: 120,
+            height: 90,
             child: DbookPhoto(
               url: destination.photoUrl,
               icon: Icons.landscape_outlined,
@@ -205,49 +226,55 @@ class _PackageCard extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(DbookSpacing.lg),
+            padding: const EdgeInsets.all(DbookSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(destination.city, style: theme.textTheme.titleMedium),
-                const SizedBox(height: DbookSpacing.xs),
                 Text(
-                  'Voo a partir de ${_price.format(destination.lowestPrice)}'
-                  '${hotelFrom == null ? '' : ' · hotel a partir de ${_price.format(hotelFrom)}'}',
-                  style: theme.textTheme.bodyMedium,
+                  destination.city,
+                  style: theme.textTheme.titleSmall,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: DbookSpacing.xs),
+                Text('Voo a partir de', style: muted),
                 Text(
-                  'Cada item é reservado e pago separadamente.',
-                  style: theme.textTheme.bodySmall,
+                  _price.format(destination.lowestPrice),
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                  ),
                 ),
-                const SizedBox(height: DbookSpacing.md),
-                Row(
-                  children: [
-                    Expanded(
-                      // Branco com o azul da marca, o mesmo par do seletor
-                      // Voos | Hotéis: no tema escuro o contorno azul sumia.
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: brand.onSurface,
-                          foregroundColor: brand.surface,
-                          side: BorderSide(color: brand.surface),
-                          minimumSize: const Size.fromHeight(
-                            DbookSizes.controlHeight,
-                          ),
-                        ),
-                        onPressed: onFlights,
-                        child: const Text('Ver voos'),
-                      ),
+                if (hotelFrom != null) ...[
+                  const SizedBox(height: DbookSpacing.xs),
+                  Text('Hotel a partir de', style: muted),
+                  Text(
+                    _price.format(hotelFrom),
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: theme.colorScheme.primary,
                     ),
-                    const SizedBox(width: DbookSpacing.sm),
-                    Expanded(
-                      child: DbookButton(
-                        label: 'Ver hotel',
-                        onPressed: onHotel,
-                      ),
+                  ),
+                ],
+                const SizedBox(height: DbookSpacing.xs),
+                Text('Pagos separadamente', style: muted),
+                const SizedBox(height: DbookSpacing.sm),
+                // Branco com o azul da marca, o mesmo par do seletor
+                // Voos | Hotéis: no tema escuro o contorno azul sumia.
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: brand.onSurface,
+                    foregroundColor: brand.surface,
+                    side: BorderSide(color: brand.surface),
+                    minimumSize: const Size.fromHeight(
+                      DbookSizes.controlHeight,
                     ),
-                  ],
+                  ),
+                  onPressed: onFlights,
+                  child: const Text('Ver voos'),
+                ),
+                const SizedBox(height: DbookSpacing.sm),
+                SizedBox(
+                  width: double.infinity,
+                  child: DbookButton(label: 'Ver hotel', onPressed: onHotel),
                 ),
               ],
             ),

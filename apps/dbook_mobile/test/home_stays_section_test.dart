@@ -7,7 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _Accommodations implements AccommodationRepository {
-  _Accommodations(this.results);
+  _Accommodations(this.results, {this.everywhere = false});
+
+  final bool everywhere;
 
   final List<AccommodationResult> results;
   final searched = <String>[];
@@ -15,7 +17,7 @@ class _Accommodations implements AccommodationRepository {
   @override
   Future<List<AccommodationResult>> search(StaySearch search) async {
     searched.add(search.destination);
-    return search.destination == 'LIS' ? results : const [];
+    return everywhere || search.destination == 'LIS' ? results : const [];
   }
 
   @override
@@ -97,7 +99,8 @@ void main() {
     expect(find.text('HOTÉIS EM DESTAQUE'), findsOneWidget);
     expect(find.text('Hotel Alfama'), findsOneWidget);
     expect(find.text('PACOTES VOO + HOTEL'), findsOneWidget);
-    expect(find.textContaining('Voo a partir de'), findsOneWidget);
+    expect(find.text('Voo a partir de'), findsOneWidget);
+    expect(find.text('Hotel a partir de'), findsOneWidget);
     expect(fake.searched, ['LIS']);
   });
 
@@ -137,5 +140,49 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('HOTÉIS EM DESTAQUE'), findsNothing);
+  });
+
+  testWidgets('given three packages when built then the grid has two per row '
+      'and the third goes below', (tester) async {
+    const rio = Destination(
+      iataCode: 'GIG',
+      city: 'Rio de Janeiro',
+      country: 'Brasil',
+      photoUrl: '',
+      region: 'América do Sul',
+      isPopular: true,
+      lowestPrice: 400,
+    );
+    const sampa = Destination(
+      iataCode: 'GRU',
+      city: 'São Paulo',
+      country: 'Brasil',
+      photoUrl: '',
+      region: 'América do Sul',
+      isPopular: true,
+      lowestPrice: 300,
+    );
+    await tester.pumpWidget(
+      _section(_Accommodations(const [_hotel], everywhere: true), const [
+        _lisbon,
+        rio,
+        sampa,
+      ]),
+    );
+    await tester.pumpAndSettle();
+
+    final tops = [
+      for (final city in ['Lisboa', 'Rio de Janeiro', 'São Paulo'])
+        tester.getTopLeft(find.text(city).last).dy,
+    ];
+    final lefts = [
+      for (final city in ['Lisboa', 'Rio de Janeiro', 'São Paulo'])
+        tester.getTopLeft(find.text(city).last).dx,
+    ];
+
+    expect(tops[0], tops[1]);
+    expect(tops[2], greaterThan(tops[0]));
+    expect(lefts[1], greaterThan(lefts[0]));
+    expect(lefts[2], lefts[0]);
   });
 }
