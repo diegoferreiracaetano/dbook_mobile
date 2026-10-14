@@ -1198,6 +1198,7 @@ Referência escolhida pelo dono: [Traveline, Travel and Lifestyle App UI Kit (Un
 - [ ] 49.6 **Aba Favoritos** com estado vazio ilustrado ("Sua lista está vazia").
 - [ ] 49.7 **Cartões** de hotel e destino no padrão (foto, pino de local, nota, "a partir de"), sem selo de desconto sem dado.
 - [ ] 49.8 Capturas antes e depois em `docs/screenshots`, claro e escuro, e teste de cada item.
+- [ ] 49.9 **Carregamento em shimmer** (`DbookLoadingIndicator` com `DbookSkeleton`, círculo em espaço pequeno) e **sample/widgetbook** do design system atualizados. Já implementado antes do pedido de backlog; falta validar renderizado e fechar.
 
 **Fora do escopo** (não há dado ou endpoint, princípio "front burro"): trem, atrações, mensagens, cupons e ofertas da semana, localização atual, pagamento por carteiras.
 

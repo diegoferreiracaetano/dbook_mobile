@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Escolher destino</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="dbook.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="screen">
+  <div class="appbar"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg><span>Para onde vamos?</span></div>
+  <div class="body" style="gap:16px">
+    <div class="field" style="height:52px"><svg class="i muted" viewBox="0 0 24 24"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM21 21l-5-5"/></svg><span class="muted">Buscar cidade ou aeroporto</span></div>
+    <div>
+      <div class="row"><span class="label">Buscas recentes</span><span class="sp"></span><span style="color:var(--primary);font-weight:500;font-size:13px">Limpar</span></div>
+      <div style="display:flex;flex-direction:column;margin-top:6px">
+        <div class="row" style="padding:10px 0"><svg class="i muted" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div><b>Rio de Janeiro (GIG)</b><div class="muted" style="font-size:12px">25/10 a 27/10 · 2 hóspedes</div></div></div>
+        <div class="row" style="padding:10px 0"><svg class="i muted" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div><b>Lisboa (LIS)</b><div class="muted" style="font-size:12px">02/11 a 05/11 · 1 hóspede</div></div></div>
+      </div>
+    </div>
+    <div>
+      <div class="label">Destinos</div>
+      <div style="display:flex;flex-direction:column;margin-top:6px">
+        <div class="row" style="padding:10px 0"><svg class="i muted" viewBox="0 0 24 24"><path d="M21 3L3 11l7 2 2 7z"/></svg><div><b>Paris (CDG)</b><div class="muted" style="font-size:12px">França</div></div></div>
+        <div class="row" style="padding:10px 0"><svg class="i muted" viewBox="0 0 24 24"><path d="M21 3L3 11l7 2 2 7z"/></svg><div><b>Buenos Aires (EZE)</b><div class="muted" style="font-size:12px">Argentina</div></div></div>
+        <div class="row" style="padding:10px 0"><svg class="i muted" viewBox="0 0 24 24"><path d="M21 3L3 11l7 2 2 7z"/></svg><div><b>Rio de Janeiro (GIG)</b><div class="muted" style="font-size:12px">Brasil</div></div></div>
+        <div class="row" style="padding:10px 0"><svg class="i muted" viewBox="0 0 24 24"><path d="M21 3L3 11l7 2 2 7z"/></svg><div><b>São Paulo (GRU)</b><div class="muted" style="font-size:12px">Brasil</div></div></div>
+      </div>
+    </div>
+    <div class="muted" style="font-size:12px;margin-top:auto">O histórico fica só neste aparelho; a lista de destinos vem do servidor.</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

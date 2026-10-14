@@ -800,7 +800,7 @@ void main() {
         find.widgetWithText(NavigationDestination, 'Hotels'),
         findsNothing,
       );
-      expect(find.byType(NavigationDestination), findsNWidgets(4));
+      expect(find.byType(NavigationDestination), findsNWidgets(5));
     },
   );
 }

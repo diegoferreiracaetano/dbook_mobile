@@ -1,0 +1,48 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-10-11T12:00:00Z" },
+  "title": "DBook — projeto de todas as telas (M49)",
+  "launch": { "view": "canvas" },
+  "boards": {
+    "01-onboarding.dc.html": { "x": 0, "y": 300, "w": 390, "h": 844, "title": "Onboarding (mantém)" },
+    "02-login.dc.html": { "x": 470, "y": 300, "w": 390, "h": 844, "title": "Entrar (mantém)" },
+    "03-cadastro.dc.html": { "x": 940, "y": 300, "w": 390, "h": 844, "title": "Cadastro (mantém)" },
+    "Main.dc.html": { "x": 0, "y": 1264, "w": 390, "h": 844, "title": "Home · Voos (ajusta)" },
+    "05-home-hoteis.dc.html": { "x": 470, "y": 1264, "w": 390, "h": 844, "title": "Home · Hotéis (ajusta)" },
+    "06-seletor-destino.dc.html": { "x": 940, "y": 1264, "w": 390, "h": 844, "title": "Destino + buscas recentes (novo)" },
+    "07-explorar.dc.html": { "x": 1410, "y": 1264, "w": 390, "h": 844, "title": "Explorar (mantém)" },
+    "08-favoritos.dc.html": { "x": 1880, "y": 1264, "w": 390, "h": 844, "title": "Favoritos (novo)" },
+    "09-resultados-voo.dc.html": { "x": 0, "y": 2228, "w": 390, "h": 844, "title": "Resultados de voo (mantém)" },
+    "10-detalhe-voo.dc.html": { "x": 470, "y": 2228, "w": 390, "h": 844, "title": "Detalhe do voo (ajusta)" },
+    "11-assentos.dc.html": { "x": 940, "y": 2228, "w": 390, "h": 844, "title": "Assentos + barra de preço (ajusta)" },
+    "12-pagamento.dc.html": { "x": 1410, "y": 2228, "w": 390, "h": 844, "title": "Revisão e pagamento (mantém)" },
+    "13-resultados-hotel.dc.html": { "x": 0, "y": 3192, "w": 390, "h": 844, "title": "Resultados de hotel + filtros (novo)" },
+    "14-detalhe-hotel.dc.html": { "x": 470, "y": 3192, "w": 390, "h": 844, "title": "Detalhe do hotel (novo)" },
+    "15-filtros-hotel.dc.html": { "x": 940, "y": 3192, "w": 390, "h": 844, "title": "Filtros do hotel (novo)" },
+    "16-viagens.dc.html": { "x": 0, "y": 4156, "w": 390, "h": 844, "title": "Viagens: voos | hotéis (mantém)" },
+    "17-perfil.dc.html": { "x": 470, "y": 4156, "w": 390, "h": 844, "title": "Perfil (mantém)" },
+    "18-preferencias.dc.html": { "x": 940, "y": 4156, "w": 390, "h": 844, "title": "Preferências de viagem (mantém)" },
+    "19-notificacoes.dc.html": { "x": 1410, "y": 4156, "w": 390, "h": 844, "title": "Notificações (mantém)" },
+    "20-ia.dc.html": { "x": 1880, "y": 4156, "w": 390, "h": 844, "title": "Perguntar à IA (mantém)" },
+    "21-home-escuro.dc.html": { "x": 0, "y": 5120, "w": 390, "h": 844, "title": "Home · Voos, tema escuro" },
+    "22-hotel-escuro.dc.html": { "x": 470, "y": 5120, "w": 390, "h": 844, "title": "Detalhe do hotel, tema escuro" }
+  },
+  "order": [
+    "01-onboarding.dc.html", "02-login.dc.html", "03-cadastro.dc.html",
+    "Main.dc.html", "05-home-hoteis.dc.html", "06-seletor-destino.dc.html", "07-explorar.dc.html", "08-favoritos.dc.html",
+    "09-resultados-voo.dc.html", "10-detalhe-voo.dc.html", "11-assentos.dc.html", "12-pagamento.dc.html",
+    "13-resultados-hotel.dc.html", "14-detalhe-hotel.dc.html", "15-filtros-hotel.dc.html",
+    "16-viagens.dc.html", "17-perfil.dc.html", "18-preferencias.dc.html", "19-notificacoes.dc.html", "20-ia.dc.html",
+    "21-home-escuro.dc.html", "22-hotel-escuro.dc.html"
+  ],
+  "notes": {
+    "t1": { "x": 0, "y": 40, "text": "1 · Entrada", "kind": "title1", "maxW": 1330 },
+    "t2": { "x": 0, "y": 1004, "text": "2 · Descobrir (Home, Explorar, Favoritos)", "kind": "title1", "maxW": 2270 },
+    "t3": { "x": 0, "y": 1968, "text": "3 · Voo", "kind": "title1", "maxW": 1800 },
+    "t4": { "x": 0, "y": 2932, "text": "4 · Hotel", "kind": "title1", "maxW": 1330 },
+    "t5": { "x": 0, "y": 3896, "text": "5 · Conta e IA", "kind": "title1", "maxW": 2270 },
+    "t6": { "x": 0, "y": 4860, "text": "6 · Tema escuro", "kind": "title1", "maxW": 860 },
+    "legenda": { "x": 1400, "y": 40, "w": 420, "text": "Cores e fonte do DBook ficam como estão (azul da marca, Roboto, sem amarelo). Do Traveline entra a ESTRUTURA: barra de preço fixa, comodidades com ícone, filtros em folha, buscas recentes e a aba Favoritos. 'Novo' = tela ou bloco que ainda não existe; 'ajusta' = existe e muda; 'mantém' = já está assim.", "kind": null, "fill": "blue" }
+  },
+  "designSystems": []
+}

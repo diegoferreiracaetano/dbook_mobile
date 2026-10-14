@@ -5,6 +5,7 @@ import 'package:dbook_feature_stays/dbook_feature_stays.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeAccommodations implements AccommodationRepository {
   List<AccommodationResult> results = [
@@ -157,6 +158,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await tester.ensureVisible(find.text('Reservar'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Reservar'));
     await tester.pumpAndSettle();
 
@@ -184,6 +187,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await tester.ensureVisible(find.text('Reservar'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Reservar'));
     await tester.pump();
 
@@ -209,6 +214,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await tester.ensureVisible(find.text('Reservar'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Reservar'));
     await tester.pumpAndSettle();
 
@@ -305,5 +312,186 @@ void main() {
     expect(paid!.bookingId, 2);
     expect(paid!.price, 1050);
     expect(paid!.label, contains('Hotel Copacabana'));
+  });
+
+  testWidgets('given a hotel with amenities when the detail builds then shows '
+      'them with their names and the fixed price bar', (tester) async {
+    final fake = _FakeAccommodations();
+    await tester.pumpWidget(
+      _app(
+        fake,
+        StayDetailPage(
+          hotelId: 7,
+          search: _search,
+          isLoggedIn: true,
+          onRequireLogin: () {},
+          onCheckout: (_) {},
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Comodidades'), findsOneWidget);
+    expect(find.text('Wi-Fi'), findsOneWidget);
+    expect(find.text('Selecionar quarto'), findsOneWidget);
+    expect(find.text('a partir de, total da estadia'), findsOneWidget);
+  });
+
+  testWidgets('given hotels of 3 and 5 stars when filtering and sorting then '
+      'the list follows', (tester) async {
+    final fake = _FakeAccommodations()
+      ..results = [
+        const AccommodationResult(
+          id: 1,
+          name: 'Hotel Simples',
+          city: 'Rio',
+          destinationIataCode: 'GIG',
+          address: 'Rua 1',
+          stars: 3,
+          amenities: [],
+          fromPrice: 900,
+          rooms: [],
+        ),
+        const AccommodationResult(
+          id: 2,
+          name: 'Hotel Luxo',
+          city: 'Rio',
+          destinationIataCode: 'GIG',
+          address: 'Rua 2',
+          stars: 5,
+          amenities: [],
+          fromPrice: 400,
+          rooms: [],
+        ),
+      ];
+    await tester.pumpWidget(_app(fake, _panel()));
+    await tester.tap(find.text('Selecionar'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Entrada'));
+    await tester.pumpAndSettle();
+    final today = DateTime.now();
+    final first = today.day < 25 ? today.day + 2 : today.day;
+    await tester.tap(find.text('$first').first);
+    await tester.pump();
+    await tester.tap(find.text('${first + 3 > 28 ? 28 : first + 3}').first);
+    await tester.pump();
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Buscar hotéis'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Hotel Simples'), findsOneWidget);
+    expect(find.text('Hotel Luxo'), findsOneWidget);
+
+    await tester.tap(find.text('5★'));
+    await tester.pumpAndSettle();
+    expect(find.text('Hotel Simples'), findsNothing);
+    expect(find.text('Hotel Luxo'), findsOneWidget);
+
+    await tester.tap(find.text('Todas'));
+    await tester.tap(find.text('Menor preço primeiro'));
+    await tester.pumpAndSettle();
+    final luxo = tester.getTopLeft(find.text('Hotel Luxo')).dy;
+    final simples = tester.getTopLeft(find.text('Hotel Simples')).dy;
+    expect(luxo, lessThan(simples));
+  });
+
+  testWidgets('given a search done when the card opens again then offers it '
+      'as a recent search that refills the fields', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final fake = _FakeAccommodations();
+    await tester.pumpWidget(_app(fake, _panel()));
+    await tester.tap(find.text('Selecionar'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Entrada'));
+    await tester.pumpAndSettle();
+    final today = DateTime.now();
+    final first = today.day < 25 ? today.day + 2 : today.day;
+    await tester.tap(find.text('$first').first);
+    await tester.pump();
+    await tester.tap(find.text('${first + 3 > 28 ? 28 : first + 3}').first);
+    await tester.pump();
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Buscar hotéis'));
+    await tester.pumpAndSettle();
+
+    expect(fake.lastSearch, isNotNull);
+    final stored = (await SharedPreferences.getInstance()).getStringList(
+      'recent_stay_searches',
+    );
+    expect(stored, isNotNull);
+
+    // abre outra vez: o formulário nasce vazio, o histórico lembra
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpWidget(_app(fake, _panel()));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Buscas recentes'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.history).last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Rio de Janeiro (GIG)'), findsOneWidget);
+    expect(find.text('Escolher'), findsNothing);
+  });
+
+  testWidgets('given hotels at different prices when applying the price range '
+      'in the filters sheet then only the ones inside it stay', (tester) async {
+    final fake = _FakeAccommodations()
+      ..results = [
+        const AccommodationResult(
+          id: 1,
+          name: 'Hotel Barato',
+          city: 'Rio',
+          destinationIataCode: 'GIG',
+          address: 'Rua 1',
+          stars: 3,
+          amenities: [],
+          fromPrice: 300,
+          rooms: [],
+        ),
+        const AccommodationResult(
+          id: 2,
+          name: 'Hotel Caro',
+          city: 'Rio',
+          destinationIataCode: 'GIG',
+          address: 'Rua 2',
+          stars: 5,
+          amenities: [],
+          fromPrice: 1500,
+          rooms: [],
+        ),
+      ];
+    await tester.pumpWidget(_app(fake, _panel()));
+    await tester.tap(find.text('Selecionar'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Entrada'));
+    await tester.pumpAndSettle();
+    final today = DateTime.now();
+    final first = today.day < 25 ? today.day + 2 : today.day;
+    await tester.tap(find.text('$first').first);
+    await tester.pump();
+    await tester.tap(find.text('${first + 3 > 28 ? 28 : first + 3}').first);
+    await tester.pump();
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Buscar hotéis'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Filtros'));
+    await tester.pumpAndSettle();
+    // pega a ponta direita da faixa (limite superior) e arrasta até o meio
+    final slider = find.byType(RangeSlider);
+    final right = tester.getRect(slider).centerRight - const Offset(24, 0);
+    await tester.dragFrom(
+      right,
+      Offset(-tester.getSize(slider).width * 0.8, 0),
+    );
+    await tester.pump();
+    await tester.tap(find.text('Aplicar'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Filtros (preço)'), findsOneWidget);
+    expect(find.text('Hotel Caro'), findsNothing);
   });
 }

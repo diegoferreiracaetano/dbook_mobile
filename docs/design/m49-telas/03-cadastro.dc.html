@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Cadastro</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="dbook.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="screen">
+  <div class="appbar"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg><span>Criar conta</span></div>
+  <div class="body" style="gap:16px;padding-top:24px">
+    <div class="field" style="height:56px;border:1px solid var(--line);background:var(--bg)"><span class="muted">Nome</span></div>
+    <div class="field" style="height:56px;border:1px solid var(--line);background:var(--bg)"><span class="muted">E-mail</span></div>
+    <div class="field" style="height:56px;border:1px solid var(--line);background:var(--bg)"><span class="muted">Senha (mínimo 8 caracteres)</span></div>
+    <div class="field" style="height:56px;border:1px solid var(--line);background:var(--bg)"><span class="muted">Confirmar senha</span></div>
+    <button class="btn" style="margin-top:8px">Criar conta</button>
+    <div style="text-align:center;color:var(--primary);font-weight:500;margin-top:8px">Já tem conta? Entrar</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

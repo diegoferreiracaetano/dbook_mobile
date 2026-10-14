@@ -338,14 +338,29 @@ class _SeatSelectionFooter extends ConsumerWidget {
             ),
             const SizedBox(height: DbookSpacing.sm),
           ],
-          DbookButton(
-            label: state.selected == null
-                ? 'Escolha um assento'
-                : 'Reservar assento ${state.selected!.label}',
-            isLoading: state.isBooking,
-            onPressed: state.selected == null
-                ? null
-                : () => _confirm(context, ref),
+          // Barra de preço fixa (projeto M49): o valor à esquerda e a ação à
+          // direita, como nos detalhes de voo e de hotel.
+          Row(
+            children: [
+              Expanded(
+                child: DbookPriceDisplay(
+                  amount: _priceFormat.format(flight.price),
+                  caption: state.selected == null
+                      ? 'por passageiro'
+                      : 'Assento ${state.selected!.label}',
+                ),
+              ),
+              const SizedBox(width: DbookSpacing.md),
+              DbookButton(
+                label: state.selected == null
+                    ? 'Escolha um assento'
+                    : 'Reservar assento ${state.selected!.label}',
+                isLoading: state.isBooking,
+                onPressed: state.selected == null
+                    ? null
+                    : () => _confirm(context, ref),
+              ),
+            ],
           ),
         ],
       ),

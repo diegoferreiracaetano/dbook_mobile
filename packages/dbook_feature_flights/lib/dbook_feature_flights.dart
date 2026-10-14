@@ -12,6 +12,7 @@ export 'src/ui/airport_picker_sheet.dart';
 export 'src/ui/destination_grid_card.dart';
 export 'src/ui/destinations_by_region.dart';
 export 'src/ui/explore_page.dart';
+export 'src/ui/favorites_page.dart';
 export 'src/ui/flight_detail_page.dart';
 export 'src/ui/flight_results_page.dart';
 export 'src/ui/flight_search_page.dart';

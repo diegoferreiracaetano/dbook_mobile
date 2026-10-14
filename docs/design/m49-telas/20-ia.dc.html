@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Perguntar à IA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="dbook.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="screen">
+  <div class="appbar"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg><span>Perguntar à IA do DBook</span></div>
+  <div class="body" style="gap:12px">
+    <div class="field" style="height:52px;border:1px solid var(--primary);background:var(--bg)"><span>voo barato para o Rio de Janeiro</span><span class="sp"></span><span style="width:36px;height:36px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center"><svg class="i" viewBox="0 0 24 24"><path d="M3 11l18-8-8 18-2-8z"/></svg></span></div>
+    <div class="card" style="padding:12px;display:flex;flex-direction:column;gap:8px">
+      <div class="row"><div class="logo">AD</div><div><b>GRU → GIG · $346,00</b><div class="muted" style="font-size:12px">DBS00634 · dom 11 out · 15:00</div></div></div>
+      <div class="muted" style="font-size:13px">Combina com o que você pediu e está entre os mais baratos.</div>
+      <div class="row" style="gap:8px"><button class="btn out small" style="flex:1">Ver voo</button><button class="btn small" style="flex:1">Reservar</button></div>
+    </div>
+    <div class="card" style="padding:12px;display:flex;flex-direction:column;gap:8px">
+      <div class="row"><div class="logo">DL</div><div><b>GRU → GIG · $404,00</b><div class="muted" style="font-size:12px">DBS02145 · seg 12 out · 08:00</div></div></div>
+      <div class="muted" style="font-size:13px">Vai para o Rio de Janeiro, como você pediu.</div>
+      <div class="row" style="gap:8px"><button class="btn out small" style="flex:1">Ver voo</button><button class="btn small" style="flex:1">Reservar</button></div>
+    </div>
+    <div class="muted" style="font-size:12px">Sugestões vêm só de voos reais com assento livre; a IA nunca reserva por conta própria.</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

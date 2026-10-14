@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Home, aba Voos, tema escuro</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="dbook.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="screen dark">
+  <div class="band" style="padding-top:12px">
+    <div class="row">
+      <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center"><svg class="i" viewBox="0 0 24 24"><path d="M21 3L3 11l7 2 2 7z"/></svg></div>
+      <div><div style="font-weight:700;font-size:16px">DBook</div><div style="font-size:12px;opacity:.85">Reserve melhor, viaje mais feliz</div></div>
+      <div class="sp"></div>
+      <svg class="i" viewBox="0 0 24 24"><path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4zM10 21h4"/></svg>
+      <svg class="i" viewBox="0 0 24 24"><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></svg>
+    </div>
+    <div class="seg" style="margin-top:14px">
+      <div class="s on"><svg class="i" viewBox="0 0 24 24"><path d="M21 3L3 11l7 2 2 7z"/></svg>Voos</div>
+      <div class="s"><svg class="i" viewBox="0 0 24 24"><path d="M3 18v-7h18v7M3 14h18M6 11V8h6v3"/></svg>Hotéis</div>
+    </div>
+    <div class="card" style="margin-top:14px;padding:12px;display:flex;flex-direction:column;gap:8px">
+      <div class="field"><svg class="i" viewBox="0 0 24 24"><path d="M21 3L3 11l7 2 2 7z"/></svg><div><small>Origem</small><b>São Paulo (GRU)</b></div></div>
+      <div class="field"><svg class="i" viewBox="0 0 24 24"><path d="M21 3L3 11l7 2 2 7z"/></svg><div><small>Destino</small><b class="muted">Selecionar</b></div></div>
+      <div class="row" style="gap:8px">
+        <div class="field" style="flex:1"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4"/></svg><div><small>Partida</small><b>Dom, 11 out</b></div></div>
+        <div class="field" style="flex:1"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4"/></svg><div><small>Volta</small><b>Dom, 18 out</b></div></div>
+      </div>
+      <button class="btn" style="margin-top:4px"><svg class="i" viewBox="0 0 24 24"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM21 21l-5-5"/></svg>Buscar voos</button>
+    </div>
+  </div>
+  <div class="body" style="gap:12px">
+    <div class="label">Destinos em destaque</div>
+    <div class="row" style="gap:12px;align-items:stretch">
+      <div style="flex:1"><div class="photo city dark1" style="height:120px;border-radius:14px"></div><div style="font-weight:700;margin-top:6px">Rio de Janeiro</div><div class="muted" style="font-size:12px">Brasil · ★ 4,7 · <span class="price">a partir de $45</span></div></div>
+      <div style="flex:1"><div class="photo city dark1" style="height:120px;border-radius:14px"></div><div style="font-weight:700;margin-top:6px">São Paulo</div><div class="muted" style="font-size:12px">Brasil · ★ 5,0 · <span class="price">a partir de $304</span></div></div>
+    </div>
+  </div>
+  <div class="tabbar">
+    <div class="tab on"><svg class="i" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/></svg>Início</div>
+    <div class="tab"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15 9l-2 5-5 2 2-5z"/></svg>Explorar</div>
+    <div class="tab"><svg class="i" viewBox="0 0 24 24"><path d="M3 8a2 2 0 0 0 0 4 2 2 0 0 1 0 4v2h18v-2a2 2 0 0 1 0-4 2 2 0 0 0 0-4V6H3z"/></svg>Viagens</div>
+    <div class="tab"><svg class="i" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.500-7 10-7 10z"/></svg>Favoritos</div>
+    <div class="tab"><svg class="i" viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0"/></svg>Perfil</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

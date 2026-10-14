@@ -32,6 +32,11 @@ class DbookAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: transparent ? Colors.transparent : null,
       elevation: transparent ? 0 : null,
       foregroundColor: foreground,
+      titleTextStyle: transparent
+          ? (Theme.of(context).appBarTheme.titleTextStyle ??
+                    textTheme.titleLarge)
+                ?.copyWith(color: foreground)
+          : null,
       title: subtitle == null
           ? Text(title)
           : Column(

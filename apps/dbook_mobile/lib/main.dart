@@ -635,6 +635,19 @@ class _AppShellState extends ConsumerState<_AppShell> {
               message: 'Faça login para ver suas reservas.',
             ),
       isLoggedIn
+          ? FavoritesPage(
+              onSelectDestination: (destination) => _openExploreDestination(
+                context,
+                destination,
+                isLoggedIn: isLoggedIn,
+              ),
+            )
+          : _guestGate(
+              context,
+              title: 'Favoritos',
+              message: 'Faça login para ver seus destinos favoritos.',
+            ),
+      isLoggedIn
           ? const ProfilePage()
           : _guestGate(
               context,
@@ -663,6 +676,11 @@ class _AppShellState extends ConsumerState<_AppShell> {
             icon: Icon(Icons.confirmation_number_outlined),
             selectedIcon: Icon(Icons.confirmation_number),
             label: 'Viagens',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.favorite_border),
+            selectedIcon: Icon(Icons.favorite),
+            label: 'Favoritos',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),

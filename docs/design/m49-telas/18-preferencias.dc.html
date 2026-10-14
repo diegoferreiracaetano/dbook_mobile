@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Preferências de viagem</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="dbook.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="screen">
+  <div class="appbar"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg><span>Preferências de viagem</span></div>
+  <div class="body">
+    <div class="card">
+      <div class="row" style="padding:14px"><div><b>Aeroporto de origem</b><div class="muted" style="font-size:12px">Já vem preenchido na busca</div></div><span class="sp"></span><b>GRU</b></div>
+      <div style="border-top:1px solid var(--line)"></div>
+      <div class="row" style="padding:14px"><b>Classe</b><span class="sp"></span><span>Econômica ▾</span></div>
+      <div style="border-top:1px solid var(--line)"></div>
+      <div class="row" style="padding:14px"><b>Assento</b><span class="sp"></span><span>Janela ▾</span></div>
+      <div style="border-top:1px solid var(--line)"></div>
+      <div class="row" style="padding:14px"><b>Moeda</b><span class="sp"></span><span>Real (BRL) ▾</span></div>
+      <div style="border-top:1px solid var(--line)"></div>
+      <div class="row" style="padding:14px"><b>Idioma</b><span class="sp"></span><span>Português ▾</span></div>
+    </div>
+    <div class="muted" style="font-size:12px">Cada escolha é salva na hora, na sua conta. Se o servidor recusar, a escolha volta e o motivo aparece.</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -751,7 +751,18 @@ class _FeedbackSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(
+            'Carregamento (esqueleto em shimmer)',
+            style: Theme.of(context).textTheme.labelLarge,
+          ),
           const DbookLoadingIndicator(message: 'Buscando voos...'),
+          const SizedBox(height: DbookSpacing.md),
+          Text(
+            'Em espaço pequeno (diálogo, faixa) cai para o círculo',
+            style: Theme.of(context).textTheme.labelLarge,
+          ),
+          const SizedBox(height: DbookSpacing.sm),
+          const SizedBox(height: 80, child: DbookLoadingIndicator()),
           const SizedBox(height: DbookSpacing.xl),
           DbookStatusPlaceholder(
             icon: Icons.search_off,

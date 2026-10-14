@@ -159,24 +159,35 @@ class FlightDetailPage extends ConsumerWidget {
       ),
       // M9-9.2: preço + ação primária sempre visíveis, fixos no rodapé —
       // mesmo arranjo da tela de referência (kit, 06).
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.all(DbookSpacing.lg),
-        child: Row(
-          children: [
-            Expanded(
-              child: DbookPriceDisplay(
-                amount: _priceFormat.format(flight.price),
-                caption: 'por passageiro',
-              ),
+      bottomNavigationBar: Material(
+        color: Theme.of(context).colorScheme.surface,
+        elevation: 8,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              DbookSpacing.lg,
+              DbookSpacing.md,
+              DbookSpacing.lg,
+              DbookSpacing.lg,
             ),
-            if (onBook != null) ...[
-              const SizedBox(width: DbookSpacing.md),
-              DbookButton(
-                label: 'Reservar este voo',
-                onPressed: () => onBook!(flight),
-              ),
-            ],
-          ],
+            child: Row(
+              children: [
+                Expanded(
+                  child: DbookPriceDisplay(
+                    amount: _priceFormat.format(flight.price),
+                    caption: 'por passageiro',
+                  ),
+                ),
+                if (onBook != null) ...[
+                  const SizedBox(width: DbookSpacing.md),
+                  DbookButton(
+                    label: 'Reservar este voo',
+                    onPressed: () => onBook!(flight),
+                  ),
+                ],
+              ],
+            ),
+          ),
         ),
       ),
     );

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Notificações</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="dbook.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="screen">
+  <div class="appbar"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg><span>Notificações</span><span class="sp"></span><svg class="i" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></svg></div>
+  <div class="body" style="gap:10px">
+    <div class="row"><span class="label">Novas</span><span class="sp"></span><span style="color:var(--primary);font-weight:500;font-size:13px">Marcar todas como lidas</span></div>
+    <div class="card" style="padding:12px;display:flex;gap:12px;border-color:var(--primary)"><span class="dot" style="margin-top:6px"></span><div><b>Reserva confirmada</b><div class="muted" style="font-size:13px">GRU → GIG, dom 11 out. Boa viagem!</div><div class="muted" style="font-size:12px;margin-top:2px">há 2 min</div></div></div>
+    <div class="card" style="padding:12px;display:flex;gap:12px;border-color:var(--primary)"><span class="dot" style="margin-top:6px"></span><div><b>Alerta de preço</b><div class="muted" style="font-size:13px">GRU → LIS caiu para $304.</div><div class="muted" style="font-size:12px;margin-top:2px">há 1 h</div></div></div>
+    <div class="label" style="margin-top:6px">Anteriores</div>
+    <div class="card" style="padding:12px;display:flex;gap:12px"><span class="dot" style="margin-top:6px;background:transparent"></span><div><b>Reembolso concluído</b><div class="muted" style="font-size:13px">$486,00 de volta no seu cartão.</div><div class="muted" style="font-size:12px;margin-top:2px">ontem</div></div></div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

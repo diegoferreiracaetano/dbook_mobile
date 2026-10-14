@@ -34,9 +34,26 @@ class StayDetailPage extends ConsumerStatefulWidget {
   ConsumerState<StayDetailPage> createState() => _StayDetailPageState();
 }
 
+/// Ícone e rótulo em português de cada comodidade conhecida; as que o
+/// servidor mandar e não estiverem aqui aparecem com o código e um ícone
+/// genérico (nada some).
+const _amenities = <String, (IconData, String)>{
+  'wifi': (Icons.wifi, 'Wi-Fi'),
+  'breakfast': (Icons.free_breakfast_outlined, 'Café da manhã'),
+  'pool': (Icons.pool_outlined, 'Piscina'),
+  'spa': (Icons.spa_outlined, 'Spa'),
+  'gym': (Icons.fitness_center_outlined, 'Academia'),
+  'parking': (Icons.local_parking_outlined, 'Estacionamento'),
+  'air_conditioning': (Icons.ac_unit, 'Ar-condicionado'),
+  'restaurant': (Icons.restaurant_outlined, 'Restaurante'),
+  'bar': (Icons.local_bar_outlined, 'Bar'),
+  'pets': (Icons.pets_outlined, 'Aceita pets'),
+};
+
 class _StayDetailPageState extends ConsumerState<StayDetailPage> {
   int? _booking;
   String? _error;
+  final _roomsKey = GlobalKey();
 
   Future<void> _book(AccommodationDetail hotel, RoomOffer room) async {
     if (!widget.isLoggedIn) {
@@ -81,7 +98,6 @@ class _StayDetailPageState extends ConsumerState<StayDetailPage> {
   Widget build(BuildContext context) {
     final detail = ref.watch(stayDetailProvider(widget.hotelId));
     final results = ref.watch(stayResultsProvider(widget.search));
-    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: const DbookAppBar(title: 'Hotel'),
@@ -98,86 +114,206 @@ class _StayDetailPageState extends ConsumerState<StayDetailPage> {
                   .expand((r) => r.rooms)
                   .toList() ??
               const <RoomOffer>[];
-          return ListView(
-            padding: const EdgeInsets.all(DbookSpacing.lg),
+          final cheapest = rooms.isEmpty
+              ? null
+              : rooms.map((r) => r.totalPrice).reduce((a, b) => a < b ? a : b);
+          return Column(
             children: [
-              Text(hotel.name, style: theme.textTheme.headlineSmall),
-              const SizedBox(height: DbookSpacing.xs),
-              Text(
-                '${'★' * hotel.stars}  ${hotel.address}, ${hotel.city}',
-                style: theme.textTheme.bodyMedium,
-              ),
-              if (hotel.description != null) ...[
-                const SizedBox(height: DbookSpacing.md),
-                Text(hotel.description!, style: theme.textTheme.bodyMedium),
-              ],
-              if (hotel.amenities.isNotEmpty) ...[
-                const SizedBox(height: DbookSpacing.md),
-                Wrap(
-                  spacing: DbookSpacing.sm,
-                  runSpacing: DbookSpacing.sm,
+              Expanded(
+                child: ListView(
                   children: [
-                    for (final amenity in hotel.amenities)
-                      Chip(label: Text(amenity)),
+                    SizedBox(
+                      height: 200,
+                      child: DbookPhoto(
+                        url: hotel.photoUrl,
+                        icon: Icons.hotel_outlined,
+                        semanticLabel: 'Foto do ${hotel.name}',
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(DbookSpacing.lg),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ..._header(hotel),
+                          ..._roomList(context, hotel, rooms),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
-              ],
-              const SizedBox(height: DbookSpacing.xl),
-              Text(
-                '${_dayFormat.format(widget.search.checkIn)} a '
-                '${_dayFormat.format(widget.search.checkOut)} · '
-                '${widget.search.nights} noites · '
-                '${widget.search.guests} hóspedes',
-                style: theme.textTheme.titleSmall,
               ),
-              if (_error != null) DbookFieldError(_error!),
-              const SizedBox(height: DbookSpacing.md),
-              if (rooms.isEmpty)
-                const DbookEmptyState(
-                  icon: Icons.bed_outlined,
-                  title: 'Sem quarto livre',
-                  message: 'Nenhum quarto cobre todas as noites escolhidas.',
-                ),
-              for (final room in rooms) ...[
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(DbookSpacing.lg),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(room.name, style: theme.textTheme.titleMedium),
-                        Text(
-                          'Até ${room.capacity} hóspedes · '
-                          '${_priceFormat.format(room.nightlyRate)} por noite',
-                          style: theme.textTheme.bodySmall,
-                        ),
-                        const SizedBox(height: DbookSpacing.md),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: DbookPriceDisplay(
-                                amount: _priceFormat.format(room.totalPrice),
-                                caption: 'total da estadia',
-                              ),
-                            ),
-                            DbookButton(
-                              label: 'Reservar',
-                              isLoading: _booking == room.roomTypeId,
-                              onPressed: _booking == null
-                                  ? () => _book(hotel, room)
-                                  : null,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+              if (cheapest != null)
+                _PriceBar(
+                  price: _priceFormat.format(cheapest),
+                  onTap: () => Scrollable.ensureVisible(
+                    _roomsKey.currentContext!,
+                    duration: const Duration(milliseconds: 300),
                   ),
                 ),
-                const SizedBox(height: DbookSpacing.md),
-              ],
             ],
           );
         },
+      ),
+    );
+  }
+
+  List<Widget> _header(AccommodationDetail hotel) {
+    final theme = Theme.of(context);
+    return [
+      Text(hotel.name, style: theme.textTheme.headlineSmall),
+      const SizedBox(height: DbookSpacing.xs),
+      Text(
+        '${'★' * hotel.stars}  ${hotel.address}, ${hotel.city}',
+        style: theme.textTheme.bodyMedium,
+      ),
+      if (hotel.description != null) ...[
+        const SizedBox(height: DbookSpacing.md),
+        Text(hotel.description!, style: theme.textTheme.bodyMedium),
+      ],
+      if (hotel.amenities.isNotEmpty) ...[
+        const SizedBox(height: DbookSpacing.lg),
+        Text('Comodidades', style: theme.textTheme.titleSmall),
+        const SizedBox(height: DbookSpacing.sm),
+        Wrap(
+          spacing: DbookSpacing.lg,
+          runSpacing: DbookSpacing.md,
+          children: [
+            for (final amenity in hotel.amenities)
+              _AmenityItem(
+                icon: _amenities[amenity]?.$1 ?? Icons.check_circle_outline,
+                label: _amenities[amenity]?.$2 ?? amenity,
+              ),
+          ],
+        ),
+      ],
+    ];
+  }
+
+  List<Widget> _roomList(
+    BuildContext context,
+    AccommodationDetail hotel,
+    List<RoomOffer> rooms,
+  ) {
+    final theme = Theme.of(context);
+    return [
+      const SizedBox(height: DbookSpacing.xl),
+      Text('Quartos', key: _roomsKey, style: theme.textTheme.titleMedium),
+      const SizedBox(height: DbookSpacing.xs),
+      Text(
+        '${_dayFormat.format(widget.search.checkIn)} a '
+        '${_dayFormat.format(widget.search.checkOut)} · '
+        '${widget.search.nights} noites · '
+        '${widget.search.guests} hóspedes',
+        style: theme.textTheme.titleSmall,
+      ),
+      if (_error != null) DbookFieldError(_error!),
+      const SizedBox(height: DbookSpacing.md),
+      if (rooms.isEmpty)
+        const DbookEmptyState(
+          icon: Icons.bed_outlined,
+          title: 'Sem quarto livre',
+          message: 'Nenhum quarto cobre todas as noites escolhidas.',
+        ),
+      for (final room in rooms) ...[
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(DbookSpacing.lg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(room.name, style: theme.textTheme.titleMedium),
+                Text(
+                  'Até ${room.capacity} hóspedes · '
+                  '${_priceFormat.format(room.nightlyRate)} por noite',
+                  style: theme.textTheme.bodySmall,
+                ),
+                const SizedBox(height: DbookSpacing.md),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DbookPriceDisplay(
+                        amount: _priceFormat.format(room.totalPrice),
+                        caption: 'total da estadia',
+                      ),
+                    ),
+                    DbookButton(
+                      label: 'Reservar',
+                      isLoading: _booking == room.roomTypeId,
+                      onPressed: _booking == null
+                          ? () => _book(hotel, room)
+                          : null,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: DbookSpacing.md),
+      ],
+    ];
+  }
+}
+
+class _AmenityItem extends StatelessWidget {
+  const _AmenityItem({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return SizedBox(
+      width: 76,
+      child: Column(
+        children: [
+          Icon(icon, color: theme.colorScheme.primary),
+          const SizedBox(height: DbookSpacing.xs),
+          Text(
+            label,
+            style: theme.textTheme.bodySmall,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Barra fixa embaixo: o menor total entre os quartos livres e a ação de ir
+/// para a lista, como na referência (preço à esquerda, CTA à direita).
+class _PriceBar extends StatelessWidget {
+  const _PriceBar({required this.price, required this.onTap});
+
+  final String price;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Material(
+      color: theme.colorScheme.surface,
+      elevation: 8,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.all(DbookSpacing.lg),
+          child: Row(
+            children: [
+              Expanded(
+                child: DbookPriceDisplay(
+                  amount: price,
+                  caption: 'a partir de, total da estadia',
+                ),
+              ),
+              DbookButton(label: 'Selecionar quarto', onPressed: onTap),
+            ],
+          ),
+        ),
       ),
     );
   }

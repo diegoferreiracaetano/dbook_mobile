@@ -323,9 +323,37 @@ class DbookWidgetbook extends StatelessWidget {
               name: 'DbookLoadingIndicator',
               useCases: [
                 WidgetbookUseCase(
-                  name: 'Com mensagem',
+                  name: 'Esqueleto com mensagem',
                   builder: (context) =>
                       const DbookLoadingIndicator(message: 'Buscando voos...'),
+                ),
+                WidgetbookUseCase(
+                  name: 'Espaço pequeno (círculo)',
+                  builder: (context) => const SizedBox(
+                    height: 80,
+                    child: DbookLoadingIndicator(),
+                  ),
+                ),
+              ],
+            ),
+            WidgetbookComponent(
+              name: 'DbookSkeleton',
+              useCases: [
+                WidgetbookUseCase(
+                  name: 'Barras',
+                  builder: (context) => const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        DbookSkeleton(height: 16),
+                        SizedBox(height: 8),
+                        DbookSkeleton(width: 140),
+                        SizedBox(height: 8),
+                        DbookSkeleton(width: 80),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),

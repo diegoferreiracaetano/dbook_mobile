@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Minhas viagens</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="dbook.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="screen">
+  <div class="appbar"><span>Minhas viagens</span></div>
+  <div class="body" style="gap:12px">
+    <div class="row" style="gap:8px"><span class="chip on">Voos</span><span class="chip">Hotéis</span></div>
+    <div class="row" style="gap:8px"><span class="chip on" style="background:var(--primary-soft);border-color:var(--primary-soft);color:var(--primary)">Próximas</span><span class="chip">Anteriores</span></div>
+    <div class="card" style="padding:12px;display:flex;flex-direction:column;gap:8px">
+      <div class="row"><div class="logo">AD</div><div><b>GRU → GIG</b><div class="muted" style="font-size:12px">Azul Linhas Aéreas · Assento 3B</div></div><span class="sp"></span><span class="chip" style="color:var(--ok);border-color:var(--ok)">Confirmada</span></div>
+      <div class="row muted" style="font-size:12px"><span>Dom, 11 out · 15:00</span><span class="sp"></span><b style="color:var(--ink)">$486,00</b></div>
+      <div class="row" style="gap:8px"><button class="btn out small" style="flex:1">Avaliar</button><button class="btn out small" style="flex:1;color:var(--danger);border-color:var(--danger)">Cancelar</button></div>
+    </div>
+    <div class="card" style="padding:12px;display:flex;flex-direction:column;gap:8px">
+      <div class="row"><div class="logo">DL</div><div><b>GIG → GRU</b><div class="muted" style="font-size:12px">Delta Air Lines · Assento 12A</div></div><span class="sp"></span><span class="chip" style="color:#9a6700;border-color:#9a6700">Pendente</span></div>
+      <div class="row muted" style="font-size:12px"><span>Dom, 18 out · 08:00</span><span class="sp"></span><b style="color:var(--ink)">$1.677,00</b></div>
+      <button class="btn small" style="width:100%">Pagar agora</button>
+    </div>
+  </div>
+  <div class="tabbar">
+    <div class="tab"><svg class="i" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/></svg>Início</div>
+    <div class="tab"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15 9l-2 5-5 2 2-5z"/></svg>Explorar</div>
+    <div class="tab on"><svg class="i" viewBox="0 0 24 24"><path d="M3 8a2 2 0 0 0 0 4 2 2 0 0 1 0 4v2h18v-2a2 2 0 0 1 0-4 2 2 0 0 0 0-4V6H3z"/></svg>Viagens</div>
+    <div class="tab"><svg class="i" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.500-7 10-7 10z"/></svg>Favoritos</div>
+    <div class="tab"><svg class="i" viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0"/></svg>Perfil</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

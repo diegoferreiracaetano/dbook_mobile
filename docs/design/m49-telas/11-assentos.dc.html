@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Escolha o assento</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="dbook.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="screen">
+  <div class="appbar"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg><span>Escolha o assento</span><span class="sp"></span><span class="muted" style="font-size:13px;font-weight:400">Executiva</span></div>
+  <div class="body" style="gap:12px">
+    <div class="row" style="gap:16px;font-size:12px"><span class="row" style="gap:6px"><span class="seat" style="width:14px;height:14px;border-radius:4px"></span>Livre</span><span class="row" style="gap:6px"><span class="seat on" style="width:14px;height:14px;border-radius:4px"></span>Selecionado</span><span class="row" style="gap:6px"><span class="seat off" style="width:14px;height:14px;border-radius:4px"></span>Ocupado</span></div>
+    <div class="card" style="padding:16px;display:flex;flex-direction:column;gap:10px;align-items:center">
+      <div class="row" style="gap:10px;color:var(--muted);font-size:12px"><span style="width:40px;text-align:center">A</span><span style="width:40px;text-align:center">B</span><span style="width:24px"></span><span style="width:40px;text-align:center">C</span><span style="width:40px;text-align:center">D</span></div>
+      <div class="row" style="gap:10px"><span class="seat"></span><span class="seat off"></span><span class="muted" style="width:24px;text-align:center;font-size:12px">1</span><span class="seat"></span><span class="seat"></span></div>
+      <div class="row" style="gap:10px"><span class="seat off"></span><span class="seat off"></span><span class="muted" style="width:24px;text-align:center;font-size:12px">2</span><span class="seat"></span><span class="seat off"></span></div>
+      <div class="row" style="gap:10px"><span class="seat"></span><span class="seat on"></span><span class="muted" style="width:24px;text-align:center;font-size:12px">3</span><span class="seat"></span><span class="seat"></span></div>
+      <div class="row" style="gap:10px"><span class="seat"></span><span class="seat"></span><span class="muted" style="width:24px;text-align:center;font-size:12px">4</span><span class="seat off"></span><span class="seat"></span></div>
+      <div class="row" style="gap:10px"><span class="seat"></span><span class="seat off"></span><span class="muted" style="width:24px;text-align:center;font-size:12px">5</span><span class="seat"></span><span class="seat"></span></div>
+      <div class="row" style="gap:10px"><span class="seat"></span><span class="seat"></span><span class="muted" style="width:24px;text-align:center;font-size:12px">6</span><span class="seat off"></span><span class="seat"></span></div>
+    </div>
+    <div class="muted" style="font-size:12px">A disponibilidade muda ao vivo: se alguém levar o assento, ele aparece como ocupado.</div>
+  </div>
+  <div class="pricebar">
+    <div><div class="price" style="font-size:24px">$540,00</div><div class="muted" style="font-size:12px">Assento 3B · Executiva</div></div>
+    <span class="sp"></span>
+    <button class="btn small">Reservar assento 3B</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

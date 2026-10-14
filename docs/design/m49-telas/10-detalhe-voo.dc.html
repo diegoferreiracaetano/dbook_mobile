@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Detalhe do voo</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="dbook.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="screen">
+  <div class="photo city" style="height:230px;flex:none;display:flex;flex-direction:column;justify-content:space-between;color:#fff;padding:12px 16px">
+    <div class="row" style="font-size:18px;font-weight:500"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>Detalhes do voo<span class="sp"></span><svg class="i" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.500-7 10-7 10z"/></svg></div>
+    <div><div style="font-size:22px;font-weight:700">Rio de Janeiro, Brasil</div><div style="opacity:.9">Dom, 11 out 2026</div></div>
+  </div>
+  <div class="body" style="gap:12px">
+    <div class="card" style="padding:16px;display:flex;flex-direction:column;gap:12px">
+      <div class="row"><div class="logo" style="width:44px;height:44px">AD</div><div><b style="font-size:16px">Azul Linhas Aéreas</b><div class="muted" style="font-size:12px">DBS00776</div></div><span class="sp"></span><span class="chip" style="background:var(--primary-soft);border-color:var(--primary-soft);color:var(--primary)">Executiva</span></div>
+      <div class="row"><div><b style="font-size:26px">15:00</b><div class="muted">GRU</div></div><div class="sp" style="text-align:center"><div class="muted" style="font-size:12px">3h 0m</div><div style="border-top:1px dashed var(--line);margin:6px 0"></div></div><div style="text-align:right"><b style="font-size:26px">18:00</b><div class="muted">GIG</div></div></div>
+      <div class="row"><span class="muted">Aeronave</span><span class="sp"></span><b>Airbus A320</b></div>
+      <div class="row"><span class="muted">Assentos livres</span><span class="sp"></span><b>117</b><span class="muted" style="font-size:12px">· ao vivo</span></div>
+    </div>
+    <div class="card" style="padding:16px">
+      <div class="h2" style="font-size:16px">Histórico de preço</div>
+      <div style="margin-top:6px;color:var(--ok);font-weight:500">→ Na média do voo</div>
+      <div class="muted" style="font-size:12px;margin-top:2px">Menor $540,00 · Maior $540,00</div>
+      <button class="btn out" style="margin-top:10px"><svg class="i" viewBox="0 0 24 24"><path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4zM10 21h4"/></svg>Criar alerta de preço</button>
+    </div>
+  </div>
+  <div class="pricebar">
+    <div><div class="price" style="font-size:24px">$540,00</div><div class="muted" style="font-size:12px">por passageiro</div></div>
+    <span class="sp"></span>
+    <button class="btn small">Reservar este voo</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
